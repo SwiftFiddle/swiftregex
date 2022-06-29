@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="twitter:card" content="summary" />
+  <meta property="twitter:image" content="https://swiftregex.com/images/ogp_image.png" />
+  <meta property="og:image" content="https://swiftregex.com/images/ogp_image.png" />
+  <meta property="og:title" content="Swift Regex: Learn, build and test Swift Regex">
+  <meta property="og:description"
+    content="Regular Expression Tester with highlighting for Swift Regex. Quickly test and debug your regex and Regex Builder." />
+  <meta name="description"
+    content="Swift Regex is an onlin tool to learn, build and test Swift Regex Regex and Regex Builder." />
+  <meta property="og:site_name" content="Swift Regex: Learn, build and test Swift Regex and Regex Builder." />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#2d89ef">
+  <meta name="theme-color" content="#ffffff">
+
+  <title>Swift Regex</title>
+</head>
+
+<body class="text-dark bg-light vh-100">
+  <div class="container-fluid d-flex flex-column h-100">
+    <div class="row">
+      <div class="col-md-6">
+        <h1 class="h4 my-2">
+          <a class="text-decoration-none" href="/">
+            <span class="fab fa-swift fa-lg text-primary"></span><span class="ms-2 me-1 text-dark">Swift Regex</span>
+            <span class="text-muted me-1">β</span>
+          </a>
+        </h1>
+      </div>
+    </div>
+
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active text-dark" id="pattern-tab" data-bs-toggle="tab"
+          data-bs-target="#pattern-tab-pane" type="button" role="tab" aria-controls="pattern-tab-pane"
+          aria-selected="true">
+          <img src="/images/icon-regex.svg"><span class="mx-2">Patttern</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link text-dark" id="builder-tab" data-bs-toggle="tab" data-bs-target="#builder-tab-pane"
+          type="button" role="tab" aria-controls="builder-tab-pane" aria-selected="false">
+          <span class="fa-solid fa-brackets-curly"></span><span class="mx-2">Builder DSL</span>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content h-100" id="myTabContent">
+      <div class="tab-pane show active h-100" id="pattern-tab-pane" role="tabpanel" aria-labelledby="pattern-tab"
+        tabindex="0">
+        <div class="d-flex flex-column h-100">
+          <div class="row flex-grow-1">
+            <div class="col-md-6 d-flex flex-column">
+              <div class="h6 mt-3 mb-2">Regular Expression</div>
+              <div class="border">
+                <div id="expression-field-container" class="d-flex flex-row-reverse">
+                  <div class="btn-group">
+                    <button class="btn btn-link btn-sm dropdown-toggle text-decoration-none bg-white" type="button"
+                      data-bs-toggle="dropdown" aria-expanded="false">
+                      <span class="fa-solid fa-flag fa-sm"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                      <li class="match-options-item active-tick" data-value="g">
+                        <a class="dropdown-item" href="#">
+                          <span class="d-inline-block w-100">
+                            <span class="fw-bolder">g</span>lobal
+                          </span>
+                        </a>
+                      </li>
+                      <li class="match-options-item active-tick" data-value="m">
+                        <a class="dropdown-item" href="#">
+                          <span class="d-inline-block w-100">
+                            <span class="fw-bolder">m</span>ultiline
+                          </span>
+                        </a>
+                      </li>
+                      <li class="match-options-item" data-value="i">
+                        <a class="dropdown-item" href="#">
+                          <span class="d-inline-block w-100">
+                            case <span class="fw-bolder">i</span>nsensitive
+                          </span>
+                        </a>
+                      </li>
+                      <li class="match-options-item" data-value="s">
+                        <a class="dropdown-item" href="#">
+                          <span class="d-inline-block w-100">
+                            <span class="fw-bolder">s</span>ingle line
+                          </span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div id="expression-field-error" class="bg-white d-none">
+                    <span class="fa-solid fa-octagon-xmark text-danger align-middle p-2"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="row justify-content-between">
+                <div class="col">
+                  <div class="h6 mt-4 mb-2">Test String</div>
+                </div>
+                <div class="col align-self-center">
+                  <div class="text-end mt-2">
+                    <span id="match-count" class="text-bg-light border px-3 py-1">no match</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex-grow-1 border">
+                <div class="pattern-tab-pane test-editor-container editor multiline h-100"></div>
+              </div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <div class="h6 mt-3 mb-2">Builder DSL</div>
+              <div class="flex-grow-1 border">
+                <div id="dsl-view-container" class="h-100"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane h-100" id="builder-tab-pane" role="tabpanel" aria-labelledby="builder-tab" tabindex="0">
+        <div class="d-flex flex-column h-100">
+          <div class="row flex-grow-1">
+            <div class="col-md-6 d-flex flex-column">
+              <div class="d-flex flex-row mt-3">
+                <div class="h6">
+                  <span>Builder DSL</span>
+                  <a href="#">
+                    <span id="run-button" class="text-white bg-primary mx-2 px-4">
+                      <span id="run-button-icon" class="fa-solid fa-play fa-xs fa-fw"></span>
+                      <span id="run-button-spinner" class="fad fa-spinner-third fa-spin fa-xs fa-fw d-none"></span>
+                    </span>
+                  </a>
+                </div>
+              </div>
+              <div class="flex-grow-1 border">
+                <div id="dsl-editor-container" class="h-100"></div>
+              </div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <div class="row justify-content-between">
+                <div class="col">
+                  <div class="h6 mt-3 mb-2">Test String</div>
+                </div>
+                <div class="col align-self-center">
+                  <div class="text-end mt-1">
+                    <span id="dsl-match-count" class="text-bg-light border px-3 py-1">no match</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex-grow-1 border">
+                <div class="builder-tab-pane test-editor-container h-100"></div>
+              </div>
+              <div class="h6 mt-4 mb-2">Match Information</div>
+              <div class="flex-grow-1 bg-white border">
+                <div id="match-info-container" class="pattern-tab-pane overflow-scroll h-100">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="p-2">
+      <div class="row">
+        <div class="col text-center">
+          <span class="m-2">
+            <a class="text-reset text-decoration-none" href="https://status.swiftregex.com" target="_blank"
+              rel="nofollow noopener noreferrer">
+              <span class="fal fa-monitor-heart-rate"></span><span class="m-2">System Status</span></a>
+          </span>
+          <span class="m-2">
+            <a class="text-reset text-decoration-none" href="https://github.com/kishikawakatsumi/swiftregex/issues/new"
+              target="_blank" rel="nofollow noopener noreferrer">
+              <span class="far fa-comment-alt-smile"></span><span class="m-2">Feedback</span></a>
+          </span>
+          <span class="m-2">
+            <a class="text-reset text-decoration-none" href="https://github.com/kishikawakatsumi/swiftregex"
+              target="_blank" rel="nofollow noopener noreferrer">
+              <span class="fab fa-github"></span><span class="m-2">Source Code</span></a>
+          </span>
+          <span class="m-2">
+            <a class="text-reset text-decoration-none" href="https://twitter.com/k_katsumi" target="_blank"
+              rel="nofollow noopener noreferrer">
+              <span class="far fa-at"></span><span class="m-2">Creator</span></a>
+          </span>
+        </div>
+    </footer>
+  </div>
+</body>
+
+</html>
