@@ -87,27 +87,33 @@ struct Main {
                 for element in elements {
                   let reps = Mirror(reflecting: element).children.map { $0.value }
                   for rep in reps {
-                    let ranges = Mirror(reflecting: rep).children.filter { $0.label == "bounds" }.map { $0.value }
-                    for (i, range) in ranges.enumerated() {
-                      if let range = range as? Range<String.Index> {
-                        captures.append(
-                          Group(
-                            location: Location(
-                              start: range.lowerBound.utf16Offset(in: text),
-                              end: range.upperBound.utf16Offset(in: text)
-                            ),
-                            value: String(text[range]),
-                            type: String(reflecting: types[i])
-                          )
-                        )
-                      } else {
-                        captures.append(
-                          Group(
-                            location: nil,
-                            value: nil,
-                            type: "Unknown"
-                          )
-                        )
+                    let contents = Mirror(reflecting: rep).children.filter { $0.label == "content" }.map { $0.value }
+                    for content in contents {
+                    let optionalRanges = Mirror(reflecting: content).children.filter { $0.label == "some" }.map { $0.value }
+                      for optionalRange in optionalRanges {
+                        let ranges = Mirror(reflecting: optionalRange).children.filter { $0.label == "range" }.map { $0.value }
+                        for (i, range) in ranges.enumerated() {
+                          if let range = range as? Range<String.Index> {
+                            captures.append(
+                              Group(
+                                location: Location(
+                                  start: range.lowerBound.utf16Offset(in: text),
+                                  end: range.upperBound.utf16Offset(in: text)
+                                ),
+                                value: String(text[range]),
+                                type: String(reflecting: types[i])
+                              )
+                            )
+                          } else {
+                            captures.append(
+                              Group(
+                                location: nil,
+                                value: nil,
+                                type: "Unknown"
+                              )
+                            )
+                          }
+                        }
                       }
                     }
                   }
