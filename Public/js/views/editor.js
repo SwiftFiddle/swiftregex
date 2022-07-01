@@ -39,19 +39,6 @@ Editor.create = (target, opts = {}, width = "100%", height = "100%") => {
   return cm;
 };
 
-Editor.getCharRect = (cm, index) => {
-  if (index == null) {
-    return null;
-  }
-  let pos = cm.posFromIndex(index),
-    rect = cm.charCoords(pos);
-  rect.x = rect.left;
-  rect.y = rect.top;
-  rect.width = rect.right - rect.left;
-  rect.height = rect.bottom - rect.top;
-  return rect;
-};
-
 Editor.enforceMaxLength = (cm, change) => {
   let maxLength = cm.getOption("maxLength");
   if (maxLength && change.update) {
