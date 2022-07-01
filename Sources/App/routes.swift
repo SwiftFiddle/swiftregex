@@ -91,7 +91,7 @@ func routes(_ app: Application) throws {
         return response
     }
 
-    app.on(.POST, "api", "rest", "matchText", body: .collect(maxSize: "1mb")) { (req) -> ResultResponse in
+    app.on(.POST, "api", "rest", "match", body: .collect(maxSize: "1mb")) { (req) -> ResultResponse in
         guard let request = try? req.content.decode(ExecRequest.self) else {
             throw Abort(.badRequest)
         }
