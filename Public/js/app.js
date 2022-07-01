@@ -58,7 +58,7 @@ export class App {
 
         this.runButton = document.getElementById("run-button");
         this.runButton.addEventListener("click", () => {
-          this.onDSLEditorRun();
+          this.onDSLEditorRunClick();
         });
       }
 
@@ -219,30 +219,45 @@ export class App {
       return;
     }
 
+    this.run();
+
+    this.encodeState();
+  }
+
+  run() {
+    const methods = ["parseExpression", "convertToDSL", "match", "parseDSL"];
     const params = {
       pattern: this.expressionField.value,
       text: this.patternTestEditor.value,
       matchOptions: this.matchOptions.value,
     };
 
-    this.runner.run({
-      method: "parseExpression",
-      ...params,
-    });
-    this.runner.run({
-      method: "convertToDSL",
-      ...params,
-    });
-    this.runner.run({
-      method: "match",
-      ...params,
-    });
-    this.runner.run({
-      method: "parseDSL",
-      ...params,
-    });
-
-    this.encodeState();
+    if (this.runner.isReady) {
+      for (const method of methods) {
+        this.runner.run({
+          method: method,
+          ...params,
+        });
+      }
+    } else {
+      const headers = {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      };
+      for (const method of methods) {
+        const body = JSON.stringify({
+          method: method,
+          ...params,
+        });
+        fetch(`/api/rest/${method}`, { method: "POST", headers, body })
+          .then((response) => {
+            return response.json();
+          })
+          .then((response) => {
+            this.onRunnerResponse(response);
+          });
+      }
+    }
   }
 
   onExpressionFieldHover() {
@@ -293,7 +308,7 @@ export class App {
     this.encodeState();
   }
 
-  onDSLEditorRun() {
+  onDSLEditorRunClick() {
     document.getElementById("run-button-icon").classList.add("d-none");
     document.getElementById("run-button-spinner").classList.remove("d-none");
 
@@ -323,7 +338,7 @@ export class App {
         } else {
           this.builderTestEditor.matches = [];
           this.matchInfoView.matches = [];
-          this.updateMatchCount(0, "match-count");
+          this.updateMatchCount(0, "dsl-match-count");
         }
         const error = response.error;
         if (error && error.trim()) {
