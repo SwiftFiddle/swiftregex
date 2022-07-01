@@ -18,6 +18,8 @@ let package = Package(
             dependencies: [
                 .product(name: "_StringProcessing", package: "swift-experimental-string-processing"),
                 .product(name: "_RegexParser", package: "swift-experimental-string-processing"),
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxParser", package: "swift-syntax"),
             ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-disable-availability-checking"]),
@@ -81,6 +83,7 @@ let package = Package(
         .executableTarget(name: "Run", dependencies: [.target(name: "App")]),
         .testTarget(
             name: "RegexTests", dependencies: [
+                .target(name: "BuilderTester"),
                 .target(name: "DSLConverter"),
                 .target(name: "DSLParser"),
                 .target(name: "ExpressionParser"),
