@@ -10,7 +10,7 @@ import { MatchInfoView } from "./views/match_info_view";
 
 import { DSLHighlighter } from "./views/dsl_highlighter";
 
-import { Runner } from "./runner";
+import { WasmRunner } from "./wasm_runner";
 
 export class App {
   constructor() {
@@ -81,7 +81,7 @@ export class App {
       this.onDSLEditorChange();
     });
 
-    this.runner = new Runner();
+    this.runner = new WasmRunner();
     this.runner.onready = this.onRunnerReady.bind(this);
     this.runner.onresponse = this.onRunnerResponse.bind(this);
 
