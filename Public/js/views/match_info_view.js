@@ -39,7 +39,7 @@ export class MatchInfoView extends EventDispatcher {
       tr.appendChild(td4);
       td4.textContent = "";
 
-      for (const [i, capture] of Object.entries(match.captures)) {
+      for (const [i, capture] of match.captures.entries()) {
         const table = document.createElement("table");
         table.classList.add(
           "table",
