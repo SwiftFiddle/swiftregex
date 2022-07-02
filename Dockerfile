@@ -20,14 +20,11 @@ COPY ./Package.* ./
 RUN swift package resolve
 
 COPY . .
-RUN --mount=type=cache,target=/build/.build \
-    swift build -c release -Xswiftc -enable-testing
-RUN --mount=type=cache,target=/build/.build \
-    SWIFTWASM_TOOLCHAIN=/opt/swiftwasm ./Scripts/build-wasm.sh
+RUN swift build -c release -Xswiftc -enable-testing
+RUN SWIFTWASM_TOOLCHAIN=/opt/swiftwasm ./Scripts/build-wasm.sh
 
 WORKDIR /staging
-RUN --mount=type=cache,target=/build/.build \
-    cp "$(swift build --package-path /build -c release --show-bin-path)/Run" ./ \
+RUN cp "$(swift build --package-path /build -c release --show-bin-path)/Run" ./ \
     && mv /build/Public ./Public && chmod -R a-w ./Public \
     && cp -R /build/.build ./.build && chmod -R a-w ./.build
 
