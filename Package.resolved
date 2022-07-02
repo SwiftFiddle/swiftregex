@@ -122,8 +122,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-experimental-string-processing.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "1acca94663a0dfedd85e7ba10575dfb2c61503c8"
+        "revision" : "ac56815534d98cf8f3dbffbd36b634a0bb098cb4"
       }
     },
     {
