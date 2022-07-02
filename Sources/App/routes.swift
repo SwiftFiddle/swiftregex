@@ -6,7 +6,7 @@ func routes(_ app: Application) throws {
     app.get("healthz") { _ in ["status": "pass"] }
     
     app.get { (req) in
-        return req.view.render("index")
+        req.view.render(app.directory.publicDirectory + "index.html")
     }
 
     app.webSocket("api", "ws") { (req, ws) in
