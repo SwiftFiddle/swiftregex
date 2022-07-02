@@ -51,8 +51,8 @@ RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     && useradd --user-group --create-home --system --skel /dev/null --home-dir /app vapor
 
 WORKDIR /app
-COPY --from=node /build /staging
 COPY --from=swift --chown=vapor:vapor /staging /app
+COPY --from=node /build/Public/dist /app/Public/dist
 
 USER vapor:vapor
 EXPOSE 8080
