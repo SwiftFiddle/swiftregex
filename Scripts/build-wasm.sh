@@ -4,10 +4,16 @@ SWIFTWASM_TOOLCHAIN="${SWIFTWASM_TOOLCHAIN:?"Install SwiftWasm toolchain snapsho
 
 for product in "DSLParser" "DSLConverter" "Matcher" "ExpressionParser"; do
     echo "Building ${product} for WebAssembly..."
+    # WORKAROUND: --disable-dead-strip is required to avoid using --gc-sections in linking
+    # since wasm-ld doesn't support retaining dynamically referenced data segment yet
+    # See also:
+    # * https://github.com/llvm/llvm-project/issues/55839
+    # * https://github.com/apple/swift-package-manager/pull/4135
     $SWIFTWASM_TOOLCHAIN/usr/bin/swift build \
         --triple wasm32-unknown-wasi \
         --scratch-path .build/wasm \
         --configuration release \
         -Xswiftc -enable-testing \
+        --disable-dead-strip \
         --product "$product"
 done

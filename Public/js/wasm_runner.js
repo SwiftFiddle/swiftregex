@@ -99,7 +99,7 @@ export class WasmRunner extends Runner {
         console.log(response);
         this.onresponse(response);
       } catch (e) {
-        console.warn(`Error while running ${request.method} on local. Retry on backend`, e);
+        console.warn(`Error while running ${request.method} on local. Retry on backend:`, e);
         super.run(request);
       }
       return;
