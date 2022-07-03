@@ -92,7 +92,7 @@ struct Main {
                     let optionalRanges = Mirror(reflecting: content).children.filter { $0.label == "some" }.map { $0.value }
                       for optionalRange in optionalRanges {
                         let ranges = Mirror(reflecting: optionalRange).children.filter { $0.label == "range" }.map { $0.value }
-                        for (i, range) in ranges.enumerated() {
+                        for (i, range) in ranges.dropFirst().enumerated() {
                           if let range = range as? Range<String.Index> {
                             captures.append(
                               Group(
