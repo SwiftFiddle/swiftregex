@@ -40,6 +40,17 @@ class WASICommand {
       return originalWriteSync(fd, buffer, offset, length, position);
     };
 
+    const wrapWASI = (wasiObject) => {
+      // PATCH: @wasmer-js/wasi@0.x forgets to call `refreshMemory` in `clock_res_get`,
+      // See also https://github.com/swiftwasm/carton/blob/2c5cf34e0cbb6a4807445ef62a8404bac40314b1/entrypoint/common.js#L135-L145
+      const original_clock_res_get = wasiObject.wasiImport["clock_res_get"];
+
+      wasiObject.wasiImport["clock_res_get"] = (clockId, resolution) => {
+        wasiObject.refreshMemory();
+        return original_clock_res_get(clockId, resolution);
+      };
+      return wasiObject.wasiImport;
+    };
     const wasi = new WASI({
       args: ["main.wasm", ...args],
       bindings: {
@@ -48,7 +59,7 @@ class WASICommand {
       },
     });
     const instance = await WebAssembly.instantiate(this.wasmModule, {
-      wasi_snapshot_preview1: wasi.wasiImport,
+      wasi_snapshot_preview1: wrapWASI(wasi),
     });
     wasi.start(instance);
     return { stdout, stderr };
