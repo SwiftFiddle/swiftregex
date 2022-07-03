@@ -66,36 +66,48 @@
                 <div id="expression-field-container" class="d-flex flex-row-reverse">
                   <div class="btn-group">
                     <button class="btn btn-link btn-sm dropdown-toggle text-decoration-none bg-white" type="button"
-                      data-bs-toggle="dropdown" aria-expanded="false">
+                      data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                       <span class="fa-solid fa-flag fa-sm"></span>
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    <ul class="dropdown-menu">
                       <li class="match-options-item active-tick" data-value="g">
                         <a class="dropdown-item" href="#">
-                          <span class="d-inline-block w-100">
-                            <span class="fw-bolder">g</span>lobal
-                          </span>
+                          <div class="checkable">
+                            <span class="fw-bolder">g</span><span>lobal</span>
+                          </div>
+                          <div class="text-wrap text-muted">
+                            Don't return after first match
+                          </div>
                         </a>
                       </li>
                       <li class="match-options-item active-tick" data-value="m">
                         <a class="dropdown-item" href="#">
-                          <span class="d-inline-block w-100">
+                          <div class="checkable">
                             <span class="fw-bolder">m</span>ultiline
-                          </span>
+                          </div>
+                          <div class="text-wrap text-muted">
+                            ^ and $ match the start/end of line
+                          </div>
                         </a>
                       </li>
                       <li class="match-options-item" data-value="i">
                         <a class="dropdown-item" href="#">
-                          <span class="d-inline-block w-100">
+                          <div class="checkable">
                             case <span class="fw-bolder">i</span>nsensitive
-                          </span>
+                          </div>
+                          <div class="text-wrap text-muted">
+                            Case insensitive match
+                          </div>
                         </a>
                       </li>
                       <li class="match-options-item" data-value="s">
                         <a class="dropdown-item" href="#">
-                          <span class="d-inline-block w-100">
+                          <div class="checkable">
                             <span class="fw-bolder">s</span>ingle line
-                          </span>
+                          </div>
+                          <div class="text-wrap text-muted">
+                            Dot matches newline
+                          </div>
                         </a>
                       </li>
                     </ul>

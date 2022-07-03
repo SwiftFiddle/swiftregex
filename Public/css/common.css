@@ -10,16 +10,21 @@
   max-height: 40vh;
 }
 
-.active-tick a::after {
+.active-tick .checkable::after {
   font-family: "Font Awesome 6 Pro";
   content: "\f00c";
   color: #0d6efd;
   display: none;
 }
-
 .active-tick svg {
   color: #0d6efd;
-  margin-left: -12px;
+  float: right;
+  margin-top: 4px;
+  margin-left: 12px;
+}
+.dropdown-item .text-muted {
+  width: 86%;
+  font-size: 80%;
 }
 
 .error-message {
