@@ -78,3 +78,9 @@
   border-radius: 11px;
   font-size: 90%;
 }
+
+@media (min-width: 576px) {
+  .tab-content {
+    height: 100%;
+  }
+}
