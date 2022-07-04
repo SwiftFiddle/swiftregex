@@ -7,6 +7,11 @@ struct Matcher {
             .anchorsMatchLineEndings(matchingOptions.contains("m"))
             .ignoresCase(matchingOptions.contains("i"))
             .dotMatchesNewlines(matchingOptions.contains("s"))
+            .asciiOnlyWordCharacters(matchingOptions.contains("asciiOnlyWordCharacters"))
+            .asciiOnlyDigits(matchingOptions.contains("asciiOnlyDigits"))
+            .asciiOnlyWhitespace(matchingOptions.contains("asciiOnlyWhitespace"))
+            .asciiOnlyCharacterClasses(matchingOptions.contains("asciiOnlyCharacterClasses"))
+
         let matches = matchingOptions.contains("g") ? text.matches(of: regex) : text.firstMatch(of: regex).flatMap { [$0] } ?? []
         return matches.map {
                 let captures: [Group] = $0.lazy.elements.dropFirst().map {
