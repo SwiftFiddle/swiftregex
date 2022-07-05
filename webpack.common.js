@@ -64,6 +64,10 @@ module.exports = {
         { from: "./Public/favicons/*.*", to: "[name][ext]" },
         { from: "./Public/error.html", to: "error.leaf" },
         { from: "./Public/robots.txt", to: "robots.txt" },
+        { from: "./.build/wasm/wasm32-unknown-wasi/release/DSLParser.wasm", to: "DSLParser.wasm" },
+        { from: "./.build/wasm/wasm32-unknown-wasi/release/DSLConverter.wasm", to: "DSLConverter.wasm" },
+        { from: "./.build/wasm/wasm32-unknown-wasi/release/Matcher.wasm", to: "Matcher.wasm" },
+        { from: "./.build/wasm/wasm32-unknown-wasi/release/ExpressionParser.wasm", to: "ExpressionParser.wasm" },
       ],
     }),
     new HtmlWebpackPlugin({
