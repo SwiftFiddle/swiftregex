@@ -28,7 +28,8 @@ func routes(_ app: Application) throws {
                     }
                 case .convertToDSL:
                     let pattern = request.pattern
-                    let response = try convertToDSL(pattern: pattern)
+                    let matchOptions = request.matchOptions
+                    let response = try convertToDSL(pattern: pattern, matchOptions: matchOptions)
 
                     if let message = String(data: try encoder.encode(response), encoding: .utf8) {
                         ws.send(message)
@@ -84,7 +85,8 @@ func routes(_ app: Application) throws {
         }
 
         let pattern = request.pattern
-        let response = try convertToDSL(pattern: pattern)
+        let matchOptions = request.matchOptions
+        let response = try convertToDSL(pattern: pattern, matchOptions: matchOptions)
 
         return response
     }
@@ -130,8 +132,8 @@ func routes(_ app: Application) throws {
         return ResultResponse(method: .parseExpression, result: stdout, error: stderr)
     }
 
-    func convertToDSL(pattern: String) throws -> ResultResponse {
-        let (stdout, stderr) = try exec(command: "DSLConverter", arguments: pattern)
+    func convertToDSL(pattern: String, matchOptions: [String]) throws -> ResultResponse {
+        let (stdout, stderr) = try exec(command: "DSLConverter", arguments: pattern, matchOptions.joined(separator: ","))
         return ResultResponse(method: .convertToDSL, result: stdout, error: stderr)
     }
 

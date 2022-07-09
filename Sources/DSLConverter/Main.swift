@@ -5,9 +5,12 @@ struct Main {
     static func main() throws {
         do {
             let pattern = CommandLine.arguments[1]
+            let matchingOptions = CommandLine.arguments[2]
+                .split(separator: ",", omittingEmptySubsequences: true)
+                .map { String($0) }
 
             let converter = DSLConverter()
-            let builderDSL = try converter.convert(pattern)
+            let builderDSL = try converter.convert(pattern, matchingOptions: matchingOptions)
 
             let data = try JSONEncoder().encode(builderDSL)
             print(String(data: data, encoding: .utf8) ?? "")
