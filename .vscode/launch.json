@@ -22,7 +22,7 @@
       "type": "lldb",
       "request": "launch",
       "name": "Debug DSLParser",
-      "program": "${workspaceFolder:swiftregex}/.build/debug/DSLParser",
+      "program": ".build/debug/DSLParser",
       "args": [],
       "cwd": "${workspaceFolder:swiftregex}",
       "preLaunchTask": "swift: Build Debug DSLParser"
@@ -31,7 +31,7 @@
       "type": "lldb",
       "request": "launch",
       "name": "Release DSLParser",
-      "program": "${workspaceFolder:swiftregex}/.build/release/DSLParser",
+      "program": ".build/release/DSLParser",
       "args": [],
       "cwd": "${workspaceFolder:swiftregex}",
       "preLaunchTask": "swift: Build Release DSLParser"
