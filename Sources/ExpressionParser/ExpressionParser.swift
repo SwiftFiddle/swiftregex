@@ -17,7 +17,7 @@ struct ExpressionParser {
     }
 
     mutating func parse() throws {
-        let ast = try _RegexParser.parse(pattern, .syntactic, .traditional)
+        let ast = try _RegexParser.parse(pattern, .traditional)
         emitNode(ast.root)
     }
 
@@ -833,6 +833,9 @@ struct ExpressionParser {
             case .javaSpecial(_):
                 category = "javaSpecial"
                 key = "javaspecial"
+            case .invalid(key: let k, value: let v):
+                category = "charclasses"
+                key = "invalid"
             }
         case .escaped(let escaped):
             switch escaped {
@@ -1013,7 +1016,7 @@ struct ExpressionParser {
                 substitution = ["{{group.name}}": name]
             }
         case .subpattern(let ref):
-            if ref.kind == .recurseWholePattern {
+            if ref.kind.recursesWholePattern {
                 `class` = "special"
                 category = "other"
                 key = "recursion"
@@ -1057,6 +1060,10 @@ struct ExpressionParser {
             category = "other"
             key = "mode"
             substitution = ["{{~getDesc()}}": "Enables or disables modes for the remainder of the expression."]
+        case .invalid:
+            `class` = "charclass"
+            category = "charclasses"
+            key = "invalid"
         }
 
         tokens.append(
@@ -1162,6 +1169,8 @@ struct ExpressionParser {
                     lhs = String(pattern[range.lhs.startPosition..<range.lhs.endPosition])
                 case .changeMatchingOptions(_):
                     lhs = String(pattern[range.lhs.startPosition..<range.lhs.endPosition])
+                case .invalid:
+                    lhs = String(pattern[range.lhs.startPosition..<range.lhs.endPosition])
                 }
 
                 switch range.rhs.kind {
@@ -1198,6 +1207,8 @@ struct ExpressionParser {
                 case .backtrackingDirective(_):
                     rhs = String(pattern[range.rhs.startPosition..<range.rhs.endPosition])
                 case .changeMatchingOptions(_):
+                    rhs = String(pattern[range.rhs.startPosition..<range.rhs.endPosition])
+                case .invalid:
                     rhs = String(pattern[range.rhs.startPosition..<range.rhs.endPosition])
                 }
 

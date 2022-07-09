@@ -21,9 +21,9 @@ extension AST {
   ) -> String {
     var printer = PrettyPrinter()
     printer.printAsCanonical(
-       self,
-       delimiters: delimiters,
-       terminateLine: terminateLine)
+      self,
+      delimiters: delimiters,
+      terminateLine: terminateLine)
     return printer.finish()
   }
 }
@@ -34,7 +34,7 @@ extension AST.Node {
     showDelimiters delimiters: Bool = false,
     terminateLine: Bool = false
   ) -> String {
-    AST(self, globalOptions: nil).renderAsCanonical(
+    AST(self, globalOptions: nil, diags: Diagnostics()).renderAsCanonical(
       showDelimiters: delimiters, terminateLine: terminateLine)
   }
 }
@@ -219,9 +219,9 @@ extension AST.Quantification.Amount {
     case .zeroOrMore:      return "*"
     case .oneOrMore:       return "+"
     case .zeroOrOne:       return "?"
-    case let .exactly(n):  return "{\(n.value)}"
-    case let .nOrMore(n):  return "{\(n.value),}"
-    case let .upToN(n):    return "{,\(n.value)}"
+    case let .exactly(n):  return "{\(n._canonicalBase)}"
+    case let .nOrMore(n):  return "{\(n._canonicalBase),}"
+    case let .upToN(n):    return "{,\(n._canonicalBase)}"
     case let .range(lower, upper):
       return "{\(lower),\(upper)}"
     }
@@ -229,6 +229,12 @@ extension AST.Quantification.Amount {
 }
 extension AST.Quantification.Kind {
   var _canonicalBase: String { self.rawValue }
+}
+
+extension AST.Atom.Number {
+  var _canonicalBase: String {
+    value.map { "\($0)" } ?? "<#number#>"
+  }
 }
 
 extension AST.Atom {
@@ -247,7 +253,7 @@ extension AST.Atom {
     case .escaped(let e):
       return "\\\(e.character)"
     case .backreference(let br):
-       return br._canonicalBase
+      return br._canonicalBase
 
     default:
       return "/* TODO: atom \(self) */"
@@ -307,9 +313,9 @@ extension AST.GlobalMatchingOption.NewlineSequenceMatching {
 extension AST.GlobalMatchingOption.Kind {
   var _canonicalBase: String {
     switch self {
-    case .limitDepth(let i):              return "LIMIT_DEPTH=\(i.value)"
-    case .limitHeap(let i):               return "LIMIT_HEAP=\(i.value)"
-    case .limitMatch(let i):              return "LIMIT_MATCH=\(i.value)"
+    case .limitDepth(let i):              return "LIMIT_DEPTH=\(i._canonicalBase)"
+    case .limitHeap(let i):               return "LIMIT_HEAP=\(i._canonicalBase)"
+    case .limitMatch(let i):              return "LIMIT_MATCH=\(i._canonicalBase)"
     case .notEmpty:                       return "NOTEMPTY"
     case .notEmptyAtStart:                return "NOTEMPTY_ATSTART"
     case .noAutoPossess:                  return "NO_AUTO_POSSESS"

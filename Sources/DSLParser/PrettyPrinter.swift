@@ -36,6 +36,7 @@ public struct PrettyPrinter {
 
   // The output string we're building up
   var result = ""
+
   var currentASTNode: AST.Node!
   var locationMappings = [((start: Int, end: Int), SourceLocation)]()
 
@@ -44,7 +45,7 @@ public struct PrettyPrinter {
 
   // The indentation level
   fileprivate var indentLevel = 0
-  
+
   // The current default quantification behavior
   public var quantificationBehavior: AST.Quantification.Kind = .eager
 }

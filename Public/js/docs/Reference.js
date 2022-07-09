@@ -277,6 +277,11 @@ const references = {
       title: "Previous match end",
       detail: "Matches the end position of the previous match.",
     },
+
+    invalid: {
+      title: "Invalid character class",
+      detail: "No overview available.",
+    },
   },
 
   escchars: {

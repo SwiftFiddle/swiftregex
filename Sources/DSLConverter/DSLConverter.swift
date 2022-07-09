@@ -5,7 +5,7 @@ import Foundation
 
 struct DSLConverter {
     func convert(_ pattern: String, matchingOptions: [String] = []) throws -> String {
-        let ast = try _RegexParser.parse(pattern, .syntactic, .traditional)
+        let ast = try _RegexParser.parse(pattern, .traditional)
         var builderDSL = renderAsBuilderDSL(ast: ast)
         if builderDSL.last == "\n" {
             builderDSL = String(builderDSL.dropLast())

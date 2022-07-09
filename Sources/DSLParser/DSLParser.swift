@@ -3,7 +3,7 @@ import Foundation
 
 struct DSLParser {
     func parse(_ pattern: String) throws -> [Token] {
-        let ast = try _RegexParser.parse(pattern, .syntactic, .traditional)
+        let ast = try _RegexParser.parse(pattern, .traditional)
 
         var printer = PrettyPrinter()
         printer.printAsPattern(ast)

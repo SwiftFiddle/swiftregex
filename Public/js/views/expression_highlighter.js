@@ -1,8 +1,8 @@
 "use strict";
 
 import { EventDispatcher } from "@createjs/easeljs";
+import { Reference } from "../docs/reference";
 import Editor from "./editor";
-import { Reference } from "../docs/Reference";
 
 export default class ExpressionHighlighter extends EventDispatcher {
   constructor(editor) {

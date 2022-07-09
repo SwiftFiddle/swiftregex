@@ -12,7 +12,7 @@ struct Main {
                 .map { String($0) }
 
             do {
-                _ = try _RegexParser.parse(pattern, .syntactic, .traditional)
+                _ = try _RegexParser.parse(pattern, .traditional)
             } catch {
                 return
             }
