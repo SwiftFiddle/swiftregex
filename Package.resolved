@@ -114,7 +114,7 @@
       "location" : "https://github.com/apple/swift-experimental-string-processing.git",
       "state" : {
         "branch" : "main",
-        "revision" : "33856e7859b453f02d502752e0745c95724e2688"
+        "revision" : "96fb215facf425226ca0645d5cab6e84a3befece"
       }
     },
     {
@@ -167,8 +167,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-ssl.git",
       "state" : {
-        "revision" : "fd5f38b0039148e76c2e863a2fc868cc39bb451b",
-        "version" : "2.20.1"
+        "revision" : "c30c680c78c99afdabf84805a83c8745387c4ac7",
+        "version" : "2.20.2"
       }
     },
     {
@@ -195,7 +195,7 @@
       "location" : "https://github.com/apple/swift-syntax",
       "state" : {
         "branch" : "main",
-        "revision" : "950dba9dac4e98293dd913be745a398d0eb522b5"
+        "revision" : "b078e52cf51b799af21192f029554eaefc78b554"
       }
     },
     {

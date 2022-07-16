@@ -987,15 +987,15 @@ struct ExpressionParser {
             `class` = "charclass"
             category = "charclass"
             key = "namedcharacter"
-        case .any:
+        case .dot:
             `class` = "charclass"
             category = "charclasses"
             key = "dot"
-        case .startOfLine:
+        case .caretAnchor:
             `class` = "anchor"
             category = "anchors"
             key = "bof"
-        case .endOfLine:
+        case .dollarAnchor:
             `class` = "anchor"
             category = "anchors"
             key = "eof"
@@ -1153,11 +1153,11 @@ struct ExpressionParser {
                     lhs = String(pattern[range.lhs.startPosition..<range.lhs.endPosition])
                 case .namedCharacter(_):
                     lhs = String(pattern[range.lhs.startPosition..<range.lhs.endPosition])
-                case .any:
+                case .dot:
                     lhs = String(pattern[range.lhs.startPosition..<range.lhs.endPosition])
-                case .startOfLine:
+                case .caretAnchor:
                     lhs = String(pattern[range.lhs.startPosition..<range.lhs.endPosition])
-                case .endOfLine:
+                case .dollarAnchor:
                     lhs = String(pattern[range.lhs.startPosition..<range.lhs.endPosition])
                 case .backreference(_):
                     lhs = String(pattern[range.lhs.startPosition..<range.lhs.endPosition])
@@ -1192,11 +1192,11 @@ struct ExpressionParser {
                     rhs = String(pattern[range.rhs.startPosition..<range.rhs.endPosition])
                 case .namedCharacter(_):
                     rhs = String(pattern[range.rhs.startPosition..<range.rhs.endPosition])
-                case .any:
+                case .dot:
                     rhs = String(pattern[range.rhs.startPosition..<range.rhs.endPosition])
-                case .startOfLine:
+                case .caretAnchor:
                     rhs = String(pattern[range.rhs.startPosition..<range.rhs.endPosition])
-                case .endOfLine:
+                case .dollarAnchor:
                     rhs = String(pattern[range.rhs.startPosition..<range.rhs.endPosition])
                 case .backreference(_):
                     rhs = String(pattern[range.rhs.startPosition..<range.rhs.endPosition])

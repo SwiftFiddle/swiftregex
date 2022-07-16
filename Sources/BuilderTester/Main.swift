@@ -1,6 +1,6 @@
 import Foundation
-//import SwiftSyntax
-//import SwiftSyntaxParser
+import SwiftSyntax
+import SwiftSyntaxParser
 
 @main
 struct Main {
@@ -10,44 +10,44 @@ struct Main {
             let text = CommandLine.arguments[2]
 
             let regexVarName = "regex_\(UUID().uuidString.replacingOccurrences(of: "-", with: ""))"
-            let code = "let \(regexVarName) = \(builder)"
-//            var code = ""
-//            let sourceFile = try SyntaxParser.parse(source: builder)
-//            for statement in sourceFile.statements {
-//                let syntaxes = statement.children.map { $0 }
-//                if !syntaxes.isEmpty {
-//                    if let _ = syntaxes[0].as(FunctionCallExprSyntax.self) {
-//                        code += """
-//
-//                            let \(regexVarName) = \(statement)
-//                            """
-//                        break
-//                    } else if let variableDecl = syntaxes[0].as(VariableDeclSyntax.self) {
-//                        let bindings = variableDecl.bindings.map { $0 }
-//                        if let pattern = bindings[0].pattern.as(IdentifierPatternSyntax.self) {
-//                            if let initializer = bindings[0].initializer {
-//                                if let functionCallExpr = initializer.value.as(FunctionCallExprSyntax.self) {
-//                                    if let calledExpression = functionCallExpr.calledExpression.as(IdentifierExprSyntax.self) {
-//                                        if calledExpression.identifier.text == "Regex" {
-//                                            code += """
-//                                                \(statement)
-//
-//                                                let \(regexVarName) = \(pattern.identifier.text)
-//                                                """
-//                                            break
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                code += """
-//
-//                    \(statement)
-//                    """
-//            }
+            var code = ""
+            let sourceFile = try SyntaxParser.parse(source: builder)
+            
+            for statement in sourceFile.statements {
+                let syntaxes = statement.children.map { $0 }
+                if !syntaxes.isEmpty {
+                    if let _ = syntaxes[0].as(FunctionCallExprSyntax.self) {
+                        code += """
+
+                            let \(regexVarName) = \(statement)
+                            """
+                        break
+                    } else if let variableDecl = syntaxes[0].as(VariableDeclSyntax.self) {
+                        let bindings = variableDecl.bindings.map { $0 }
+                        if let pattern = bindings[0].pattern.as(IdentifierPatternSyntax.self) {
+                            if let initializer = bindings[0].initializer {
+                                if let functionCallExpr = initializer.value.as(FunctionCallExprSyntax.self) {
+                                    if let calledExpression = functionCallExpr.calledExpression.as(IdentifierExprSyntax.self) {
+                                        if calledExpression.identifier.text == "Regex" {
+                                            code += """
+                                                \(statement)
+
+                                                let \(regexVarName) = \(pattern.identifier.text)
+                                                """
+                                            break
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                code += """
+
+                    \(statement)
+                    """
+            }
 
             let script = #"""
             import Foundation
