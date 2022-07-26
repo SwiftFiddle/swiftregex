@@ -114,7 +114,7 @@
       "location" : "https://github.com/apple/swift-experimental-string-processing.git",
       "state" : {
         "branch" : "main",
-        "revision" : "55e15711c407871202b28c61e5ec5e3157790239"
+        "revision" : "b8a729c2ae3d01557f94ba9d9e6b8ce2b54b84b7"
       }
     },
     {
@@ -195,7 +195,7 @@
       "location" : "https://github.com/apple/swift-syntax",
       "state" : {
         "branch" : "main",
-        "revision" : "a00c603bafda4f9d0ac6da0b328a424bdd87bee6"
+        "revision" : "ba64513c6a5402671deed573409e38a0bb4895e0"
       }
     },
     {
@@ -203,8 +203,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "d9d83cd3eb09fd7979775082f9247d7d69d55cd2",
-        "version" : "4.63.0"
+        "revision" : "b5181996f104d09a0bb52a6ddf5f21d79b9ceb4d",
+        "version" : "4.64.0"
       }
     },
     {
