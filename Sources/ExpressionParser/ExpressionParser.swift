@@ -843,37 +843,37 @@ struct ExpressionParser {
                 `class` = "esc"
                 category = "misc"
                 key = "escchar"
-                substitution = ["{{getChar}}": "ALARM"]
+                substitution = ["{{getChar()}}": "ALARM", "{{code}}": "U+0007"]
             case .escape:
                 `class` = "esc"
                 category = "misc"
                 key = "escchar"
-                substitution = ["{{getChar}}": "ESCAPE"]
+                substitution = ["{{getChar()}}": "ESCAPE", "{{code}}": "U+0027"]
             case .formfeed:
                 `class` = "esc"
                 category = "misc"
                 key = "escchar"
-                substitution = ["{{getChar}}": "FORM FEED"]
+                substitution = ["{{getChar()}}": "FORM FEED", "{{code}}": "N/A"]
             case .newline:
                 `class` = "esc"
                 category = "misc"
                 key = "escchar"
-                substitution = ["{{getChar}}": "LINE FEED"]
+                substitution = ["{{getChar()}}": "LINE FEED", "{{code}}": "U+0010"]
             case .carriageReturn:
                 `class` = "esc"
                 category = "misc"
                 key = "escchar"
-                substitution = ["{{getChar}}": "CARRIAGE RETURN"]
+                substitution = ["{{getChar()}}": "CARRIAGE RETURN", "{{code}}": "U+0013"]
             case .tab:
                 `class` = "esc"
                 category = "misc"
                 key = "escchar"
-                substitution = ["{{getChar}}": "TAB"]
+                substitution = ["{{getChar()}}": "TAB", "{{code}}": "U+0009"]
             case .singleDataUnit:
                 `class` = "esc"
                 category = "misc"
                 key = "escchar"
-                substitution = ["{{getChar}}": "SINGLE DATA UNIT"]
+                substitution = ["{{getChar()}}": "SINGLE DATA UNIT", "{{code}}": "N/A"]
             case .decimalDigit:
                 `class` = "charclass"
                 category = "charclasses"
@@ -1055,11 +1055,30 @@ struct ExpressionParser {
                 category = "charclass"
                 key = "then"
             }
-        case .changeMatchingOptions(_):
+        case .changeMatchingOptions(let matchingOptionSequence):
+            var set = Set<AST.MatchingOption>()
+            let removing = matchingOptionSequence.removing.filter { set.insert($0).inserted }
+
+            set = Set<AST.MatchingOption>()
+            let adding = matchingOptionSequence.adding.filter { set.insert($0).inserted }.filter { !removing.contains($0) }
+
+            let enable = adding.map { pattern[$0.location.range] }
+            let disable = removing.map { pattern[$0.location.range] }
+            var modes = ""
+            if !enable.isEmpty {
+                modes += #" Enable "\#(enable.joined())"."#
+            }
+            if !disable.isEmpty {
+                modes += #" Disable "\#(disable.joined())"."#
+            }
+
             `class` = "special"
             category = "other"
             key = "mode"
-            substitution = ["{{~getDesc()}}": "Enables or disables modes for the remainder of the expression."]
+            substitution = [
+                "{{~getDesc()}}": "Enables or disables modes for the remainder of the expression.",
+                "{{~getModes()}}": modes,
+            ]
         case .invalid:
             `class` = "charclass"
             category = "charclasses"
