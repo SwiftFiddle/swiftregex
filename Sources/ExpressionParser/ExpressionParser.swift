@@ -843,32 +843,32 @@ struct ExpressionParser {
                 `class` = "esc"
                 category = "misc"
                 key = "escchar"
-                substitution = ["{{getChar()}}": "ALARM", "{{code}}": "U+0007"]
+                substitution = ["{{getChar()}}": "ALARM", "{{code}}": "(bell, 0x07)"]
             case .escape:
                 `class` = "esc"
                 category = "misc"
                 key = "escchar"
-                substitution = ["{{getChar()}}": "ESCAPE", "{{code}}": "U+0027"]
+                substitution = ["{{getChar()}}": "ESCAPE", "{{code}}": "(escape, 0x1B)"]
             case .formfeed:
                 `class` = "esc"
                 category = "misc"
                 key = "escchar"
-                substitution = ["{{getChar()}}": "FORM FEED", "{{code}}": "N/A"]
+                substitution = ["{{getChar()}}": "FORM FEED", "{{code}}": "(form feed, 0x0C)"]
             case .newline:
                 `class` = "esc"
                 category = "misc"
                 key = "escchar"
-                substitution = ["{{getChar()}}": "LINE FEED", "{{code}}": "U+0010"]
+                substitution = ["{{getChar()}}": "LINE FEED", "{{code}}": "(ASCII 0x0A)"]
             case .carriageReturn:
                 `class` = "esc"
                 category = "misc"
                 key = "escchar"
-                substitution = ["{{getChar()}}": "CARRIAGE RETURN", "{{code}}": "U+0013"]
+                substitution = ["{{getChar()}}": "CARRIAGE RETURN", "{{code}}": "(ASCII 0x0D)"]
             case .tab:
                 `class` = "esc"
                 category = "misc"
                 key = "escchar"
-                substitution = ["{{getChar()}}": "TAB", "{{code}}": "U+0009"]
+                substitution = ["{{getChar()}}": "TAB", "{{code}}": "(ASCII 0x09)"]
             case .singleDataUnit:
                 `class` = "esc"
                 category = "misc"
