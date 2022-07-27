@@ -294,12 +294,30 @@ export class App {
   }
 
   onPatternTestEditorChange() {
-    this.runner.run({
-      method: "match",
+    const method = "match";
+    const params = {
+      method,
       pattern: this.expressionField.value,
       text: this.patternTestEditor.value,
       matchOptions: this.matchOptions.value,
-    });
+    };
+
+    if (this.runner.isReady) {
+      this.runner.run(params);
+    } else {
+      const headers = {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      };
+      const body = JSON.stringify(params);
+      fetch(`/api/rest/${method}`, { method: "POST", headers, body })
+        .then((response) => {
+          return response.json();
+        })
+        .then((response) => {
+          this.onRunnerResponse(response);
+        });
+    }
 
     this.encodeState();
   }
