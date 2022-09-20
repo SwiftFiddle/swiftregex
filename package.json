@@ -15,7 +15,7 @@
     "@fortawesome/pro-solid-svg-icons": "6.1.1",
     "@popperjs/core": "2.11.6",
     "bootstrap": "5.2.1",
-    "codemirror": "5.65.8",
+    "codemirror": "5.65.9",
     "pako": "2.0.4",
     "plausible-tracker": "0.3.8",
     "reconnecting-websocket": "4.4.0",
