@@ -11,6 +11,7 @@ import {
   faAt,
   faCheck,
   faCommentAltSmile,
+  faHeart,
 } from "@fortawesome/pro-regular-svg-icons";
 import { faMonitorHeartRate } from "@fortawesome/pro-light-svg-icons";
 import { faSpinnerThird } from "@fortawesome/pro-duotone-svg-icons";
@@ -26,6 +27,7 @@ library.add(
   faAt,
   faCheck,
   faCommentAltSmile,
+  faHeart,
 
   faMonitorHeartRate,
 
