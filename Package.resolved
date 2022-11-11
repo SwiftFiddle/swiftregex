@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/leaf.git",
       "state" : {
-        "revision" : "04f262edbee143cdfefc5b26cef704913712e16c",
-        "version" : "4.2.1"
+        "revision" : "bf1c27928c3f7f93fcdca570d7514727fa23e14e",
+        "version" : "4.2.2"
       }
     },
     {
@@ -123,7 +123,7 @@
       "location" : "https://github.com/apple/swift-experimental-string-processing.git",
       "state" : {
         "branch" : "main",
-        "revision" : "7a10c81ce51ff895bbf06a63133ed5c77c4f557b"
+        "revision" : "0b38ca9bd127bff31ec67a9fa2b60f4d1a23c831"
       }
     },
     {
@@ -149,8 +149,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "b4e0a274f7f34210e97e2f2c50ab02a10b549250",
-        "version" : "2.41.1"
+        "revision" : "edfceecba13d68c1c993382806e72f7e96feaa86",
+        "version" : "2.44.0"
       }
     },
     {
@@ -204,7 +204,7 @@
       "location" : "https://github.com/apple/swift-syntax",
       "state" : {
         "branch" : "main",
-        "revision" : "2e255cbd23a9222becd6315f532be1c913d30619"
+        "revision" : "3b7d3ad1afccd53f1e2aaeb1b22437910f80fd2e"
       }
     },
     {
@@ -212,8 +212,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "971becba16d6faf5c4cb869d2e3026e822d09059",
-        "version" : "4.65.1"
+        "revision" : "a037bbf91b081ce4f91cbef5a917f8f7844d3daa",
+        "version" : "4.67.2"
       }
     },
     {
