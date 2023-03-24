@@ -13,7 +13,7 @@
     "@fortawesome/pro-light-svg-icons": "6.1.1",
     "@fortawesome/pro-regular-svg-icons": "6.1.1",
     "@fortawesome/pro-solid-svg-icons": "6.1.1",
-    "@popperjs/core": "2.11.6",
+    "@popperjs/core": "2.11.7",
     "bootstrap": "5.2.3",
     "codemirror": "5.65.12",
     "pako": "2.1.0",
