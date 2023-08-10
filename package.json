@@ -1,6 +1,5 @@
 {
   "name": "swiftregex",
-  "main": "index.js",
   "scripts": {
     "build": "webpack --progress --config webpack.prod.js"
   },
