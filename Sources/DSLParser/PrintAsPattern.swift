@@ -170,6 +170,13 @@ extension PrettyPrinter {
         )
       }
 
+    case let .ignoreCapturesInTypedOutput(child):
+      let start = result.utf16.count
+      printAsPattern(convertedFromAST: child, isTopLevel: isTopLevel)
+      locationMappings.append(
+        ((start, result.utf16.count), currentASTNode.location)
+      )
+
     case .conditional:
       let start = result.utf16.count
       print("/* TODO: conditional */")
@@ -561,6 +568,14 @@ extension PrettyPrinter {
         } else {
           output(base.0)
         }
+
+      case let .characterClass(cc):
+        if wrap {
+          output("One(\(cc._patternBase))")
+        } else {
+          output(cc._patternBase)
+        }
+
       default:
         print(" // TODO: Atom \(a)")
       }
@@ -792,8 +807,6 @@ extension DSLTree.Atom.CharacterClass {
     switch self {
     case .anyGrapheme:
       return ".anyGraphemeCluster"
-    case .anyUnicodeScalar:
-      return ".anyUnicodeScalar"
     case .digit:
       return ".digit"
     case .notDigit:
@@ -813,11 +826,13 @@ extension DSLTree.Atom.CharacterClass {
     case .verticalWhitespace:
       return ".verticalWhitespace"
     case .notVerticalWhitespace:
-      return ".vertialWhitespace.inverted"
+      return ".verticalWhitespace.inverted"
     case .whitespace:
       return ".whitespace"
     case .notWhitespace:
       return ".whitespace.inverted"
+    case .anyUnicodeScalar:
+      fatalError("Unsupported")
     }
   }
 }

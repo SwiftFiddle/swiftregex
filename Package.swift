@@ -1,4 +1,4 @@
-// swift-tools-version:5.6
+// swift-tools-version:5.9
 import PackageDescription
 
 let package = Package(
@@ -19,7 +19,6 @@ let package = Package(
                 .product(name: "_StringProcessing", package: "swift-experimental-string-processing"),
                 .product(name: "_RegexParser", package: "swift-experimental-string-processing"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxParser", package: "swift-syntax"),
             ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-disable-availability-checking"]),
@@ -70,7 +69,7 @@ let package = Package(
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
             ]
         ),
-        .target(
+        .executableTarget(
             name: "App",
             dependencies: [
                 .product(name: "Vapor", package: "vapor"),
@@ -80,7 +79,6 @@ let package = Package(
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
             ]
         ),
-        .executableTarget(name: "Run", dependencies: [.target(name: "App")]),
         .testTarget(
             name: "RegexTests", dependencies: [
                 .target(name: "BuilderTester"),
