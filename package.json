@@ -1,6 +1,5 @@
 {
   "name": "swiftregex",
-  "main": "index.js",
   "scripts": {
     "build": "webpack --progress --config webpack.prod.js"
   },
@@ -14,7 +13,7 @@
     "@fortawesome/pro-regular-svg-icons": "6.1.1",
     "@fortawesome/pro-solid-svg-icons": "6.1.1",
     "@popperjs/core": "2.11.8",
-    "bootstrap": "5.2.3",
+    "bootstrap": "5.3.1",
     "codemirror": "5.65.14",
     "pako": "2.1.0",
     "plausible-tracker": "0.3.8",
