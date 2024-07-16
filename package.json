@@ -5,8 +5,8 @@
   },
   "dependencies": {
     "@createjs/easeljs": "2.0.0-beta.4",
-    "@fortawesome/fontawesome-svg-core": "6.5.2",
-    "@fortawesome/free-brands-svg-icons": "6.5.2",
+    "@fortawesome/fontawesome-svg-core": "6.6.0",
+    "@fortawesome/free-brands-svg-icons": "6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/pro-duotone-svg-icons": "6.1.1",
     "@fortawesome/pro-light-svg-icons": "6.1.1",
