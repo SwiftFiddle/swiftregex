@@ -10,7 +10,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-experimental-string-processing.git", branch: "main"),
         .package(url: "https://github.com/apple/swift-syntax", branch: "main"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.106.4"),
-        .package(url: "https://github.com/vapor/leaf.git", from: "4.4.0"),
+        .package(url: "https://github.com/vapor/leaf.git", from: "4.4.1"),
     ],
     targets: [
         .executableTarget(
