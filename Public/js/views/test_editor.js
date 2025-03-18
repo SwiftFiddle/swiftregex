@@ -60,12 +60,7 @@ export class TestEditor extends EventDispatcher {
 
   set matches(matches) {
     this.highlighter.draw(matches);
-    tippy(".pattern-tab-pane.test-editor-container span[data-tippy-content]", {
-      allowHTML: true,
-      animation: false,
-      placement: "bottom",
-    });
-    tippy(".builder-tab-pane.test-editor-container span[data-tippy-content]", {
+    tippy(".test-editor-container span[data-tippy-content]", {
       allowHTML: true,
       animation: false,
       placement: "bottom",

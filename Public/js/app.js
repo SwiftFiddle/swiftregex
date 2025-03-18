@@ -6,7 +6,6 @@ import { TestEditor } from "./views/test_editor";
 import { DSLView } from "./views/dsl_view";
 
 import { DSLEditor } from "./views/dsl_editor";
-import { MatchInfoView } from "./views/match_info_view";
 
 import { DSLHighlighter } from "./views/dsl_highlighter";
 
@@ -37,49 +36,13 @@ export class App {
     );
 
     this.patternTestEditor = new TestEditor(
-      document.querySelector(".pattern-tab-pane.test-editor-container")
+      document.querySelector(".test-editor-container")
     );
     this.patternTestEditor.addEventListener("change", () =>
       this.onPatternTestEditorChange()
     );
 
     this.dslView = new DSLView(document.getElementById("dsl-view-container"));
-
-    const tabEl = document.getElementById("builder-tab");
-    tabEl.addEventListener("shown.bs.tab", (event) => {
-      if (!this.dslEditor) {
-        this.dslEditor = new DSLEditor(
-          document.getElementById("dsl-editor-container")
-        );
-        this.dslEditor.addEventListener("change", () =>
-          this.onDSLEditorChange()
-        );
-        this.dslEditor.value = this.stateProxy.builder;
-
-        this.runButton = document.getElementById("run-button");
-        this.runButton.addEventListener("click", () => {
-          this.onDSLEditorRunClick();
-        });
-      }
-
-      if (!this.builderTestEditor) {
-        this.builderTestEditor = new TestEditor(
-          document.querySelector(".builder-tab-pane.test-editor-container")
-        );
-        this.builderTestEditor.addEventListener("change", () =>
-          this.onBuilderTestEditorChange()
-        );
-        this.builderTestEditor.value = this.stateProxy.text2;
-      }
-
-      if (!this.matchInfoView) {
-        this.matchInfoView = new MatchInfoView(
-          document.getElementById("match-info-container")
-        );
-      }
-
-      this.onDSLEditorChange();
-    });
 
     this.runner = new Runner();
     this.runner.onready = this.onRunnerReady.bind(this);
@@ -326,63 +289,6 @@ export class App {
     this.encodeState();
   }
 
-  onDSLEditorRunClick() {
-    document.getElementById("run-button-icon").classList.add("d-none");
-    document.getElementById("run-button-spinner").classList.remove("d-none");
-
-    const method = "POST";
-    const params = {
-      method: "testBuilder",
-      pattern: this.dslEditor.value,
-      text: this.builderTestEditor.value,
-      matchOptions: this.matchOptions.value,
-    };
-    const body = JSON.stringify(params);
-    const headers = {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    };
-    fetch("/api/rest/testBuilder", { method, headers, body })
-      .then((response) => {
-        return response.json();
-      })
-      .then((response) => {
-        const result = response.result;
-        if (result && result.trim()) {
-          const matches = JSON.parse(response.result);
-          this.builderTestEditor.matches = matches;
-          this.matchInfoView.matches = matches;
-          this.updateMatchCount(matches.length, "dsl-match-count");
-        } else {
-          this.builderTestEditor.matches = [];
-          this.matchInfoView.matches = [];
-          this.updateMatchCount(0, "dsl-match-count");
-        }
-        const error = response.error;
-        if (error && error.trim()) {
-          this.dslEditor.error = error;
-        } else {
-          this.dslEditor.error = "";
-        }
-      })
-      .catch((error) => {})
-      .finally(() => {
-        document.getElementById("run-button-icon").classList.remove("d-none");
-        document.getElementById("run-button-spinner").classList.add("d-none");
-      });
-  }
-
-  onBuilderTestEditorChange() {
-    this.runner.run({
-      method: "testBuilder",
-      pattern: this.dslEditor.value,
-      text: this.builderTestEditor.value,
-      matchOptions: this.matchOptions.value,
-    });
-
-    this.encodeState();
-  }
-
   onRunnerReady() {
     const value = this.expressionField.value;
     if (value) {
@@ -426,8 +332,6 @@ export class App {
           this.dslTokens = [];
         }
         this.dslView.error = response.error;
-        break;
-      case "testBuilder":
         break;
     }
   }

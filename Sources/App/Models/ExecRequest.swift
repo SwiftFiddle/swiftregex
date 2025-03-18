@@ -13,5 +13,4 @@ enum RequestMethod: String, Codable {
     case convertToPattern
     case match
     case parseDSL
-    case testBuilder
 }
