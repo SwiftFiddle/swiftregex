@@ -8,7 +8,6 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-experimental-string-processing.git", branch: "main"),
-        .package(url: "https://github.com/apple/swift-syntax", branch: "main"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.113.2"),
         .package(url: "https://github.com/vapor/leaf.git", from: "4.4.1"),
     ],
@@ -18,7 +17,6 @@ let package = Package(
             dependencies: [
                 .product(name: "_StringProcessing", package: "swift-experimental-string-processing"),
                 .product(name: "_RegexParser", package: "swift-experimental-string-processing"),
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
             ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-disable-availability-checking"]),
