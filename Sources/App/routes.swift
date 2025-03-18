@@ -52,14 +52,6 @@ func routes(_ app: Application) throws {
                     if let message = String(data: try encoder.encode(response), encoding: .utf8) {
                         ws.send(message)
                     }
-                case .testBuilder:
-                    let builder = request.pattern
-                    let text = request.text
-                    let response = try testBuilder(builder, text: text)
-
-                    if let message = String(data: try encoder.encode(response), encoding: .utf8) {
-                        ws.send(message)
-                    }
                 }
             } catch {
                 req.logger.error("\(error)")
@@ -115,18 +107,6 @@ func routes(_ app: Application) throws {
         return response
     }
 
-    app.on(.POST, "api", "rest", "testBuilder", body: .collect(maxSize: "1mb")) { (req) -> ResultResponse in
-        guard let request = try? req.content.decode(ExecRequest.self) else {
-            throw Abort(.badRequest)
-        }
-
-        let builder = request.pattern
-        let text = request.text
-        let response = try testBuilder(builder, text: text)
-
-        return response
-    }
-
     func parseExpression(pattern: String, matchOptions: [String]) throws -> ResultResponse {
         let (stdout, stderr) = try exec(command: "ExpressionParser", arguments: pattern, matchOptions.joined(separator: ","))
         return ResultResponse(method: .parseExpression, result: stdout, error: stderr)
@@ -145,11 +125,6 @@ func routes(_ app: Application) throws {
     func parseDSL(pattern: String) throws -> ResultResponse {
         let (stdout, stderr) = try exec(command: "DSLParser", arguments: pattern)
         return ResultResponse(method: .parseDSL, result: stdout, error: stderr)
-    }
-
-    func testBuilder(_ builder: String, text: String) throws -> ResultResponse {
-        let (stdout, stderr) = try exec(command: "BuilderTester", arguments: builder, text)
-        return ResultResponse(method: .testBuilder, result: stdout, error: stderr)
     }
 
     func exec(command: String, arguments: String...) throws -> (stdout: String, stderr: String) {

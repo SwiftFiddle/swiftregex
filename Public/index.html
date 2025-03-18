@@ -39,187 +39,124 @@
       </div>
     </div>
 
-    <ul class="nav nav-tabs" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active text-dark" id="pattern-tab" data-bs-toggle="tab"
-          data-bs-target="#pattern-tab-pane" type="button" role="tab" aria-controls="pattern-tab-pane"
-          aria-selected="true">
-          <img src="/images/icon-regex.svg"><span class="mx-2">Pattern</span>
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link text-dark" id="builder-tab" data-bs-toggle="tab" data-bs-target="#builder-tab-pane"
-          type="button" role="tab" aria-controls="builder-tab-pane" aria-selected="false">
-          <span class="fa-solid fa-brackets-curly"></span><span class="mx-2">Builder DSL</span>
-        </button>
-      </li>
-    </ul>
-
-    <div class="tab-content">
-      <div class="tab-pane show active h-100" id="pattern-tab-pane" role="tabpanel" aria-labelledby="pattern-tab"
-        tabindex="0">
-        <div class="d-flex flex-column h-100">
-          <div class="row flex-grow-1">
-            <div class="col-md-6 d-flex flex-column">
-              <div class="h6 mt-3 mb-2">Regular Expression</div>
-              <div class="border">
-                <div id="expression-field-container" class="d-flex flex-row-reverse">
-                  <div class="btn-group">
-                    <button class="btn btn-link btn-sm dropdown-toggle text-decoration-none bg-white" type="button"
-                      data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                      <span class="fa-solid fa-flag fa-sm"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                      <li class="match-options-item active-tick" data-value="g">
-                        <a class="dropdown-item" href="#">
-                          <div class="checkable">
-                            <span class="fw-bolder">g</span><span>lobal</span>
-                          </div>
-                          <div class="text-wrap text-muted">
-                            Don't return after first match
-                          </div>
-                        </a>
-                      </li>
-                      <li class="match-options-item active-tick" data-value="m">
-                        <a class="dropdown-item" href="#">
-                          <div class="checkable">
-                            <span class="fw-bolder">m</span>ultiline
-                          </div>
-                          <div class="text-wrap text-muted">
-                            ^ and $ match the start/end of line
-                          </div>
-                        </a>
-                      </li>
-                      <li class="match-options-item" data-value="i">
-                        <a class="dropdown-item" href="#">
-                          <div class="checkable">
-                            case <span class="fw-bolder">i</span>nsensitive
-                          </div>
-                          <div class="text-wrap text-muted">
-                            Case insensitive match
-                          </div>
-                        </a>
-                      </li>
-                      <li class="match-options-item" data-value="s">
-                        <a class="dropdown-item" href="#">
-                          <div class="checkable">
-                            <span class="fw-bolder">s</span>ingle line
-                          </div>
-                          <div class="text-wrap text-muted">
-                            Dot matches newline
-                          </div>
-                        </a>
-                      </li>
-                      <li class="match-options-item" data-value="asciiOnlyWordCharacters">
-                        <a class="dropdown-item" href="#">
-                          <div class="checkable">
-                            ASCII only word
-                          </div>
-                          <div class="text-wrap text-muted">
-                            Match only ASCII characters as word characters
-                          </div>
-                        </a>
-                      </li>
-                      <li class="match-options-item" data-value="asciiOnlyDigits">
-                        <a class="dropdown-item" href="#">
-                          <div class="checkable">
-                            ASCII only digit
-                          </div>
-                          <div class="text-wrap text-muted">
-                            Match only ASCII characters as digits
-                          </div>
-                        </a>
-                      </li>
-                      <li class="match-options-item" data-value="asciiOnlyWhitespace">
-                        <a class="dropdown-item" href="#">
-                          <div class="checkable">
-                            ASCII only space
-                          </div>
-                          <div class="text-wrap text-muted">
-                            Match only ASCII characters as space characters
-                          </div>
-                        </a>
-                      </li>
-                      <li class="match-options-item" data-value="asciiOnlyCharacterClasses">
-                        <a class="dropdown-item" href="#">
-                          <div class="checkable">
-                            ASCII only POSIX properties
-                          </div>
-                          <div class="text-wrap text-muted">
-                            Match only ASCII characters when matching character classes
-                          </div>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                  <div id="expression-field-error" class="bg-white d-none">
-                    <span class="fa-solid fa-octagon-xmark text-danger align-middle p-2"></span>
-                  </div>
+    <div class="root-container">
+      <div class="d-flex flex-column h-100">
+        <div class="row flex-grow-1">
+          <div class="col-md-6 d-flex flex-column">
+            <div class="h6 mt-1 mb-2">Regular Expression</div>
+            <div class="border">
+              <div id="expression-field-container" class="d-flex flex-row-reverse">
+                <div class="btn-group">
+                  <button class="btn btn-link btn-sm dropdown-toggle text-decoration-none bg-white" type="button"
+                    data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <span class="fa-solid fa-flag fa-sm"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li class="match-options-item active-tick" data-value="g">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          <span class="fw-bolder">g</span><span>lobal</span>
+                        </div>
+                        <div class="text-wrap text-muted">
+                          Don't return after first match
+                        </div>
+                      </a>
+                    </li>
+                    <li class="match-options-item active-tick" data-value="m">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          <span class="fw-bolder">m</span>ultiline
+                        </div>
+                        <div class="text-wrap text-muted">
+                          ^ and $ match the start/end of line
+                        </div>
+                      </a>
+                    </li>
+                    <li class="match-options-item" data-value="i">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          case <span class="fw-bolder">i</span>nsensitive
+                        </div>
+                        <div class="text-wrap text-muted">
+                          Case insensitive match
+                        </div>
+                      </a>
+                    </li>
+                    <li class="match-options-item" data-value="s">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          <span class="fw-bolder">s</span>ingle line
+                        </div>
+                        <div class="text-wrap text-muted">
+                          Dot matches newline
+                        </div>
+                      </a>
+                    </li>
+                    <li class="match-options-item" data-value="asciiOnlyWordCharacters">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          ASCII only word
+                        </div>
+                        <div class="text-wrap text-muted">
+                          Match only ASCII characters as word characters
+                        </div>
+                      </a>
+                    </li>
+                    <li class="match-options-item" data-value="asciiOnlyDigits">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          ASCII only digit
+                        </div>
+                        <div class="text-wrap text-muted">
+                          Match only ASCII characters as digits
+                        </div>
+                      </a>
+                    </li>
+                    <li class="match-options-item" data-value="asciiOnlyWhitespace">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          ASCII only space
+                        </div>
+                        <div class="text-wrap text-muted">
+                          Match only ASCII characters as space characters
+                        </div>
+                      </a>
+                    </li>
+                    <li class="match-options-item" data-value="asciiOnlyCharacterClasses">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          ASCII only POSIX properties
+                        </div>
+                        <div class="text-wrap text-muted">
+                          Match only ASCII characters when matching character classes
+                        </div>
+                      </a>
+                    </li>
+                  </ul>
                 </div>
-              </div>
-              <div class="row justify-content-between">
-                <div class="col">
-                  <div class="h6 mt-4 mb-2">Test String</div>
+                <div id="expression-field-error" class="bg-white d-none">
+                  <span class="fa-solid fa-octagon-xmark text-danger align-middle p-2"></span>
                 </div>
-                <div class="col align-self-center">
-                  <div class="text-end mt-2">
-                    <span id="match-count" class="text-bg-light border px-3 py-1">no match</span>
-                  </div>
-                </div>
-              </div>
-              <div class="flex-grow-1 border">
-                <div class="pattern-tab-pane test-editor-container editor multiline h-100"></div>
               </div>
             </div>
-            <div class="col-md-6 d-flex flex-column">
-              <div class="h6 mt-3 mb-2">Builder DSL</div>
-              <div class="flex-grow-1 border">
-                <div id="dsl-view-container" class="h-100"></div>
+            <div class="row justify-content-between">
+              <div class="col">
+                <div class="h6 mt-4 mb-2">Test String</div>
               </div>
+              <div class="col align-self-center">
+                <div class="text-end mt-2">
+                  <span id="match-count" class="text-bg-light border px-3 py-1">no match</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex-grow-1 border">
+              <div class="test-editor-container editor multiline h-100"></div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="tab-pane h-100" id="builder-tab-pane" role="tabpanel" aria-labelledby="builder-tab" tabindex="0">
-        <div class="d-flex flex-column h-100">
-          <div class="row flex-grow-1">
-            <div class="col-md-6 d-flex flex-column">
-              <div class="d-flex flex-row mt-3">
-                <div class="h6">
-                  <span>Builder DSL</span>
-                  <a href="#">
-                    <span id="run-button" class="text-white bg-primary mx-2 px-4">
-                      <span id="run-button-icon" class="fa-solid fa-play fa-xs fa-fw"></span>
-                      <span id="run-button-spinner"
-                        class="fa-duotone fa-spinner-third fa-spin fa-xs fa-fw d-none"></span>
-                    </span>
-                  </a>
-                </div>
-              </div>
-              <div class="flex-grow-1 border">
-                <div id="dsl-editor-container" class="h-100"></div>
-              </div>
-            </div>
-            <div class="col-md-6 d-flex flex-column">
-              <div class="row justify-content-between">
-                <div class="col">
-                  <div class="h6 mt-3 mb-2">Test String</div>
-                </div>
-                <div class="col align-self-center">
-                  <div class="text-end mt-1">
-                    <span id="dsl-match-count" class="text-bg-light border px-3 py-1">no match</span>
-                  </div>
-                </div>
-              </div>
-              <div class="flex-grow-1 border">
-                <div class="builder-tab-pane test-editor-container h-100"></div>
-              </div>
-              <div class="h6 mt-4 mb-2">Match Information</div>
-              <div class="flex-grow-1 bg-white border">
-                <div id="match-info-container" class="pattern-tab-pane overflow-scroll h-100">
-                </div>
-              </div>
+          <div class="col-md-6 d-flex flex-column">
+            <div class="h6 mt-1 mb-2">Builder DSL</div>
+            <div class="flex-grow-1 border">
+              <div id="dsl-view-container" class="h-100"></div>
             </div>
           </div>
         </div>

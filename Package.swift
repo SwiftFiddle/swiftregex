@@ -13,17 +13,6 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "BuilderTester",
-            dependencies: [
-                .product(name: "_StringProcessing", package: "swift-experimental-string-processing"),
-                .product(name: "_RegexParser", package: "swift-experimental-string-processing"),
-            ],
-            swiftSettings: [
-                .unsafeFlags(["-Xfrontend", "-disable-availability-checking"]),
-                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
-            ]
-        ),
-        .executableTarget(
             name: "DSLConverter",
             dependencies: [
                 .product(name: "_StringProcessing", package: "swift-experimental-string-processing"),
@@ -79,7 +68,6 @@ let package = Package(
         ),
         .testTarget(
             name: "RegexTests", dependencies: [
-                .target(name: "BuilderTester"),
                 .target(name: "DSLConverter"),
                 .target(name: "DSLParser"),
                 .target(name: "ExpressionParser"),
