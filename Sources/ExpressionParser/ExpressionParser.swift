@@ -3,7 +3,7 @@ import Foundation
 @testable @_spi(RegexBuilder) import _StringProcessing
 
 struct ExpressionParser {
-    private (set) var tokens = [Token]()
+    private(set) var tokens = [Token]()
 
     private let pattern: String
     private let insensitive: Bool
