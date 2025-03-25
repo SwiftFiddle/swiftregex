@@ -3,24 +3,6 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug Run",
-      "program": "${workspaceFolder:swiftregex}/.build/debug/Run",
-      "args": [],
-      "cwd": "${workspaceFolder:swiftregex}",
-      "preLaunchTask": "swift: Build Debug Run"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Release Run",
-      "program": "${workspaceFolder:swiftregex}/.build/release/Run",
-      "args": [],
-      "cwd": "${workspaceFolder:swiftregex}",
-      "preLaunchTask": "swift: Build Release Run"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
       "name": "Debug DSLParser",
       "program": "${workspaceFolder:swiftregex}/.build/debug/DSLParser",
       "args": [],
@@ -111,42 +93,6 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug BuilderExecuter",
-      "program": ".build/debug/BuilderExecuter",
-      "args": [],
-      "cwd": "${workspaceFolder:swiftregex}",
-      "preLaunchTask": "swift: Build Debug BuilderExecuter"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Release BuilderExecuter",
-      "program": ".build/release/BuilderExecuter",
-      "args": [],
-      "cwd": "${workspaceFolder:swiftregex}",
-      "preLaunchTask": "swift: Build Release BuilderExecuter"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Debug BuilderTester",
-      "program": "${workspaceFolder:swiftregex}/.build/debug/BuilderTester",
-      "args": [],
-      "cwd": "${workspaceFolder:swiftregex}",
-      "preLaunchTask": "swift: Build Debug BuilderTester"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Release BuilderTester",
-      "program": "${workspaceFolder:swiftregex}/.build/release/BuilderTester",
-      "args": [],
-      "cwd": "${workspaceFolder:swiftregex}",
-      "preLaunchTask": "swift: Build Release BuilderTester"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
       "sourceLanguages": ["swift"],
       "name": "Debug App",
       "program": "${workspaceFolder:swiftregex}/.build/debug/App",
@@ -163,6 +109,24 @@
       "args": [],
       "cwd": "${workspaceFolder:swiftregex}",
       "preLaunchTask": "swift: Build Release App"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:swiftregex}",
+      "name": "Debug Debugger",
+      "program": "${workspaceFolder:swiftregex}/.build/debug/Debugger",
+      "preLaunchTask": "swift: Build Debug Debugger"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:swiftregex}",
+      "name": "Release Debugger",
+      "program": "${workspaceFolder:swiftregex}/.build/release/Debugger",
+      "preLaunchTask": "swift: Build Release Debugger"
     }
   ]
 }
