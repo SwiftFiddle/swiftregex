@@ -188,7 +188,7 @@ export class App {
   }
 
   run() {
-    const methods = ["parseExpression", "convertToDSL", "match", "parseDSL"];
+    const methods = ["parseExpression", "convertToDSL", "match"];
     const params = {
       pattern: this.expressionField.value,
       text: this.patternTestEditor.value,
