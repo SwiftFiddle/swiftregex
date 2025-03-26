@@ -8,6 +8,7 @@ import "./css/highlight.css";
 
 import "./js/misc/icons";
 
+import "bootstrap";
 import { App } from "./js/app";
 
 const app = new App();
