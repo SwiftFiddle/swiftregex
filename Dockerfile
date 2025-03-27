@@ -25,7 +25,7 @@ COPY ./Package.* ./
 RUN swift package resolve
 
 COPY . .
-RUN swift build -c release --static-swift-stdlib -Xswiftc -enable-testing
+RUN swift build -c release --static-swift-stdlib -Xswiftc -DPROCESSOR_MEASUREMENTS_ENABLED -Xswiftc -enable-testing
 
 WORKDIR /staging
 

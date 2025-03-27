@@ -5,6 +5,10 @@ import {
   faFlag,
   faOctagonXmark,
   faHeart,
+  faBackwardStep,
+  faForwardStep,
+  faCaretLeft,
+  faCaretRight,
 } from "@fortawesome/pro-solid-svg-icons";
 import {
   faAt,
@@ -19,6 +23,11 @@ library.add(
   faFlag,
   faOctagonXmark,
   faHeart,
+
+  faBackwardStep,
+  faForwardStep,
+  faCaretLeft,
+  faCaretRight,
 
   faAt,
   faCheck,
