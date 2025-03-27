@@ -1,7 +1,8 @@
 {
   "name": "swiftregex",
   "scripts": {
-    "build": "webpack --progress --config webpack.prod.js"
+    "prod": "webpack --progress --config webpack.prod.js",
+    "dev": "webpack --progress --config webpack.dev.js"
   },
   "dependencies": {
     "@createjs/easeljs": "2.0.0-beta.4",
