@@ -17,6 +17,8 @@ export default class DebuggerHighlighter {
       const doc = editor.getDoc();
       const marks = this.activeMarks;
 
+      const defaultTextHeight = editor.defaultTextHeight();
+
       for (const trace of traces) {
         const className = "debuggermatch";
         const location = Editor.calcRangePos(
@@ -38,12 +40,13 @@ export default class DebuggerHighlighter {
 
           widget.style.position = "absolute";
           widget.style.zIndex = "10";
-          widget.style.height = editor.defaultTextHeight() * 1.5 + "px";
+
+          widget.style.height = `${defaultTextHeight * 1.5}px`;
           widget.style.width = "1px";
 
           const coords = editor.charCoords(pos, "local");
-          widget.style.left = coords.left + "px";
-          widget.style.top = coords.top + 2 + "px";
+          widget.style.left = `${coords.left}px`;
+          widget.style.top = `${coords.top + 2}px`;
 
           editor.getWrapperElement().appendChild(widget);
 
@@ -59,12 +62,12 @@ export default class DebuggerHighlighter {
 
         widget.style.position = "absolute";
         widget.style.zIndex = "10";
-        widget.style.height = editor.defaultTextHeight() * 1.5 + "px";
-        widget.style.width = editor.defaultCharWidth() + "px";
+        widget.style.height = `${defaultTextHeight * 1.5}px`;
+        widget.style.width = `${editor.defaultCharWidth()}px`;
 
         const coords = editor.charCoords(pos, "local");
-        widget.style.left = coords.left + "px";
-        widget.style.top = coords.top + 2 + "px";
+        widget.style.left = `${coords.left}px`;
+        widget.style.top = `${coords.top + 2}px`;
 
         editor.getWrapperElement().appendChild(widget);
 
