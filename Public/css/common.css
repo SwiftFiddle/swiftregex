@@ -74,6 +74,7 @@
   -webkit-user-select: none;
   touch-action: manipulation;
   font-size: 90%;
+  font-weight: 600;
 }
 
 #debugger-button:hover {

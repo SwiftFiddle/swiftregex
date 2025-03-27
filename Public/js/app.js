@@ -207,7 +207,7 @@ export class App {
     matchStep.textContent = "1";
 
     const debuggerPattern = document.getElementById("debugger-regex");
-    debuggerPattern.textContent = expression;
+    debuggerPattern.value = expression;
 
     this.debuggerText.value = text;
 
@@ -302,7 +302,7 @@ export class App {
     const method = "debug";
     const params = {
       method,
-      pattern: document.getElementById("debugger-regex").textContent,
+      pattern: document.getElementById("debugger-regex").value,
       text: this.debuggerText.value,
       matchOptions: this.matchOptions.value,
       step: document.getElementById("debugger-step-range").value,
