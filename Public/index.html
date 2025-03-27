@@ -209,7 +209,9 @@
                 <div class="d-flex">
                   <input id="debugger-step-range" type="range" class="form-range flex-grow-1" value="1" min="1"
                     max="100">
-                  <div id="debugger-step-range-max" class="ms-3">100</div>
+                  <div class="ms-3">
+                    <span id="debugger-step-range-max" class="badge rounded-pill text-bg-secondary">100</span>
+                  </div>
                 </div>
                 <p class="mb-0" style="text-align: center">
                   <button id="debugger-go-start" class="btn btn-sm btn-outline-secondary rounded-circle button-circle">
@@ -229,7 +231,9 @@
                 </p>
 
                 <div class="my-1" style="font-weight: 600;">Match Step <span id="debugger-match-step"></span></div>
-                <div id="debugger-regex" class="border mb-3">
+                <div class="mb-3">
+                  <input id="debugger-regex" type="text" class="form-control form-control-sm border shadow-none"
+                    style="border-radius: 0;" readonly>
                 </div>
 
                 <div class="border my-3">
