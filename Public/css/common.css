@@ -57,7 +57,9 @@
 #debugger-button {
   background-color: rgba(51, 51, 51, 0.05);
   border-radius: 15px;
-  border-width: 0;
+  border-width: 1px;
+  border-color: #dee2e6;
+  border-style: solid;
   color: #333333;
   cursor: pointer;
   display: inline-block;

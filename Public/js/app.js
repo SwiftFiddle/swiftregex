@@ -371,6 +371,11 @@ export class App {
           const matchStepRange = document.getElementById("debugger-step-range");
           matchStepRange.max = metrics.stepCount;
 
+          const matchStepRangeMax = document.getElementById(
+            "debugger-step-range-max"
+          );
+          matchStepRangeMax.textContent = metrics.stepCount;
+
           const instructions = document.getElementById("debugger-instructions");
           instructions.innerHTML = "";
 
