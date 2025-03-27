@@ -87,6 +87,9 @@
 span.match {
   background: rgba(112, 176, 224, 0.5);
   color: #101112;
+  border-right: solid 1px #ffffff;
+  border-left: solid 1px #ffffff;
+  margin-right: -2px;
 }
 span.error {
   color: #d22;
@@ -95,13 +98,18 @@ span.error {
 span.error.warning {
   color: #d22;
 }
-span.match {
-  border-right: solid 1px #ffffff;
-  border-left: solid 1px #ffffff;
-  margin-right: -2px;
-  margin-right: -2px;
-}
 span.highlight {
   background: rgba(255, 128, 0, 0.5);
   color: #101112;
+}
+
+span.debuggermatch {
+  background: rgba(112, 176, 224, 0.5);
+  color: #101112;
+  border-right: solid 1px rgba(112, 176, 224, 0.5);
+  border-left: solid 1px rgba(112, 176, 224, 0.5);
+}
+
+span.debuggerbacktrack {
+  background: rgba(255, 0, 0, 0.2);
 }
