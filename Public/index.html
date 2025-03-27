@@ -33,7 +33,6 @@
         <h1 class="h5 my-2">
           <a class="text-decoration-none" href="/">
             <span class="fab fa-swift fa-lg text-primary"></span><span class="ms-2 me-1 text-dark">Swift Regex</span>
-            <span class="text-muted me-1">β</span>
           </a>
         </h1>
       </div>
@@ -145,6 +144,7 @@
               </div>
               <div class="col align-self-center">
                 <div class="text-end mt-2">
+                  <button id="debugger-button" data-bs-toggle="modal" data-bs-target="#debugger-modal">Debug</button>
                   <span id="match-count" class="text-bg-light border px-3 py-1">no match</span>
                 </div>
               </div>
@@ -157,6 +157,80 @@
             <div class="h6 mt-1 mb-2">Builder DSL</div>
             <div class="flex-grow-1 border">
               <div id="dsl-view-container" class="h-100"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="debugger-modal" tabindex="-1" aria-labelledby="debugger-modal-title" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="debugger-modal-title">Regex Debugger</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="d-flex">
+              <div class="me-4" style="max-width: 40%;">
+                <div style="font-weight: 600;">Metrics</div>
+                <div class="border my-2" style="font-size: 90%;">
+                  <table class="table table-borderless table-sm my-0">
+                    <thead>
+                      <tr>
+                        <th>Cycle Count</th>
+                        <th>Resets</th>
+                        <th>Backtracks</th>
+                      </tr>
+                    <tbody>
+                      <tr class="font-monospace">
+                        <td id="debugger-total-cycle-count">0</td>
+                        <td id="debugger-resets">0</td>
+                        <td id="debugger-backtracks">0</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div style="overflow: auto;">
+                  <div class="my-2" style="font-weight: 600;">Instructions</div>
+                  <div class="my-2" style="font-size: 90%;">
+                    <table class="border table table-borderless table-sm font-monospace">
+                      <tbody id="debugger-instructions">
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex-grow-1">
+                <label for="debugger-step-range" class="form-label" style="font-weight: 600;">Match Steps</label>
+                <input id="debugger-step-range" type="range" class="form-range" value="1" min="1" max="100">
+                <p class="mb-0" style="text-align: center">
+                  <button id="debugger-go-start" class="btn btn-sm btn-outline-secondary rounded-circle button-circle">
+                    <i class="fa-solid fa-backward-step fa-lg"></i>
+                  </button>
+                  <button id="debugger-step-backward"
+                    class="btn btn-sm btn-outline-secondary rounded-circle button-circle">
+                    <i class="fa-solid fa-caret-left fa-lg"></i>
+                  </button>
+                  <button id="debugger-step-forward"
+                    class="btn btn-sm btn-outline-secondary rounded-circle button-circle">
+                    <i class="fa-solid fa-caret-right fa-lg"></i>
+                  </button>
+                  <button id="debugger-go-end" class="btn btn-sm btn-outline-secondary rounded-circle button-circle">
+                    <i class="fa-solid fa-forward-step fa-lg"></i>
+                  </button>
+                </p>
+
+                <div class="my-1" style="font-weight: 600;">Match Step <span id="debugger-match-step"></span></div>
+                <div id="debugger-regex" class="border mb-3">
+                </div>
+
+                <div class="border my-3">
+                  <div id="debugger-text-container" class="editor multiline"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

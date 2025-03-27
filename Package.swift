@@ -7,24 +7,13 @@ let package = Package(
     .macOS(.v12)
   ],
   dependencies: [
-    .package(url: "https://github.com/apple/swift-experimental-string-processing.git", branch: "main"),
+    .package(url: "https://github.com/kishikawakatsumi/swift-experimental-string-processing.git", branch: "metrics"),
     .package(url: "https://github.com/vapor/vapor.git", from: "4.114.0"),
     .package(url: "https://github.com/vapor/leaf.git", from: "4.4.1"),
   ],
   targets: [
     .executableTarget(
       name: "DSLConverter",
-      dependencies: [
-        .product(name: "_StringProcessing", package: "swift-experimental-string-processing"),
-        .product(name: "_RegexParser", package: "swift-experimental-string-processing"),
-      ],
-      swiftSettings: [
-        .unsafeFlags(["-Xfrontend", "-disable-availability-checking"]),
-        .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
-      ]
-    ),
-    .executableTarget(
-      name: "DSLParser",
       dependencies: [
         .product(name: "_StringProcessing", package: "swift-experimental-string-processing"),
         .product(name: "_RegexParser", package: "swift-experimental-string-processing"),
@@ -59,17 +48,19 @@ let package = Package(
     .executableTarget(
       name: "App",
       dependencies: [
+        .product(name: "_StringProcessing", package: "swift-experimental-string-processing"),
+        .product(name: "_RegexParser", package: "swift-experimental-string-processing"),
         .product(name: "Vapor", package: "vapor"),
         .product(name: "Leaf", package: "leaf"),
       ],
       swiftSettings: [
-        .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
+        .unsafeFlags(["-Xfrontend", "-disable-availability-checking"]),
+        .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
       ]
     ),
     .testTarget(
       name: "RegexTests", dependencies: [
         .target(name: "DSLConverter"),
-        .target(name: "DSLParser"),
         .target(name: "ExpressionParser"),
         .target(name: "Matcher"),
         .target(name: "App"),

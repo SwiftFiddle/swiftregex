@@ -1,8 +1,3 @@
-.nav-link {
-  padding: 2px 1rem;
-  min-width: 180px;
-}
-
 .active-tick .checkable::after {
   font-family: "Font Awesome 6 Pro";
   content: "\f00c";
@@ -52,6 +47,39 @@
 
 #match-count {
   font-size: 90%;
+}
+
+.button-circle {
+  width: 2rem;
+  height: 2rem;
+}
+
+#debugger-button {
+  background-color: rgba(51, 51, 51, 0.05);
+  border-radius: 15px;
+  border-width: 0;
+  color: #333333;
+  cursor: pointer;
+  display: inline-block;
+  list-style: none;
+  margin: 0 6px;
+  padding: 4px 16px;
+  text-align: center;
+  transition: all 200ms;
+  vertical-align: baseline;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  font-size: 90%;
+}
+
+#debugger-button:hover {
+  background-color: #2222221a;
+}
+
+#debugger-regex {
+  font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
 }
 
 .dropdown-menu {

@@ -4,11 +4,8 @@ import { ExpressionField } from "./views/expression_field";
 import { MatchOptions } from "./views/match_options";
 import { TestEditor } from "./views/test_editor";
 import { DSLView } from "./views/dsl_view";
-
 import { DSLEditor } from "./views/dsl_editor";
-
-import { DSLHighlighter } from "./views/dsl_highlighter";
-
+import { DebuggerText } from "./views/debugger_text";
 import { Runner } from "./runner";
 
 export class App {
@@ -23,12 +20,6 @@ export class App {
     this.expressionField.addEventListener("change", () =>
       this.onExpressionFieldChange()
     );
-    this.expressionField.addEventListener("hover", () => {
-      this.onExpressionFieldHover();
-    });
-    this.expressionField.addEventListener("unhover", () => {
-      this.onExpressionFieldUnhover();
-    });
 
     this.matchOptions = new MatchOptions();
     this.matchOptions.addEventListener("change", () =>
@@ -42,14 +33,55 @@ export class App {
       this.onPatternTestEditorChange()
     );
 
+    this.debuggerText = new DebuggerText(
+      document.getElementById("debugger-text-container")
+    );
+
+    this.debuggerGoStartButton = document.getElementById("debugger-go-start");
+    this.debuggerGoStartButton.addEventListener("click", () => {
+      const matchStepRange = document.getElementById("debugger-step-range");
+      matchStepRange.value = 1;
+      this.onDebuggerStepChange();
+    });
+
+    this.debuggerStepBackwardButton = document.getElementById(
+      "debugger-step-backward"
+    );
+    this.debuggerStepBackwardButton.addEventListener("click", () => {
+      const matchStepRange = document.getElementById("debugger-step-range");
+      matchStepRange.value = Math.max(1, parseInt(matchStepRange.value) - 1);
+      this.onDebuggerStepChange();
+    });
+
+    this.debuggerStepForwardButton = document.getElementById(
+      "debugger-step-forward"
+    );
+    this.debuggerStepForwardButton.addEventListener("click", () => {
+      const matchStepRange = document.getElementById("debugger-step-range");
+      matchStepRange.value = Math.min(
+        parseInt(matchStepRange.value) + 1,
+        parseInt(matchStepRange.max)
+      );
+      this.onDebuggerStepChange();
+    });
+
+    this.debuggerGoEndButton = document.getElementById("debugger-go-end");
+    this.debuggerGoEndButton.addEventListener("click", () => {
+      const matchStepRange = document.getElementById("debugger-step-range");
+      matchStepRange.value = matchStepRange.max;
+      this.onDebuggerStepChange();
+    });
+
+    this.debuggerModal = document.getElementById("debugger-modal");
+    this.debuggerModal.addEventListener("shown.bs.modal", () =>
+      this.launchDebugger()
+    );
+
     this.dslView = new DSLView(document.getElementById("dsl-view-container"));
 
     this.runner = new Runner();
     this.runner.onready = this.onRunnerReady.bind(this);
     this.runner.onresponse = this.onRunnerResponse.bind(this);
-
-    this.dslHighlighter = new DSLHighlighter(this.dslView.editor);
-    this.dslTokens = [];
 
     this.stateProxy = {
       builder: "",
@@ -105,8 +137,6 @@ export class App {
         const expressionField = this.expressionField;
         const matchOptions = this.matchOptions;
         const patternTestEditor = this.patternTestEditor;
-        const dslEditor = this.dslEditor;
-        const builderTestEditor = this.builderTestEditor;
 
         if (expressionField) {
           expressionField.value = e.data.value.pattern;
@@ -116,16 +146,6 @@ export class App {
         }
         if (patternTestEditor) {
           patternTestEditor.value = e.data.value.text1;
-        }
-        if (dslEditor) {
-          dslEditor.value = e.data.value.builder;
-        } else {
-          this.stateProxy.builder = DSLEditor.defaultValue;
-        }
-        if (builderTestEditor) {
-          builderTestEditor.value = e.data.value.text2;
-        } else {
-          this.stateProxy.text2 = TestEditor.defaultValue;
         }
       }
     };
@@ -139,8 +159,6 @@ export class App {
     const expressionField = this.expressionField;
     const matchOptions = this.matchOptions;
     const patternTestEditor = this.patternTestEditor;
-    const dslEditor = this.dslEditor;
-    const builderTestEditor = this.builderTestEditor;
 
     this.stateRestorationWorker.postMessage({
       type: "encode",
@@ -148,8 +166,6 @@ export class App {
         pattern: expressionField ? expressionField.value : "",
         options: matchOptions ? matchOptions.value : [],
         text1: patternTestEditor ? patternTestEditor.value : "",
-        builder: dslEditor ? dslEditor.value : "",
-        text2: builderTestEditor ? builderTestEditor.value : "",
       },
     });
   }
@@ -174,6 +190,32 @@ export class App {
     } else {
       matchCount.textContent = "no match";
     }
+  }
+
+  launchDebugger() {
+    const expressionField = this.expressionField;
+    const patternTestEditor = this.patternTestEditor;
+
+    const expression = expressionField.value;
+    const text = patternTestEditor.value;
+
+    const matchStepRange = document.getElementById("debugger-step-range");
+    matchStepRange.value = 1;
+    matchStepRange.min = 1;
+
+    const matchStep = document.getElementById("debugger-match-step");
+    matchStep.textContent = "1";
+
+    const debuggerPattern = document.getElementById("debugger-regex");
+    debuggerPattern.textContent = expression;
+
+    this.debuggerText.value = text;
+
+    this.onDebuggerStepChange();
+
+    matchStepRange.addEventListener("input", (e) => {
+      this.onDebuggerStepChange();
+    });
   }
 
   onExpressionFieldChange() {
@@ -223,35 +265,6 @@ export class App {
     }
   }
 
-  onExpressionFieldHover() {
-    const related = this.expressionField.hoverToken.related;
-    const location =
-      (related && related.location) || this.expressionField.hoverToken.location;
-    const tokens = this.dslTokens
-      .filter(
-        (token) =>
-          token.patternLocation.start <= location.start &&
-          token.patternLocation.end >= location.end
-      )
-      .map((token) => {
-        return {
-          ...token,
-          sourceLength: token.sourceLocation.end - token.sourceLocation.start,
-          patternLength:
-            token.patternLocation.end - token.patternLocation.start,
-        };
-      });
-    tokens.sort(
-      (a, b) =>
-        a.patternLength - b.patternLength || a.sourceLength - b.sourceLength
-    );
-    this.dslHighlighter.draw(tokens.slice(0, 1));
-  }
-
-  onExpressionFieldUnhover() {
-    this.dslHighlighter.clear();
-  }
-
   onMatchOptionsChange() {
     this.onPatternTestEditorChange();
   }
@@ -285,8 +298,32 @@ export class App {
     this.encodeState();
   }
 
-  onDSLEditorChange() {
-    this.encodeState();
+  onDebuggerStepChange() {
+    const method = "debug";
+    const params = {
+      method,
+      pattern: document.getElementById("debugger-regex").textContent,
+      text: this.debuggerText.value,
+      matchOptions: this.matchOptions.value,
+      step: document.getElementById("debugger-step-range").value,
+    };
+
+    if (this.runner.isReady) {
+      this.runner.run(params);
+    } else {
+      const headers = {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      };
+      const body = JSON.stringify(params);
+      fetch(`/api/rest/${method}`, { method: "POST", headers, body })
+        .then((response) => {
+          return response.json();
+        })
+        .then((response) => {
+          this.onRunnerResponse(response);
+        });
+    }
   }
 
   onRunnerReady() {
@@ -324,14 +361,57 @@ export class App {
         }
         this.patternTestEditor.error = response.error;
         break;
-      case "parseDSL":
+      case "debug":
         if (response.result) {
-          const tokens = JSON.parse(response.result);
-          this.dslTokens = tokens;
-        } else {
-          this.dslTokens = [];
+          const metrics = JSON.parse(response.result);
+
+          const matchStep = document.getElementById("debugger-match-step");
+          matchStep.textContent = metrics.step;
+
+          const matchStepRange = document.getElementById("debugger-step-range");
+          matchStepRange.max = metrics.stepCount;
+
+          const instructions = document.getElementById("debugger-instructions");
+          instructions.innerHTML = "";
+
+          metrics.instructions.forEach((instruction, i) => {
+            const tr = document.createElement("tr");
+
+            if (i === metrics.programCounter) {
+              tr.classList.add("table-primary");
+            }
+
+            const programCounter = document.createElement("td");
+            programCounter.style =
+              "width: 1%; text-align: right; white-space: nowrap; padding-left: 1em; padding-right: 1em;";
+            programCounter.textContent = i + 1;
+            tr.appendChild(programCounter);
+
+            const inst = document.createElement("td");
+            inst.style = "white-space: nowrap;";
+            inst.textContent = instruction;
+            tr.appendChild(inst);
+            instructions.appendChild(tr);
+          });
+
+          const totalCycleCount = document.getElementById(
+            "debugger-total-cycle-count"
+          );
+          totalCycleCount.textContent = metrics.totalCycleCount;
+
+          const resets = document.getElementById("debugger-resets");
+          resets.textContent = metrics.resets;
+
+          const backtracks = document.getElementById("debugger-backtracks");
+
+          const previousBacktracks = backtracks.textContent;
+          backtracks.textContent = metrics.backtracks;
+
+          this.debuggerText.highlighter.draw(
+            metrics.traces,
+            previousBacktracks < metrics.backtracks ? metrics.failure : null
+          );
         }
-        this.dslView.error = response.error;
         break;
     }
   }
