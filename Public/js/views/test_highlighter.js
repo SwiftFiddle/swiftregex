@@ -34,10 +34,11 @@ export default class TestHighlighter extends EventDispatcher {
           tooltip += "<hr>";
           for (const [i, capture] of token.captures.entries()) {
             const value = Utils.htmlSafe(capture.value || "");
+            const name = Utils.htmlSafe(capture.name || "");
             tooltip += `<div class="text-start font-monospace">
-            <div><span class="fw-bolder">group #${i + 1}:</span> ${
-              value === "" ? "empty string" : value
-            }</div>
+            <div><span class="fw-bolder">group #${i + 1}${
+              name ? ` ${name}` : ""
+            }:</span> ${value === "" ? "empty string" : value}</div>
             </div>`;
           }
         }

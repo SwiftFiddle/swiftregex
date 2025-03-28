@@ -95,10 +95,11 @@ struct ExpressionParser {
       category = "groups"
       key = "group"
       substitution = ["{{group.num}}": "\(groupCount)"]
-    case .namedCapture(_):
+    case .namedCapture(let name):
       groupCount += 1
       category = "groups"
       key = "namedgroup"
+      substitution = ["{{name}}": name.value]
     case .balancedCapture(_):
       groupCount += 1
       category = "groups"
