@@ -167,8 +167,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-metrics.git",
       "state" : {
-        "revision" : "3c0f419970ae1c9f942d3abfd4f562e243e9f9e8",
-        "version" : "2.6.0"
+        "revision" : "44491db7cc66774ab930cf15f36324e16b06f425",
+        "version" : "2.6.1"
       }
     },
     {
@@ -248,8 +248,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "f6459d6417d4968f91979224dd8fd38fa99b042c",
-        "version" : "4.114.0"
+        "revision" : "87b0edd2633c35de543cb7573efe5fbf456181bc",
+        "version" : "4.114.1"
       }
     },
     {
