@@ -127,16 +127,16 @@ func routes(_ app: Application) throws {
   }
 
   func debug(pattern: String, text: String, matchOptions: [String], step: String?) throws -> ResultResponse {
+    let context = Debugger.Context()
+
     func run(pattern: String, text: String, matchingOptions: [String] = [], until step: Int? = nil) throws {
-      let context = Debugger.Context.shared
       context.reset()
       context.breakPoint = step
 
       let debugger = Debugger()
-      try debugger.run(pattern: pattern, text: text, matchingOptions: matchingOptions)
+      try debugger.run(pattern: pattern, text: text, matchingOptions: matchingOptions, context: context)
     }
 
-    let context = Debugger.Context.shared
     let breakPoint: Int?
     if let step {
       breakPoint = Int(step)

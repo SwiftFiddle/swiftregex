@@ -93,6 +93,7 @@ export default class TestHighlighter extends EventDispatcher {
   addLeftAnchor(location, attributes = {}) {
     const widget = document.createElement("span");
     widget.className = "match-left";
+
     widget.style.height = `${this.textHeight * 1.5}px`;
     widget.style.width = "1px";
     widget.style.zIndex = "10";
@@ -113,6 +114,7 @@ export default class TestHighlighter extends EventDispatcher {
   addRightAnchor(location, attributes = {}) {
     const widget = document.createElement("span");
     widget.className = "match-right";
+
     widget.style.height = `${this.textHeight * 1.5}px`;
     widget.style.width = "1px";
     widget.style.zIndex = "10";

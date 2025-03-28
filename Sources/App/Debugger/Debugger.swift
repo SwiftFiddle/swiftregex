@@ -3,7 +3,7 @@ import Foundation
 @testable @_spi(RegexBenchmark) import _StringProcessing
 
 struct Debugger {
-  func run(pattern: String, text: String, matchingOptions: [String] = []) throws {
+  func run(pattern: String, text: String, matchingOptions: [String] = [], context: Debugger.Context) throws {
     let ast = try _RegexParser.parse(pattern, .traditional)
 
     var sequence = [AST.MatchingOption]()
@@ -32,7 +32,7 @@ struct Debugger {
 
     let program = try compile(ast, options: options)
 
-    Debugger.Context.shared.instructions = program.instructions.map {
+    context.instructions = program.instructions.map {
       $0.description
     }
 
@@ -49,7 +49,8 @@ struct Debugger {
     do {
       _ = try Executor<AnyRegexOutput>._firstMatch(
         program,
-        using: &cpu
+        using: &cpu,
+        context: context
       )
     } catch {}
   }

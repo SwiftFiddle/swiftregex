@@ -21,34 +21,34 @@ export default class DebuggerHighlighter {
 
       for (const trace of traces) {
         const className = "debuggermatch";
-        const location = Editor.calcRangePos(
-          this.editor,
-          trace.location.start,
-          trace.location.end - trace.location.start
-        );
-        marks.push(
-          doc.markText(location.startPos, location.endPos, {
-            className: className,
-          })
-        );
 
-        if (trace.location.start === trace.location.end) {
+        if (trace.location.start !== trace.location.end) {
+          const location = Editor.calcRangePos(
+            this.editor,
+            trace.location.start,
+            trace.location.end - trace.location.start
+          );
+
+          marks.push(
+            doc.markText(location.startPos, location.endPos, {
+              className: className,
+            })
+          );
+        } else {
           const pos = doc.posFromIndex(trace.location.start);
 
           const widget = document.createElement("span");
           widget.className = className;
 
-          widget.style.position = "absolute";
-          widget.style.zIndex = "10";
-
           widget.style.height = `${defaultTextHeight * 1.5}px`;
           widget.style.width = "1px";
+          widget.style.zIndex = "10";
+
+          this.editor.addWidget(pos, widget);
 
           const coords = editor.charCoords(pos, "local");
           widget.style.left = `${coords.left}px`;
           widget.style.top = `${coords.top + 2}px`;
-
-          editor.getWrapperElement().appendChild(widget);
 
           this.widgets.push(widget);
         }
@@ -60,16 +60,15 @@ export default class DebuggerHighlighter {
         const widget = document.createElement("span");
         widget.className = "debuggerbacktrack";
 
-        widget.style.position = "absolute";
-        widget.style.zIndex = "10";
         widget.style.height = `${defaultTextHeight * 1.5}px`;
         widget.style.width = `${editor.defaultCharWidth()}px`;
+        widget.style.zIndex = "10";
+
+        this.editor.addWidget(pos, widget);
 
         const coords = editor.charCoords(pos, "local");
         widget.style.left = `${coords.left}px`;
         widget.style.top = `${coords.top + 2}px`;
-
-        editor.getWrapperElement().appendChild(widget);
 
         this.widgets.push(widget);
       }
@@ -85,7 +84,7 @@ export default class DebuggerHighlighter {
       marks.length = 0;
 
       for (const widget of this.widgets) {
-        widget.remove();
+        widget.parentNode.removeChild(widget);
       }
       this.widgets.length = 0;
     });

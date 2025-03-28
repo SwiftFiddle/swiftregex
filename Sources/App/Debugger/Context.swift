@@ -2,8 +2,6 @@ import Foundation
 
 extension Debugger {
   class Context {
-    static let shared = Context()
-
     var instructions: [String] = []
     var programCounter = 0
 
@@ -18,7 +16,7 @@ extension Debugger {
     var resets = 0
     var backtracks = 0
 
-    private init(stepCount: Int = 0, breakPoint: Int? = nil) {
+    init(stepCount: Int = 0, breakPoint: Int? = nil) {
       self.stepCount = stepCount
       self.breakPoint = breakPoint
     }
