@@ -4,6 +4,7 @@ import Foundation
 
 struct ExpressionParser {
   private(set) var tokens = [Token]()
+  private(set) var diagnostics: Diagnostics?
 
   private let pattern: String
   private let insensitive: Bool
@@ -16,8 +17,9 @@ struct ExpressionParser {
     self.insensitive = insensitive
   }
 
-  mutating func parse() throws {
-    let ast = try _RegexParser.parse(pattern, .traditional)
+  mutating func parse() {
+    let ast = _RegexParser.parseWithRecovery(pattern, .traditional)
+    diagnostics = ast.diags
     emitNode(ast.root)
   }
 
