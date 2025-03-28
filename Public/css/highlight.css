@@ -84,13 +84,23 @@
 .exp-special {
   color: #c0c;
 }
-span.match {
+
+span.match-char {
   background: rgba(112, 176, 224, 0.5);
   color: #101112;
   border-right: solid 1px #ffffff;
   border-left: solid 1px #ffffff;
   margin-right: -2px;
 }
+span.match-left {
+  border-left: solid 2px rgba(255, 0, 0, 0.2);
+  margin-left: -2px;
+}
+span.match-right {
+  border-right: solid 2px rgba(255, 0, 0, 0.2);
+  margin-right: -2px;
+}
+
 span.error {
   color: #d22;
   font-weight: 700;
