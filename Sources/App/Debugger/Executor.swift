@@ -6,35 +6,42 @@ enum Executor<Output> {
     _ program: MEProgram,
     _ input: String,
     subjectBounds: Range<String.Index>,
-    searchBounds: Range<String.Index>
+    searchBounds: Range<String.Index>,
+    context: Debugger.Context
   ) throws -> Regex<Output>.Match? {
     try Executor._run(
       program,
       input,
       subjectBounds: subjectBounds,
       searchBounds: searchBounds,
-      mode: .partialFromFront)
+      mode: .partialFromFront,
+      context: context
+    )
   }
 
   static func wholeMatch(
     _ program: MEProgram,
     _ input: String,
     subjectBounds: Range<String.Index>,
-    searchBounds: Range<String.Index>
+    searchBounds: Range<String.Index>,
+    context: Debugger.Context
   ) throws -> Regex<Output>.Match? {
     try Executor._run(
       program,
       input,
       subjectBounds: subjectBounds,
       searchBounds: searchBounds,
-      mode: .wholeString)
+      mode: .wholeString,
+      context: context
+    )
   }
 
   static func firstMatch(
     _ program: MEProgram,
     _ input: String,
     subjectBounds: Range<String.Index>,
-    searchBounds: Range<String.Index>
+    searchBounds: Range<String.Index>,
+    context: Debugger.Context
   ) throws -> Regex<Output>.Match? {
     var cpu = Processor(
       program: program,
@@ -45,19 +52,22 @@ enum Executor<Output> {
     )
     return try Executor._firstMatch(
       program,
-      using: &cpu)
+      using: &cpu,
+      context: context
+    )
   }
 
   static func _firstMatch(
     _ program: MEProgram,
-    using cpu: inout Processor
+    using cpu: inout Processor,
+    context: Debugger.Context
   ) throws -> Regex<Output>.Match? {
     let isGraphemeSemantic = program.initialOptions.semanticLevel == .graphemeCluster
 
     var low = cpu.searchBounds.lowerBound
     let high = cpu.searchBounds.upperBound
     while true {
-      if let m = try Executor._run(program, &cpu) {
+      if let m = try Executor._run(program, &cpu, context) {
         return m
       }
       // Fast-path for start-anchored regex
@@ -84,7 +94,8 @@ extension Executor {
     _ input: String,
     subjectBounds: Range<String.Index>,
     searchBounds: Range<String.Index>,
-    mode: MatchMode
+    mode: MatchMode,
+    context: Debugger.Context
   ) throws -> Regex<Output>.Match? {
     var cpu = Processor(
       program: program,
@@ -92,16 +103,17 @@ extension Executor {
       subjectBounds: subjectBounds,
       searchBounds: searchBounds,
       matchMode: mode)
-    return try _run(program, &cpu)
+    return try _run(program, &cpu, context)
   }
 
   static func _run(
     _ program: MEProgram,
-    _ cpu: inout Processor
+    _ cpu: inout Processor,
+    _ context: Debugger.Context
   ) throws -> Regex<Output>.Match? {
     let startPosition = cpu.currentPosition
-    Debugger.Context.shared.start = startPosition.utf16Offset(in: cpu.input)
-    guard let endIdx = try cpu.run() else {
+    context.start = startPosition.utf16Offset(in: cpu.input)
+    guard let endIdx = try cpu.run(context) else {
       return nil
     }
     let range = startPosition..<endIdx
@@ -113,7 +125,7 @@ extension Executor {
   }}
 
 extension Processor {
-  fileprivate mutating func run() throws -> Input.Index? {
+  fileprivate mutating func run(_ context: Debugger.Context) throws -> Input.Index? {
     if self.state == .fail {
       if let e = failureReason {
         throw e
@@ -122,7 +134,6 @@ extension Processor {
     }
     assert(isReset())
     while true {
-      let context = Debugger.Context.shared
       context.programCounter = controller.pc.rawValue
 
       switch self.state {
