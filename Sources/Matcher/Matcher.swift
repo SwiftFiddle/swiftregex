@@ -21,12 +21,14 @@ struct Matcher {
               start: range.lowerBound.utf16Offset(in: text),
               end: range.upperBound.utf16Offset(in: text)
             ),
-            value: String(text[range])
+            value: String(text[range]),
+            name: $0.name
           )
         } else {
           return Group(
             location: nil,
-            value: nil
+            value: nil,
+            name: $0.name
           )
         }
       }
@@ -52,6 +54,7 @@ struct Match: Codable {
 struct Group: Codable {
   let location: Location?
   let value: String?
+  let name: String?
 }
 
 struct Location: Codable {
