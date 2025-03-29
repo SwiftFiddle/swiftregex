@@ -3,18 +3,27 @@ import Foundation
 @testable @_spi(RegexBuilder) import _StringProcessing
 
 struct ExpressionParser {
+  struct Modes {
+    let matchingOptions: [String]
+
+    var i: Bool { matchingOptions.contains("i") }
+    var s: Bool { matchingOptions.contains("s") }
+  }
+
   private(set) var tokens = [Token]()
   private(set) var diagnostics: Diagnostics?
 
   private let pattern: String
-  private let insensitive: Bool
+  private let matchingOptions: [String]
+  private let modes: Modes
 
   private var depth = 0
   private var groupCount = 0
 
-  init(pattern: String, insensitive: Bool = true) {
+  init(pattern: String, matchingOptions: [String]) {
     self.pattern = pattern
-    self.insensitive = insensitive
+    self.matchingOptions = matchingOptions
+    modes = Modes(matchingOptions: matchingOptions)
   }
 
   mutating func parse() {
@@ -516,7 +525,7 @@ struct ExpressionParser {
         substitution = [
           "{{getChar()}}": #""\#(c)""#,
           "{{code}}": charcode,
-          "{{getInsensitive()}}": "Case \(insensitive ? "in" : "")sensitive"
+          "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive"
         ]
       } else {
         `class` = "char"
@@ -525,7 +534,7 @@ struct ExpressionParser {
         substitution = [
           "{{getChar()}}": #""\#(c)""#,
           "{{code}}": charcode,
-          "{{getInsensitive()}}": "Case \(insensitive ? "in" : "")sensitive"
+          "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive"
         ]
       }
     case .scalar(let scalar):
@@ -535,7 +544,7 @@ struct ExpressionParser {
       substitution = [
         "{{getChar()}}": #""\#(String(scalar.value))""#,
         "{{code}}": String(format: "U+%X", scalar.value.value),
-        "{{getInsensitive()}}": "Case \(insensitive ? "in" : "")sensitive"
+        "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive"
       ]
     case .scalarSequence(let scalarSequence):
       let scalars = scalarSequence.scalars
@@ -548,7 +557,7 @@ struct ExpressionParser {
       substitution = [
         "{{getChar()}}": #""\#(value)""#,
         "{{code}}": charcode,
-        "{{getInsensitive()}}": "Case \(insensitive ? "in" : "")sensitive"
+        "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive"
       ]
     case .property(let prop):
       `class` = "charclass"
@@ -994,6 +1003,7 @@ struct ExpressionParser {
       `class` = "charclass"
       category = "charclasses"
       key = "dot"
+      substitution = ["{{getDotAll()}}": "\(modes.s ? "including" : "except") line breaks"]
     case .caretAnchor:
       `class` = "anchor"
       category = "anchors"
