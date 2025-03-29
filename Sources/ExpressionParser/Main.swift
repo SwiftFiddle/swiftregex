@@ -9,7 +9,7 @@ struct Main {
         .split(separator: ",", omittingEmptySubsequences: true)
         .map { String($0) }
 
-      var parser = ExpressionParser(pattern: pattern, insensitive: matchingOptions.contains("i"))
+      var parser = ExpressionParser(pattern: pattern, matchingOptions: matchingOptions)
       parser.parse()
 
       let data = try JSONEncoder().encode(parser.tokens)
