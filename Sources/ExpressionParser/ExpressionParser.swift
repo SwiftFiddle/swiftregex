@@ -1244,7 +1244,16 @@ struct ExpressionParser {
           rhs = String(pattern[range.rhs.startPosition..<range.rhs.endPosition])
         }
 
-        let substitution = ["{{getChar(prev)}}" : #""\#(lhs)""#, "{{getChar(next)}}" : #""\#(rhs)""#]
+        let lhscharcode = lhs.unicodeScalars.map { String(format: "U+%X", $0.value) }.joined(separator: " ")
+        let rhscharcode = rhs.unicodeScalars.map { String(format: "U+%X", $0.value) }.joined(separator: " ")
+
+        let substitution = [
+          "{{getChar(prev)}}" : #""\#(lhs)""#,
+          "{{getChar(next)}}" : #""\#(rhs)""#,
+          "{{prev.code}}" : #""\#(lhscharcode)""#,
+          "{{next.code}}" : #""\#(rhscharcode)""#,
+          "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive."
+        ]
 
         tokens.append(
           Token(
