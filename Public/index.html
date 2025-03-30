@@ -32,7 +32,8 @@
       <div class="col-md-6">
         <h1 class="h5 my-2">
           <a class="text-decoration-none" href="/">
-            <span class="fab fa-swift fa-lg text-primary"></span><span class="ms-2 me-1 text-dark">Swift Regex</span>
+            <span class="fa-brands fa-swift fa-lg text-primary"></span>
+            <span class="ms-2 me-1 text-dark">Swift Regex</span>
           </a>
         </h1>
       </div>
@@ -144,8 +145,12 @@
               </div>
               <div class="col align-self-center">
                 <div class="text-end mt-2">
-                  <button id="debugger-button" class="px-3" data-bs-toggle="modal"
-                    data-bs-target="#debugger-modal">Debugger</button>
+                  <button id="debugger-button" class="px-3" data-bs-toggle="modal" data-bs-target="#debugger-modal">
+                    <div data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-container="#debugger-button"
+                      title="Debugger" aria-label="Debugger" style="display: inline-block;">
+                      <span class="fa-solid fa-stethoscope"></span>
+                    </div>
+                  </button>
                   <span id="match-count" class="text-bg-light border px-3 py-1">no match</span>
                 </div>
               </div>

@@ -4,6 +4,7 @@ import { config, library, dom } from "@fortawesome/fontawesome-svg-core";
 import {
   faFlag,
   faOctagonXmark,
+  faStethoscope,
   faHeart,
   faBackwardStep,
   faForwardStep,
@@ -22,6 +23,7 @@ config.searchPseudoElements = true;
 library.add(
   faFlag,
   faOctagonXmark,
+  faStethoscope,
   faHeart,
 
   faBackwardStep,

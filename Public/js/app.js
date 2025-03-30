@@ -1,5 +1,6 @@
 "use strict";
 
+import { Tooltip } from "bootstrap";
 import { ExpressionField } from "./views/expression_field";
 import { MatchOptions } from "./views/match_options";
 import { TestEditor } from "./views/test_editor";
@@ -14,6 +15,12 @@ export class App {
   }
 
   init() {
+    [].slice
+      .call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      .map((trigger) => {
+        return new Tooltip(trigger);
+      });
+
     this.expressionField = new ExpressionField(
       document.getElementById("expression-field-container")
     );
