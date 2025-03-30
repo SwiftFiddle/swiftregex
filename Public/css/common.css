@@ -45,13 +45,22 @@
   content: "¬";
 }
 
-#match-count {
-  font-size: 90%;
+.dropdown-menu {
+  min-width: 200px;
 }
 
 .button-circle {
   width: 2rem;
   height: 2rem;
+}
+
+.btn:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+#match-count {
+  font-size: 90%;
 }
 
 #debugger-button {
@@ -83,14 +92,6 @@
 
 #debugger-regex {
   font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
-}
-
-.dropdown-menu {
-  min-width: 200px;
-}
-.btn:focus {
-  outline: none;
-  box-shadow: none;
 }
 
 @media (min-width: 576px) {
