@@ -227,6 +227,10 @@ export class App {
 
   onExpressionFieldChange() {
     if (!this.expressionField.value) {
+      this.expressionField.tokens = [];
+      this.expressionField.error = null;
+      this.dslView.value = "";
+      this.dslView.error = null;
       this.updateMatchCount(0, "match-count");
       return;
     }
@@ -349,13 +353,35 @@ export class App {
         } else {
           this.expressionField.tokens = [];
         }
-        this.expressionField.error = response.error;
+        if (response.error) {
+          try {
+            const error = JSON.parse(response.error);
+            if (error) {
+              this.expressionField.error = error;
+            }
+          } catch (e) {
+            this.expressionField.error = response.error;
+          }
+        } else {
+          this.expressionField.error = null;
+        }
         break;
       case "convertToDSL":
         if (response.result) {
           this.dslView.value = JSON.parse(response.result);
         }
-        this.dslView.error = response.error;
+        if (response.error) {
+          try {
+            const error = JSON.parse(response.error);
+            if (error) {
+              this.dslView.error = error;
+            }
+          } catch (e) {
+            this.dslView.error = response.error;
+          }
+        } else {
+          this.dslView.error = null;
+        }
         break;
       case "match":
         if (response.result) {

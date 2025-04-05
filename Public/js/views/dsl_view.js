@@ -16,7 +16,7 @@ export class DSLView extends EventDispatcher {
   }
 
   set value(val) {
-    this.editor.setValue(val || this.defaultText);
+    this.editor.setValue(val);
   }
 
   set error(error) {
@@ -32,14 +32,26 @@ export class DSLView extends EventDispatcher {
       if (!error) {
         return;
       }
-
-      widgets.push(
-        editor.addLineWidget(0, ErrorMessage.create(error), {
-          coverGutter: false,
-          noHScroll: true,
-          above: true,
-        })
-      );
+      if (typeof error === "string" && error instanceof String) {
+        widgets.push(
+          editor.addLineWidget(0, ErrorMessage.create(error), {
+            coverGutter: false,
+            noHScroll: true,
+            above: true,
+          })
+        );
+      } else {
+        for (const e of error) {
+          const message = ErrorMessage.create(e.message);
+          widgets.push(
+            editor.addLineWidget(0, message, {
+              coverGutter: false,
+              noHScroll: true,
+              above: true,
+            })
+          );
+        }
+      }
     });
   }
 

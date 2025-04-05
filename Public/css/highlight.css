@@ -85,6 +85,10 @@
   color: #c0c;
 }
 
+.exp-error {
+  background: #d22;
+}
+
 span.match-char {
   background: rgba(112, 176, 224, 0.5);
   color: #101112;

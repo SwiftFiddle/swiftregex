@@ -30,17 +30,34 @@ export class ExpressionField extends EventDispatcher {
 
   set error(error) {
     if (error) {
-      const content = Utils.htmlSafe(error);
-      this.errorMessageTooltip.setContent(
-        `<span class="fw-bolder text-danger">Parse Error:</span> ${content}`
-      );
+      let message = "";
+      if (typeof error === "string" && error instanceof String) {
+        const errorMessage = Utils.htmlSafe(error);
+        message = `<span class="fw-bolder text-danger">Parse Error:</span> ${errorMessage}`;
+      } else {
+        message = error
+          .map((e) => {
+            const errorMessage = Utils.htmlSafe(e.message);
+            return `<span class="fw-bolder text-danger">${e.behavior}:</span> ${errorMessage}`;
+          })
+          .join("<br>");
+        this.highlighter.drawError(error);
+      }
+      this.errorMessageTooltip.setContent(message);
       document
         .getElementById("expression-field-error")
         .classList.remove("d-none");
     } else {
       this.errorMessageTooltip.setContent("");
       document.getElementById("expression-field-error").classList.add("d-none");
+      this.highlighter.clearError();
     }
+
+    tippy(".exp-error", {
+      allowHTML: true,
+      animation: false,
+      placement: "bottom",
+    });
   }
 
   init(container) {
@@ -85,6 +102,9 @@ export class ExpressionField extends EventDispatcher {
       ...tooltipProps,
       onShow: (instance) => {
         const index = instance.reference.dataset.tokenIndex;
+        if (index === undefined) {
+          return false;
+        }
         const token = this.expressionTokens[index];
         this.onHover(token, instance);
         return false;

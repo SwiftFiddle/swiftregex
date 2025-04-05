@@ -3,9 +3,13 @@ import Foundation
 @testable @_spi(RegexBuilder) import _StringProcessing
 @testable @_spi(PatternConverter) import _StringProcessing
 
-struct DSLConverter {
+class DSLConverter {
+  private(set) var diagnostics: Diagnostics?
+
   func convert(_ pattern: String, matchingOptions: [String] = []) throws -> String {
-    let ast = try _RegexParser.parse(pattern, .traditional)
+    let ast = _RegexParser.parseWithRecovery(pattern, .traditional)
+    diagnostics = ast.diags
+
     var builderDSL = renderAsBuilderDSL(ast: ast)
     if builderDSL.last == "\n" {
       builderDSL = String(builderDSL.dropLast())

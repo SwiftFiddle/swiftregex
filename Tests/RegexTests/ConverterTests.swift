@@ -4,15 +4,22 @@ import XCTest
 
 class ConverterTests: XCTestCase {
   func testConvertPattern() throws {
+//    do {
+//      let converter = DSLConverter()
+//      let builderDSL = try converter.convert(#"gray|grey"#)
+//      print(builderDSL)
+//    }
+//    do {
+//      let converter = DSLConverter()
+//      let builderDSL = try converter.convert(#"\b(?:[a-eg-z]|f(?!oo))\w*\b"#)
+//      print(builderDSL)
+//    }
     do {
       let converter = DSLConverter()
-      let builderDSL = try converter.convert(#"gray|grey"#)
+      let builderDSL = try converter.convert(#"\K\K"#)
       print(builderDSL)
-    }
-    do {
-      let converter = DSLConverter()
-      let builderDSL = try converter.convert(#"\b(?:[a-eg-z]|f(?!oo))\w*\b"#)
-      print(builderDSL)
+    } catch {
+      print(error)
     }
   }
 }
