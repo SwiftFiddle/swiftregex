@@ -22,7 +22,7 @@ struct Main {
       let data = try JSONEncoder().encode(matches)
       print(String(data: data, encoding: .utf8) ?? "")
     } catch {
-      print("\(error)", to:&standardError)
+      print("\(error)", to: &standardError)
     }
   }
 }

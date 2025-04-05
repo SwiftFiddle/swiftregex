@@ -12,15 +12,37 @@ struct Main {
       var parser = ExpressionParser(pattern: pattern, matchingOptions: matchingOptions)
       parser.parse()
 
-      let data = try JSONEncoder().encode(parser.tokens)
+      let encoder = JSONEncoder()
+      let data = try encoder.encode(parser.tokens)
       print(String(data: data, encoding: .utf8) ?? "")
+
       if let diagnostics = parser.diagnostics {
-        for diag in diagnostics.diags {
-          print("\(diag.message)", to:&standardError)
+        let errors = diagnostics.diags.map {
+          let location = $0.location
+          let (start, end) = (location.start, location.end)
+
+          let behavior = switch $0.behavior {
+          case .fatalError:
+            "Fatal Error"
+          case .error:
+            "Error"
+          case .warning:
+            "Warning"
+          }
+          return LocatedMessage(
+            behavior: behavior,
+            message: $0.message,
+            location: Location(
+              start: start.utf16Offset(in: pattern), end: end.utf16Offset(in: pattern)
+            )
+          )
         }
+
+        let data = try JSONEncoder().encode(errors)
+        print(String(data: data, encoding: .utf8) ?? "", to: &standardError)
       }
     } catch {
-      print("\(error)", to:&standardError)
+      print("\(error)", to: &standardError)
     }
   }
 }
@@ -32,4 +54,10 @@ extension FileHandle: @retroactive TextOutputStream {
     guard let data = string.data(using: .utf8) else { return }
     self.write(data)
   }
+}
+
+struct LocatedMessage: Codable {
+  let behavior: String
+  let message: String
+  let location: Location
 }

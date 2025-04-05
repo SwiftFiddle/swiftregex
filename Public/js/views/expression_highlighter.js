@@ -10,6 +10,7 @@ export default class ExpressionHighlighter extends EventDispatcher {
     this.editor = editor;
     this.activeMarks = [];
     this.hoverMarks = [];
+    this.widgets = [];
   }
 
   draw(tokens) {
@@ -60,13 +61,52 @@ export default class ExpressionHighlighter extends EventDispatcher {
     });
   }
 
+  drawError(errors) {
+    this.clearError();
+
+    const pre = ExpressionHighlighter.CSS_PREFIX;
+    const editor = this.editor;
+    editor.operation(() => {
+      for (const error of errors) {
+        const location = Editor.calcRangePos(
+          this.editor,
+          error.location.start,
+          error.location.end - error.location.start
+        );
+        const widget = document.createElement("span");
+        widget.className = `${pre}-error`;
+
+        widget.style.height = `2px`;
+        widget.style.zIndex = "10";
+        widget.setAttribute("data-tippy-content", error.message);
+
+        editor.addWidget(location.startPos, widget);
+        const startCoords = editor.charCoords(location.startPos, "local");
+        const endCoords = editor.charCoords(location.endPos, "local");
+        widget.style.left = `${startCoords.left + 1}px`;
+        widget.style.top = `${startCoords.bottom}px`;
+        widget.style.width = `${endCoords.left - startCoords.left - 2}px`;
+
+        this.widgets.push(widget);
+      }
+    });
+  }
+
   clear() {
     this.editor.operation(() => {
-      let marks = this.activeMarks;
-      for (var i = 0, l = marks.length; i < l; i++) {
-        marks[i].clear();
+      for (const mark of this.activeMarks) {
+        mark.clear();
       }
-      marks.length = 0;
+      this.activeMarks.length = 0;
+    });
+  }
+
+  clearError() {
+    this.editor.operation(() => {
+      for (const widget of this.widgets) {
+        widget.parentNode.removeChild(widget);
+      }
+      this.widgets.length = 0;
     });
   }
 
@@ -77,9 +117,7 @@ export default class ExpressionHighlighter extends EventDispatcher {
       return;
     }
 
-    while (this.hoverMarks.length) {
-      this.hoverMarks.pop().clear();
-    }
+    this.clearHover();
 
     if (selection) {
       this.drawBorder(selection, "selected");
@@ -119,9 +157,12 @@ export default class ExpressionHighlighter extends EventDispatcher {
   }
 
   clearHover() {
-    while (this.hoverMarks.length) {
-      this.hoverMarks.pop().clear();
-    }
+    this.editor.operation(() => {
+      for (const mark of this.hoverMarks) {
+        mark.clear();
+      }
+      this.hoverMarks.length = 0;
+    });
   }
 }
 
