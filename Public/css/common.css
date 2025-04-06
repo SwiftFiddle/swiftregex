@@ -85,9 +85,13 @@
   font-size: 90%;
   font-weight: 600;
 }
-
 #debugger-button:hover {
   background-color: #2222221a;
+}
+#debugger-button:disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
 }
 
 #debugger-regex {

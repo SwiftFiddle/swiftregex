@@ -31,7 +31,7 @@ export class ExpressionField extends EventDispatcher {
   set error(error) {
     if (error) {
       let message = "";
-      if (typeof error === "string" && error instanceof String) {
+      if (typeof error === "string" || error instanceof String) {
         const errorMessage = Utils.htmlSafe(error);
         message = `<span class="fw-bolder text-danger">Parse Error:</span> ${errorMessage}`;
       } else {
