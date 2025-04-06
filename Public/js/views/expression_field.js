@@ -29,7 +29,7 @@ export class ExpressionField extends EventDispatcher {
   }
 
   set error(error) {
-    if (error) {
+    if (error.length) {
       let message = "";
       if (typeof error === "string" || error instanceof String) {
         const errorMessage = Utils.htmlSafe(error);
