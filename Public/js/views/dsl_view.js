@@ -32,7 +32,7 @@ export class DSLView extends EventDispatcher {
       if (!error) {
         return;
       }
-      if (typeof error === "string" && error instanceof String) {
+      if (typeof error === "string" || error instanceof String) {
         widgets.push(
           editor.addLineWidget(0, ErrorMessage.create(error), {
             coverGutter: false,

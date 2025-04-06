@@ -384,15 +384,23 @@ export class App {
         }
         break;
       case "match":
+        const debuggerButton = document.getElementById("debugger-button");
+
         if (response.result) {
           const matches = JSON.parse(response.result);
           this.patternTestEditor.matches = matches;
           this.updateMatchCount(matches.length, "match-count");
+
+          debuggerButton.disabled = response.result.length === "";
         } else {
           this.patternTestEditor.matches = [];
           this.updateMatchCount(0, "match-count");
+
+          debuggerButton.disabled = true;
         }
+
         this.patternTestEditor.error = response.error;
+
         break;
       case "debug":
         if (response.result) {
