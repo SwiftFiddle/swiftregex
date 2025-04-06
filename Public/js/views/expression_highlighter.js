@@ -74,17 +74,20 @@ export default class ExpressionHighlighter extends EventDispatcher {
           error.location.end - error.location.start
         );
         const widget = document.createElement("span");
-        widget.className = `${pre}-error`;
+        widget.className = `${pre}-syntax-error`;
 
-        widget.style.height = `2px`;
+        widget.style.height = `5px`;
         widget.style.zIndex = "10";
-        widget.setAttribute("data-tippy-content", error.message);
+        widget.setAttribute(
+          "data-tippy-content",
+          `<span class="fw-bolder text-danger">${error.behavior}:</span> ${error.message}`
+        );
 
         editor.addWidget(location.startPos, widget);
         const startCoords = editor.charCoords(location.startPos, "local");
         const endCoords = editor.charCoords(location.endPos, "local");
         widget.style.left = `${startCoords.left + 1}px`;
-        widget.style.top = `${startCoords.bottom}px`;
+        widget.style.top = `${startCoords.bottom - 1}px`;
         widget.style.width = `${endCoords.left - startCoords.left - 2}px`;
 
         this.widgets.push(widget);

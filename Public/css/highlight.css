@@ -85,8 +85,8 @@
   color: #c0c;
 }
 
-.exp-error {
-  background: #d22;
+.exp-syntax-error {
+  border-top: solid 2px #d22;
 }
 
 span.match-char {

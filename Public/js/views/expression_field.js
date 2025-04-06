@@ -53,7 +53,7 @@ export class ExpressionField extends EventDispatcher {
       this.highlighter.clearError();
     }
 
-    tippy(".exp-error", {
+    tippy(".exp-syntax-error", {
       allowHTML: true,
       animation: false,
       placement: "bottom",
