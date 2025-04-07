@@ -88,7 +88,11 @@ export default class ExpressionHighlighter extends EventDispatcher {
         const endCoords = editor.charCoords(location.endPos, "local");
         widget.style.left = `${startCoords.left + 1}px`;
         widget.style.top = `${startCoords.bottom - 1}px`;
-        widget.style.width = `${endCoords.left - startCoords.left - 2}px`;
+        if (error.location.start === error.location.end) {
+          widget.style.width = `${editor.defaultCharWidth()}px`;
+        } else {
+          widget.style.width = `${endCoords.left - startCoords.left - 2}px`;
+        }
 
         this.widgets.push(widget);
       }
