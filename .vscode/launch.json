@@ -19,58 +19,64 @@
       "preLaunchTask": "swift: Build Release DSLParser"
     },
     {
-      "type": "lldb",
+      "type": "swift",
       "request": "launch",
       "name": "Debug DSLConverter",
-      "program": "${workspaceFolder:swiftregex}/.build/debug/DSLConverter",
       "args": [],
       "cwd": "${workspaceFolder:swiftregex}",
-      "preLaunchTask": "swift: Build Debug DSLConverter"
+      "preLaunchTask": "swift: Build Debug DSLConverter",
+      "target": "DSLConverter",
+      "configuration": "debug"
     },
     {
-      "type": "lldb",
+      "type": "swift",
       "request": "launch",
       "name": "Release DSLConverter",
-      "program": "${workspaceFolder:swiftregex}/.build/release/DSLConverter",
       "args": [],
       "cwd": "${workspaceFolder:swiftregex}",
-      "preLaunchTask": "swift: Build Release DSLConverter"
+      "preLaunchTask": "swift: Build Release DSLConverter",
+      "target": "DSLConverter",
+      "configuration": "release"
     },
     {
-      "type": "lldb",
+      "type": "swift",
       "request": "launch",
       "name": "Debug ExpressionParser",
-      "program": "${workspaceFolder:swiftregex}/.build/debug/ExpressionParser",
       "args": [],
       "cwd": "${workspaceFolder:swiftregex}",
-      "preLaunchTask": "swift: Build Debug ExpressionParser"
+      "preLaunchTask": "swift: Build Debug ExpressionParser",
+      "target": "ExpressionParser",
+      "configuration": "debug"
     },
     {
-      "type": "lldb",
+      "type": "swift",
       "request": "launch",
       "name": "Release ExpressionParser",
-      "program": "${workspaceFolder:swiftregex}/.build/release/ExpressionParser",
       "args": [],
       "cwd": "${workspaceFolder:swiftregex}",
-      "preLaunchTask": "swift: Build Release ExpressionParser"
+      "preLaunchTask": "swift: Build Release ExpressionParser",
+      "target": "ExpressionParser",
+      "configuration": "release"
     },
     {
-      "type": "lldb",
+      "type": "swift",
       "request": "launch",
       "name": "Debug Matcher",
-      "program": "${workspaceFolder:swiftregex}/.build/debug/Matcher",
       "args": [],
       "cwd": "${workspaceFolder:swiftregex}",
-      "preLaunchTask": "swift: Build Debug Matcher"
+      "preLaunchTask": "swift: Build Debug Matcher",
+      "target": "Matcher",
+      "configuration": "debug"
     },
     {
-      "type": "lldb",
+      "type": "swift",
       "request": "launch",
       "name": "Release Matcher",
-      "program": "${workspaceFolder:swiftregex}/.build/release/Matcher",
       "args": [],
       "cwd": "${workspaceFolder:swiftregex}",
-      "preLaunchTask": "swift: Build Release Matcher"
+      "preLaunchTask": "swift: Build Release Matcher",
+      "target": "Matcher",
+      "configuration": "release"
     },
     {
       "type": "lldb",
@@ -91,24 +97,26 @@
       "preLaunchTask": "swift: Build Release PatternConverter"
     },
     {
-      "type": "lldb",
+      "type": "swift",
       "request": "launch",
       "sourceLanguages": ["swift"],
       "name": "Debug App",
-      "program": "${workspaceFolder:swiftregex}/.build/debug/App",
       "args": [],
       "cwd": "${workspaceFolder:swiftregex}",
-      "preLaunchTask": "swift: Build Debug App"
+      "preLaunchTask": "swift: Build Debug App",
+      "target": "App",
+      "configuration": "debug"
     },
     {
-      "type": "lldb",
+      "type": "swift",
       "request": "launch",
       "sourceLanguages": ["swift"],
       "name": "Release App",
-      "program": "${workspaceFolder:swiftregex}/.build/release/App",
       "args": [],
       "cwd": "${workspaceFolder:swiftregex}",
-      "preLaunchTask": "swift: Build Release App"
+      "preLaunchTask": "swift: Build Release App",
+      "target": "App",
+      "configuration": "release"
     },
     {
       "type": "lldb",
