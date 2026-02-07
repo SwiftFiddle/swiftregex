@@ -15,7 +15,7 @@
     "@fortawesome/pro-solid-svg-icons": "6.1.1",
     "@popperjs/core": "2.11.8",
     "bootstrap": "5.3.8",
-    "codemirror": "5.65.20",
+    "codemirror": "5.65.21",
     "pako": "2.1.0",
     "reconnecting-websocket": "4.4.0",
     "tippy.js": "6.3.7"
