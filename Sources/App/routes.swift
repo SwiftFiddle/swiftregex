@@ -177,7 +177,7 @@ func routes(_ app: Application) throws {
   func exec(command: String, arguments: String...) throws -> (stdout: String, stderr: String) {
     let process = Process()
     let executableURL = URL(
-      fileURLWithPath: "\(app.directory.workingDirectory).build/release/\(command)"
+      fileURLWithPath: "\(app.directory.workingDirectory)\(command)"
     )
     process.executableURL = executableURL
     process.arguments = arguments
