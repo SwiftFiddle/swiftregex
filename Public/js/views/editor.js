@@ -23,7 +23,7 @@ Editor.create = (target, opts = {}, width = "100%", height = "100%") => {
         createElement("span", ch === " " ? "cm-space" : "cm-special", " "), // needs to be a space so wrapping works
       tabSize: 2,
     },
-    opts
+    opts,
   );
 
   const cm = CodeMirror(target, o);

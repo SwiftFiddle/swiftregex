@@ -53,7 +53,7 @@ export class TestEditor extends EventDispatcher {
           coverGutter: false,
           noHScroll: true,
           above: true,
-        })
+        }),
       );
     });
   }
@@ -72,7 +72,7 @@ export class TestEditor extends EventDispatcher {
       container,
       { lineWrapping: true, screenReaderLabel: "Pattern Test View" },
       "100%",
-      "100%"
+      "100%",
     );
     this.editor = editor;
 

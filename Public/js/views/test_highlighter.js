@@ -47,7 +47,7 @@ export default class TestHighlighter extends EventDispatcher {
           const location = Editor.calcRangePos(
             editor,
             token.location.start,
-            token.location.end - token.location.start
+            token.location.end - token.location.start,
           );
           marks.push(
             doc.markText(location.startPos, location.endPos, {
@@ -55,7 +55,7 @@ export default class TestHighlighter extends EventDispatcher {
               attributes: {
                 "data-tippy-content": tooltip,
               },
-            })
+            }),
           );
         } else {
           const location = Editor.calcRangePos(editor, token.location.start, 1);
@@ -74,7 +74,7 @@ export default class TestHighlighter extends EventDispatcher {
                   attributes: {
                     "data-tippy-content": tooltip,
                   },
-                })
+                }),
               );
             } else {
               // this.addRightAnchor(location, { "data-tippy-content": tooltip });

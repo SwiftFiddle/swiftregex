@@ -26,14 +26,14 @@ export default class ExpressionHighlighter extends EventDispatcher {
         const location = Editor.calcRangePos(
           this.editor,
           token.location.start,
-          token.location.end - token.location.start
+          token.location.end - token.location.start,
         );
 
         const tooltipAttr = (() => {
           if (token.tooltip) {
             const reference = Reference.get(
               token.tooltip.category,
-              token.tooltip.key
+              token.tooltip.key,
             );
             let title = reference ? reference.title : token.tooltip.category;
             let detail = reference ? reference.detail : token.tooltip.key;
@@ -55,7 +55,7 @@ export default class ExpressionHighlighter extends EventDispatcher {
               ...tooltipAttr,
               "data-token-index": i,
             },
-          })
+          }),
         );
       }
     });
@@ -71,7 +71,7 @@ export default class ExpressionHighlighter extends EventDispatcher {
         const location = Editor.calcRangePos(
           this.editor,
           error.location.start,
-          error.location.end - error.location.start
+          error.location.end - error.location.start,
         );
         const widget = document.createElement("span");
         widget.className = `${pre}-syntax-error`;
@@ -80,7 +80,7 @@ export default class ExpressionHighlighter extends EventDispatcher {
         widget.style.zIndex = "10";
         widget.setAttribute(
           "data-tippy-content",
-          `<span class="fw-bolder text-danger">${error.behavior}:</span> ${error.message}`
+          `<span class="fw-bolder text-danger">${error.behavior}:</span> ${error.message}`,
         );
 
         editor.addWidget(location.startPos, widget);
@@ -143,23 +143,23 @@ export default class ExpressionHighlighter extends EventDispatcher {
     const location = Editor.calcRangePos(
       this.editor,
       range.start,
-      range.end - range.start
+      range.end - range.start,
     );
     const right = Editor.calcRangePos(this.editor, range.end - 1, 1);
     this.hoverMarks.push(
       doc.markText(left.startPos, left.endPos, {
         className: `${pre}-${className}-left`,
-      })
+      }),
     );
     this.hoverMarks.push(
       doc.markText(location.startPos, location.endPos, {
         className: `${pre}-${className}`,
-      })
+      }),
     );
     this.hoverMarks.push(
       doc.markText(right.startPos, right.endPos, {
         className: `${pre}-${className}-right`,
-      })
+      }),
     );
   }
 

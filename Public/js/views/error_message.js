@@ -17,7 +17,7 @@ ErrorMessage.create = (message) => {
     "fa-octagon-xmark",
     "fa-xs",
     "text-danger",
-    "px-2"
+    "px-2",
   );
   iconWrapper.appendChild(icon);
   const messageWrapper = document.createElement("div");
