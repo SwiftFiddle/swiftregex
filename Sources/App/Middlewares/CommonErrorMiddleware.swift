@@ -36,12 +36,15 @@ final class CommonErrorMiddleware: Middleware {
         return request.eventLoop.makeSucceededFuture(["error": status.code])
           .encodeResponse(status: status, headers: headers, for: request)
       } else {
-        return request.view.render("error", [
-          "title": "We've got some trouble",
-          "error": errotTitles[status.code],
-          "reason": errotReasons[status.code],
-          "status": "\(status.code)",
-        ])
+        return request.view.render(
+          "error",
+          [
+            "title": "We've got some trouble",
+            "error": errotTitles[status.code],
+            "reason": errotReasons[status.code],
+            "status": "\(status.code)",
+          ]
+        )
         .encodeResponse(status: status, headers: headers, for: request)
       }
     }

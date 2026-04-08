@@ -21,14 +21,15 @@ struct Main {
           let location = $0.location
           let (start, end) = (location.start, location.end)
 
-          let behavior = switch $0.behavior {
-          case .fatalError:
-            "Fatal Error"
-          case .error:
-            "Error"
-          case .warning:
-            "Warning"
-          }
+          let behavior =
+            switch $0.behavior {
+            case .fatalError:
+              "Fatal Error"
+            case .error:
+              "Error"
+            case .warning:
+              "Warning"
+            }
           return LocatedMessage(
             behavior: behavior,
             message: $0.message,

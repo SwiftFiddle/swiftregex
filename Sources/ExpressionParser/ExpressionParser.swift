@@ -1,4 +1,5 @@
 import Foundation
+
 @testable import _RegexParser
 @testable @_spi(RegexBuilder) import _StringProcessing
 
@@ -371,19 +372,19 @@ struct ExpressionParser {
 
     let substitution: [String: String]
     switch quant.amount.value {
-    case .zeroOrMore: // *
+    case .zeroOrMore:  // *
       substitution = ["{{getQuant()}}": "0 or more"]
-    case .oneOrMore: // +
+    case .oneOrMore:  // +
       substitution = ["{{getQuant()}}": "1 or more"]
-    case .zeroOrOne: // ?
+    case .zeroOrOne:  // ?
       substitution = ["{{getQuant()}}": "between 0 and 1"]
-    case .exactly(let n): // {n}
+    case .exactly(let n):  // {n}
       substitution = ["{{getQuant()}}": String(pattern[n.location.range])]
-    case .nOrMore(let n): // {n,}
+    case .nOrMore(let n):  // {n,}
       substitution = ["{{getQuant()}}": "\(pattern[n.location.range]) or more"]
-    case .upToN(let n): // {,n}
+    case .upToN(let n):  // {,n}
       substitution = ["{{getQuant()}}": "between 0 and \(pattern[n.location.range]))"]
-    case .range(let n, let m): // {n,m}
+    case .range(let n, let m):  // {n,m}
       substitution = ["{{getQuant()}}": "between \(pattern[n.location.range]) and \(pattern[m.location.range])"]
     }
 
@@ -468,7 +469,7 @@ struct ExpressionParser {
           start: quote.startPosition.utf16Offset(in: pattern),
           end: quote.endPosition.utf16Offset(in: pattern)
         ),
-        tooltip: Tooltip(category: "escchars", key: "escsequence", substitution: ["{{value}}" : quote.literal])
+        tooltip: Tooltip(category: "escchars", key: "escsequence", substitution: ["{{value}}": quote.literal])
       )
     )
   }
@@ -525,7 +526,7 @@ struct ExpressionParser {
         substitution = [
           "{{getChar()}}": #""\#(c)""#,
           "{{code}}": charcode,
-          "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive"
+          "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive",
         ]
       } else {
         `class` = "char"
@@ -534,7 +535,7 @@ struct ExpressionParser {
         substitution = [
           "{{getChar()}}": #""\#(c)""#,
           "{{code}}": charcode,
-          "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive"
+          "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive",
         ]
       }
     case .scalar(let scalar):
@@ -544,7 +545,7 @@ struct ExpressionParser {
       substitution = [
         "{{getChar()}}": #""\#(String(scalar.value))""#,
         "{{code}}": String(format: "U+%X", scalar.value.value),
-        "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive"
+        "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive",
       ]
     case .scalarSequence(let scalarSequence):
       let scalars = scalarSequence.scalars
@@ -557,7 +558,7 @@ struct ExpressionParser {
       substitution = [
         "{{getChar()}}": #""\#(value)""#,
         "{{code}}": charcode,
-        "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive"
+        "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive",
       ]
     case .property(let prop):
       `class` = "charclass"
@@ -655,7 +656,7 @@ struct ExpressionParser {
         category = "charclasses"
         key = "unicodecat"
         substitution = ["{{getUniCat()}}": uniCat]
-      case .binary(let property, value: let value):
+      case .binary(let property, let value):
         switch property {
         case .asciiHexDigit:
           break
@@ -815,7 +816,7 @@ struct ExpressionParser {
       case .ccc(_):
         category = "charclasses"
         key = "ccc"
-      case .age(major: let major, minor: let minor):
+      case .age(let major, let minor):
         category = "charclasses"
         key = "age"
       case .block(_):
@@ -1248,11 +1249,11 @@ struct ExpressionParser {
         let rhscharcode = rhs.unicodeScalars.map { String(format: "U+%X", $0.value) }.joined(separator: " ")
 
         let substitution = [
-          "{{getChar(prev)}}" : #""\#(lhs)""#,
-          "{{getChar(next)}}" : #""\#(rhs)""#,
-          "{{prev.code}}" : #""\#(lhscharcode)""#,
-          "{{next.code}}" : #""\#(rhscharcode)""#,
-          "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive."
+          "{{getChar(prev)}}": #""\#(lhs)""#,
+          "{{getChar(next)}}": #""\#(rhs)""#,
+          "{{prev.code}}": #""\#(lhscharcode)""#,
+          "{{next.code}}": #""\#(rhscharcode)""#,
+          "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive.",
         ]
 
         tokens.append(
@@ -1328,7 +1329,7 @@ struct ExpressionParser {
     switch absentFunction.kind {
     case .repeater(_):
       break
-    case .expression(absentee: let absentee, pipe: let pipe, expr: let expr):
+    case .expression(let absentee, let pipe, let expr):
       break
     case .stopper(_):
       break
@@ -1436,7 +1437,7 @@ struct Tooltip: Codable {
   let key: String
   let substitution: [String: String]
 
-  init(category: String, key: String, substitution: [String : String] = [:]) {
+  init(category: String, key: String, substitution: [String: String] = [:]) {
     self.category = category
     self.key = key
     self.substitution = substitution

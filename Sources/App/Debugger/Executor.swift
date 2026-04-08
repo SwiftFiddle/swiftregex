@@ -122,7 +122,8 @@ extension Executor {
       input: cpu.input, elements: []
     )
     return .init(anyRegexOutput: anyRegexOutput, range: range)
-  }}
+  }
+}
 
 extension Processor {
   fileprivate mutating func run(_ context: Debugger.Context) throws -> Input.Index? {
@@ -152,11 +153,11 @@ extension Processor {
         context.stepCount += 1
         context.current = currentPosition.utf16Offset(in: input)
         context.failurePosition = failurePosition
-#if PROCESSOR_MEASUREMENTS_ENABLED
-        context.totalCycleCount = metrics.cycleCount
-        context.resets = metrics.resets
-        context.backtracks = metrics.backtracks
-#endif
+        #if PROCESSOR_MEASUREMENTS_ENABLED
+          context.totalCycleCount = metrics.cycleCount
+          context.resets = metrics.resets
+          context.backtracks = metrics.backtracks
+        #endif
         if context.stepCount == context.breakPoint {
           throw CancellationError()
         }

@@ -1,5 +1,6 @@
 import Foundation
 import XCTest
+
 @testable import ExpressionParser
 
 class ParserTests: XCTestCase {

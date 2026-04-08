@@ -1,5 +1,5 @@
-import Vapor
 import Leaf
+import Vapor
 
 public func configure(_ app: Application) async throws {
   app.middleware = Middlewares()
