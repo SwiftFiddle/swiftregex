@@ -14,7 +14,7 @@ final class CommonErrorMiddleware: Middleware {
         status = .internalServerError
       }
 
-      let errotTitles: [UInt: String] = [
+      let errorTitles: [UInt: String] = [
         400: "Bad Request",
         401: "Unauthorized",
         403: "Access Denied",
@@ -23,7 +23,7 @@ final class CommonErrorMiddleware: Middleware {
         503: "Webservice currently unavailable",
       ]
 
-      let errotReasons: [UInt: String] = [
+      let errorReasons: [UInt: String] = [
         400: "The server cannot process the request due to something that is perceived to be a client error.",
         401: "The requested resource requires an authentication.",
         403: "The requested resource requires an authentication.",
@@ -40,8 +40,8 @@ final class CommonErrorMiddleware: Middleware {
           "error",
           [
             "title": "We've got some trouble",
-            "error": errotTitles[status.code],
-            "reason": errotReasons[status.code],
+            "error": errorTitles[status.code],
+            "reason": errorReasons[status.code],
             "status": "\(status.code)",
           ]
         )
