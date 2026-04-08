@@ -38,7 +38,7 @@ export class DSLView extends EventDispatcher {
             coverGutter: false,
             noHScroll: true,
             above: true,
-          })
+          }),
         );
       } else {
         for (const e of error) {
@@ -48,7 +48,7 @@ export class DSLView extends EventDispatcher {
               coverGutter: false,
               noHScroll: true,
               above: true,
-            })
+            }),
           );
         }
       }
@@ -67,7 +67,7 @@ export class DSLView extends EventDispatcher {
         screenReaderLabel: "Build DSL View",
       },
       "100%",
-      "100%"
+      "100%",
     );
     this.widgets = [];
   }

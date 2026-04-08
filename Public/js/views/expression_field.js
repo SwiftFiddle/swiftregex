@@ -70,11 +70,11 @@ export class ExpressionField extends EventDispatcher {
         screenReaderLabel: "Regular Expression Field",
       },
       "100%",
-      "100%"
+      "100%",
     );
 
     this.editor.on("change", (editor, event) =>
-      this.onEditorChange(editor, event)
+      this.onEditorChange(editor, event),
     );
 
     this.highlighter = new ExpressionHighlighter(this.editor);
@@ -85,7 +85,7 @@ export class ExpressionField extends EventDispatcher {
       document.getElementById("expression-field-error"),
       {
         ...tooltipProps,
-      }
+      },
     );
   }
 

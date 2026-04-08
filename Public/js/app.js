@@ -22,26 +22,26 @@ export class App {
       });
 
     this.expressionField = new ExpressionField(
-      document.getElementById("expression-field-container")
+      document.getElementById("expression-field-container"),
     );
     this.expressionField.addEventListener("change", () =>
-      this.onExpressionFieldChange()
+      this.onExpressionFieldChange(),
     );
 
     this.matchOptions = new MatchOptions();
     this.matchOptions.addEventListener("change", () =>
-      this.onExpressionFieldChange()
+      this.onExpressionFieldChange(),
     );
 
     this.patternTestEditor = new TestEditor(
-      document.querySelector(".test-editor-container")
+      document.querySelector(".test-editor-container"),
     );
     this.patternTestEditor.addEventListener("change", () =>
-      this.onPatternTestEditorChange()
+      this.onPatternTestEditorChange(),
     );
 
     this.debuggerText = new DebuggerText(
-      document.getElementById("debugger-text-container")
+      document.getElementById("debugger-text-container"),
     );
 
     this.debuggerGoStartButton = document.getElementById("debugger-go-start");
@@ -52,7 +52,7 @@ export class App {
     });
 
     this.debuggerStepBackwardButton = document.getElementById(
-      "debugger-step-backward"
+      "debugger-step-backward",
     );
     this.debuggerStepBackwardButton.addEventListener("click", () => {
       const matchStepRange = document.getElementById("debugger-step-range");
@@ -61,13 +61,13 @@ export class App {
     });
 
     this.debuggerStepForwardButton = document.getElementById(
-      "debugger-step-forward"
+      "debugger-step-forward",
     );
     this.debuggerStepForwardButton.addEventListener("click", () => {
       const matchStepRange = document.getElementById("debugger-step-range");
       matchStepRange.value = Math.min(
         parseInt(matchStepRange.value) + 1,
-        parseInt(matchStepRange.max)
+        parseInt(matchStepRange.max),
       );
       this.onDebuggerStepChange();
     });
@@ -81,7 +81,7 @@ export class App {
 
     this.debuggerModal = document.getElementById("debugger-modal");
     this.debuggerModal.addEventListener("shown.bs.modal", () =>
-      this.launchDebugger()
+      this.launchDebugger(),
     );
 
     this.dslView = new DSLView(document.getElementById("dsl-view-container"));
@@ -97,7 +97,7 @@ export class App {
 
     if (window.Worker) {
       this.stateRestorationWorker = new Worker(
-        new URL("./state/worker.js", import.meta.url)
+        new URL("./state/worker.js", import.meta.url),
       );
 
       if (window.location.search) {
@@ -137,7 +137,7 @@ export class App {
             history.replaceState(null, "", e.data.value);
           },
           400,
-          "update_location"
+          "update_location",
         );
       }
       if (e.data && e.data.type === "decode") {
@@ -391,7 +391,7 @@ export class App {
           this.patternTestEditor.matches = matches;
           this.updateMatchCount(matches.length, "match-count");
 
-          debuggerButton.disabled = response.result.length === "";
+          debuggerButton.disabled = matches.length === 0;
         } else {
           this.patternTestEditor.matches = [];
           this.updateMatchCount(0, "match-count");
@@ -413,7 +413,7 @@ export class App {
           matchStepRange.max = metrics.stepCount;
 
           const matchStepRangeMax = document.getElementById(
-            "debugger-step-range-max"
+            "debugger-step-range-max",
           );
           matchStepRangeMax.textContent = metrics.stepCount;
 
@@ -441,7 +441,7 @@ export class App {
           });
 
           const totalCycleCount = document.getElementById(
-            "debugger-total-cycle-count"
+            "debugger-total-cycle-count",
           );
           totalCycleCount.textContent = metrics.totalCycleCount;
 
@@ -455,7 +455,7 @@ export class App {
 
           this.debuggerText.highlighter.draw(
             metrics.traces,
-            previousBacktracks < metrics.backtracks ? metrics.failure : null
+            previousBacktracks < metrics.backtracks ? metrics.failure : null,
           );
         }
         break;
