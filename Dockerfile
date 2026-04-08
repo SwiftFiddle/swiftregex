@@ -29,13 +29,14 @@ RUN swift build -c release -Xswiftc -DPROCESSOR_MEASUREMENTS_ENABLED -Xswiftc -e
 
 WORKDIR /staging
 
-RUN cp "$(swift build --package-path /build -c release --show-bin-path)/App" ./
-
-RUN find -L "$(swift build --package-path /build -c release --show-bin-path)/" -regex '.*\.resources$' -exec cp -Ra {} ./ \;
-
+RUN BIN_PATH="$(swift build --package-path /build -c release --show-bin-path)" \
+    && cp "$BIN_PATH/App" ./ \
+    && cp "$BIN_PATH/DSLConverter" ./ \
+    && cp "$BIN_PATH/ExpressionParser" ./ \
+    && cp "$BIN_PATH/Matcher" ./ \
+    && find -L "$BIN_PATH/" -regex '.*\.resources$' -exec cp -Ra {} ./ \;
 RUN [ -d /build/Public ] && { mv /build/Public ./Public && chmod -R a-w ./Public; } || true
 RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w ./Resources; } || true
-RUN [ -d /build/.build ] && { mv /build/.build ./.build && chmod -R a-w ./.build; } || true
 
 
 FROM swiftlang/swift:nightly-main-jammy
