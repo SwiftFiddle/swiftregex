@@ -189,15 +189,41 @@ func routes(_ app: Application) throws {
     process.standardOutput = standardOutput
     process.standardError = standardError
 
+    var stdoutData = Data()
+    var stderrData = Data()
+    let group = DispatchGroup()
+
+    group.enter()
+    standardOutput.fileHandleForReading.readabilityHandler = { handle in
+      let chunk = handle.availableData
+      if chunk.isEmpty {
+        standardOutput.fileHandleForReading.readabilityHandler = nil
+        group.leave()
+      } else {
+        stdoutData.append(chunk)
+      }
+    }
+
+    group.enter()
+    standardError.fileHandleForReading.readabilityHandler = { handle in
+      let chunk = handle.availableData
+      if chunk.isEmpty {
+        standardError.fileHandleForReading.readabilityHandler = nil
+        group.leave()
+      } else {
+        stderrData.append(chunk)
+      }
+    }
+
     try process.run()
+
+    group.wait()
     process.waitUntilExit()
 
-    let stdoutData = standardOutput.fileHandleForReading.readDataToEndOfFile()
     guard let stdout = String(data: stdoutData, encoding: .utf8) else {
       throw Abort(.internalServerError)
     }
 
-    let stderrData = standardError.fileHandleForReading.readDataToEndOfFile()
     guard let stderr = String(data: stderrData, encoding: .utf8) else {
       throw Abort(.internalServerError)
     }
