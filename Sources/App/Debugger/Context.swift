@@ -30,6 +30,7 @@ extension Debugger {
 
       start = 0
       current = 0
+      failurePosition = 0
 
       totalCycleCount = 0
       resets = 0
