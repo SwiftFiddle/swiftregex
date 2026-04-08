@@ -33,10 +33,8 @@ RUN BIN_PATH="$(swift build --package-path /build -c release --show-bin-path)" \
     && cp "$BIN_PATH/App" ./ \
     && cp "$BIN_PATH/DSLConverter" ./ \
     && cp "$BIN_PATH/ExpressionParser" ./ \
-    && cp "$BIN_PATH/Matcher" ./
-
-RUN find -L "$(swift build --package-path /build -c release --show-bin-path)/" -regex '.*\.resources$' -exec cp -Ra {} ./ \;
-
+    && cp "$BIN_PATH/Matcher" ./ \
+    && find -L "$BIN_PATH/" -regex '.*\.resources$' -exec cp -Ra {} ./ \;
 RUN [ -d /build/Public ] && { mv /build/Public ./Public && chmod -R a-w ./Public; } || true
 RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w ./Resources; } || true
 
