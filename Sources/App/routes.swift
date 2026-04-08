@@ -167,7 +167,7 @@ func routes(_ app: Application) throws {
       failure: Debugger.Location(start: context.current, end: context.failurePosition),
     )
     let data = try JSONEncoder().encode(metrics)
-    
+
     let result = String(data: data, encoding: .utf8) ?? ""
     let response = ResultResponse(method: .debug, result: result, error: "")
 
@@ -178,7 +178,9 @@ func routes(_ app: Application) throws {
     let process = Process()
     let executableURL = URL(
       fileURLWithPath: app.directory.workingDirectory
-    ).appendingPathComponent(command)
+    )
+    .appendingPathComponent(command)
+
     process.executableURL = executableURL
     process.arguments = arguments
 

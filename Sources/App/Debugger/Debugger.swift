@@ -1,4 +1,5 @@
 import Foundation
+
 @testable import _RegexParser
 @testable @_spi(RegexBenchmark) import _StringProcessing
 
@@ -64,7 +65,7 @@ struct Debugger {
   struct Metrics: Codable {
     var instructions: [String]
     var programCounter: Int
-    
+
     var stepCount: Int
     var step: Int
 
