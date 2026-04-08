@@ -383,7 +383,7 @@ struct ExpressionParser {
     case .nOrMore(let n):  // {n,}
       substitution = ["{{getQuant()}}": "\(pattern[n.location.range]) or more"]
     case .upToN(let n):  // {,n}
-      substitution = ["{{getQuant()}}": "between 0 and \(pattern[n.location.range]))"]
+      substitution = ["{{getQuant()}}": "between 0 and \(pattern[n.location.range])"]
     case .range(let n, let m):  // {n,m}
       substitution = ["{{getQuant()}}": "between \(pattern[n.location.range]) and \(pattern[m.location.range])"]
     }
