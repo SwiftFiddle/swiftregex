@@ -119,45 +119,36 @@ struct ExpressionParser {
       category = "groups"
       key = "noncapgroup"
     case .nonCaptureReset:
-      groupCount += 1
       category = "groups"
       key = "branchreset"
     case .atomicNonCapturing:
-      groupCount += 1
       category = "groups"
       key = "atomic"
     case .lookahead:
       category = "lookaround"
       key = "poslookahead"
     case .negativeLookahead:
-      groupCount += 1
       category = "lookaround"
       key = "neglookahead"
     case .nonAtomicLookahead:
-      groupCount += 1
       category = "lookaround"
       key = "nonatomicposlookahead"
     case .lookbehind:
       category = "lookaround"
       key = "poslookbehind"
     case .negativeLookbehind:
-      groupCount += 1
       category = "lookaround"
       key = "neglookbehind"
     case .nonAtomicLookbehind:
-      groupCount += 1
       category = "lookaround"
       key = "nonatomicposlookbehind"
     case .scriptRun:
-      groupCount += 1
       category = "Script run. "
       key = ""
     case .atomicScriptRun:
-      groupCount += 1
       category = "Atomic script run. "
       key = ""
     case .changeMatchingOptions(_):
-      groupCount += 1
       category = "Change matching options"
       key = ""
     }

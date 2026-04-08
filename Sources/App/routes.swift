@@ -188,14 +188,16 @@ func routes(_ app: Application) throws {
     process.standardError = standardError
 
     try process.run()
-    process.waitUntilExit()
 
     let stdoutData = standardOutput.fileHandleForReading.readDataToEndOfFile()
+    let stderrData = standardError.fileHandleForReading.readDataToEndOfFile()
+
+    process.waitUntilExit()
+
     guard let stdout = String(data: stdoutData, encoding: .utf8) else {
       throw Abort(.internalServerError)
     }
 
-    let stderrData = standardError.fileHandleForReading.readDataToEndOfFile()
     guard let stderr = String(data: stderrData, encoding: .utf8) else {
       throw Abort(.internalServerError)
     }

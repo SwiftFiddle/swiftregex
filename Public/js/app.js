@@ -79,6 +79,11 @@ export class App {
       this.onDebuggerStepChange();
     });
 
+    const matchStepRange = document.getElementById("debugger-step-range");
+    matchStepRange.addEventListener("input", () => {
+      this.onDebuggerStepChange();
+    });
+
     this.debuggerModal = document.getElementById("debugger-modal");
     this.debuggerModal.addEventListener("shown.bs.modal", () =>
       this.launchDebugger(),
@@ -219,10 +224,6 @@ export class App {
     this.debuggerText.value = text;
 
     this.onDebuggerStepChange();
-
-    matchStepRange.addEventListener("input", (e) => {
-      this.onDebuggerStepChange();
-    });
   }
 
   onExpressionFieldChange() {
@@ -450,7 +451,7 @@ export class App {
 
           const backtracks = document.getElementById("debugger-backtracks");
 
-          const previousBacktracks = backtracks.textContent;
+          const previousBacktracks = Number(backtracks.textContent);
           backtracks.textContent = metrics.backtracks;
 
           this.debuggerText.highlighter.draw(
