@@ -1,10 +1,8 @@
-.active-tick .checkable::after {
-  font-family: "Font Awesome 6 Pro";
-  content: "\f00c";
-  color: #0d6efd;
+.match-options-item svg {
   display: none;
 }
 .active-tick svg {
+  display: inline-block;
   color: #0d6efd;
   float: right;
   margin-top: 4px;
