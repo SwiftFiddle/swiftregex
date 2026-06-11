@@ -1,150 +1,184 @@
 "use strict";
 
+import { StateField, StateEffect } from "@codemirror/state";
+import { Decoration, EditorView, WidgetType } from "@codemirror/view";
 import { EventDispatcher } from "@createjs/easeljs";
-import Editor from "./editor";
 import Utils from "../misc/utils";
 
-export default class TestHighlighter extends EventDispatcher {
-  constructor(editor) {
+class MatchedNewlineWidget extends WidgetType {
+  constructor(attrs) {
     super();
+    this.attrs = attrs;
+  }
+  toDOM() {
+    const span = document.createElement("span");
+    span.className = "match-newline";
+    span.textContent = "¬";
+    for (const [key, value] of Object.entries(this.attrs)) {
+      span.setAttribute(key, value);
+    }
+    return span;
+  }
+  eq(other) {
+    return JSON.stringify(this.attrs) === JSON.stringify(other.attrs);
+  }
+}
 
-    this.editor = editor;
-    this.activeMarks = [];
-    this.widgets = [];
+class AnchorWidget extends WidgetType {
+  constructor(className, attrs) {
+    super();
+    this.className = className;
+    this.attrs = attrs;
+  }
+  toDOM(view) {
+    const span = document.createElement("span");
+    span.className = this.className;
+    span.style.display = "inline-block";
+    span.style.height = `${view.defaultLineHeight * 1.5}px`;
+    span.style.width = "1px";
+    span.style.verticalAlign = "text-top";
+    for (const [key, value] of Object.entries(this.attrs)) {
+      span.setAttribute(key, value);
+    }
+    return span;
+  }
+  eq(other) {
+    return (
+      this.className === other.className &&
+      JSON.stringify(this.attrs) === JSON.stringify(other.attrs)
+    );
+  }
+}
 
-    this.textHeight = editor.defaultTextHeight();
+export default class TestHighlighter extends EventDispatcher {
+  constructor() {
+    super();
+    this.view = null;
+
+    this.setMatches = StateEffect.define();
+
+    this.matchesField = StateField.define({
+      create: () => Decoration.none,
+      update: (value, tr) => {
+        for (const e of tr.effects) {
+          if (e.is(this.setMatches)) return e.value;
+        }
+        return tr.docChanged ? Decoration.none : value;
+      },
+      provide: (f) => EditorView.decorations.from(f),
+    });
+  }
+
+  get extensions() {
+    return [this.matchesField];
+  }
+
+  attach(view) {
+    this.view = view;
   }
 
   draw(tokens) {
-    this.clear();
+    const doc = this.view.state.doc;
+    const docLen = doc.length;
+    const decos = [];
 
-    const editor = this.editor;
-    editor.operation(() => {
-      const doc = editor.getDoc();
-      const marks = this.activeMarks;
-
-      for (const token of tokens) {
-        const match = Utils.htmlSafe(token.value);
-        let tooltip = `<div class="text-start font-monospace">
+    for (const token of tokens) {
+      const match = Utils.htmlSafe(token.value);
+      let tooltip = `<div class="text-start font-monospace">
         <div><span class="fw-bolder">match:</span> ${match}</div>
         <div class="fw-bolder">range: ${token.location.start}-${token.location.end}</div>
         </div>`;
 
-        if (token.captures.length) {
-          tooltip += "<hr>";
-          for (const [i, capture] of token.captures.entries()) {
-            const value = Utils.htmlSafe(capture.value || "");
-            const name = Utils.htmlSafe(capture.name || "");
-            tooltip += `<div class="text-start font-monospace">
+      if (token.captures.length) {
+        tooltip += "<hr>";
+        for (const [i, capture] of token.captures.entries()) {
+          const value = Utils.htmlSafe(capture.value || "");
+          const name = Utils.htmlSafe(capture.name || "");
+          tooltip += `<div class="text-start font-monospace">
             <div><span class="fw-bolder">group #${i + 1}${
               name ? ` ${name}` : ""
             }:</span> ${value === "" ? "empty string" : value}</div>
             </div>`;
+        }
+      }
+
+      const attrs = { "data-tippy-content": tooltip };
+
+      if (token.location.start < token.location.end) {
+        const from = token.location.start;
+        const to = Math.min(token.location.end, docLen);
+        if (from < docLen) {
+          decos.push(
+            Decoration.mark({
+              class: "match-char",
+              attributes: attrs,
+            }).range(from, to),
+          );
+
+          for (
+            let ln = doc.lineAt(from).number;
+            ln < doc.lines;
+            ln++
+          ) {
+            const line = doc.line(ln);
+            if (line.to >= to) break;
+            decos.push(
+              Decoration.widget({
+                widget: new MatchedNewlineWidget(attrs),
+                side: 1,
+              }).range(line.to),
+            );
           }
         }
+      } else {
+        const pos = Math.min(token.location.start, docLen);
 
-        if (token.location.start < token.location.end) {
-          const location = Editor.calcRangePos(
-            editor,
-            token.location.start,
-            token.location.end - token.location.start,
-          );
-          marks.push(
-            doc.markText(location.startPos, location.endPos, {
-              className: "match-char",
-              attributes: {
-                "data-tippy-content": tooltip,
-              },
-            }),
+        if (pos >= docLen) {
+          decos.push(
+            Decoration.widget({
+              widget: new AnchorWidget("match-left", attrs),
+              side: -1,
+            }).range(pos),
           );
         } else {
-          const location = Editor.calcRangePos(editor, token.location.start, 1);
-
-          if (
-            location.startPos.line === location.endPos.line &&
-            location.startPos.ch === location.endPos.ch
-          ) {
-            this.addLeftAnchor(location, { "data-tippy-content": tooltip });
-          }
-          if (location.startPos.line === location.endPos.line) {
-            if (location.startPos.ch < location.endPos.ch) {
-              marks.push(
-                doc.markText(location.startPos, location.endPos, {
-                  className: "match-left",
-                  attributes: {
-                    "data-tippy-content": tooltip,
-                  },
-                }),
+          const line = doc.lineAt(pos);
+          if (pos < line.to) {
+            decos.push(
+              Decoration.mark({
+                class: "match-left",
+                attributes: attrs,
+              }).range(pos, pos + 1),
+            );
+          } else {
+            if (pos === line.from) {
+              decos.push(
+                Decoration.widget({
+                  widget: new AnchorWidget("match-left", attrs),
+                  side: -1,
+                }).range(pos),
               );
             } else {
-              // this.addRightAnchor(location, { "data-tippy-content": tooltip });
-            }
-          } else {
-            if (location.startPos.ch === 0 && location.endPos.ch === 0) {
-              this.addLeftAnchor(location, { "data-tippy-content": tooltip });
-            } else {
-              this.addRightAnchor(location, { "data-tippy-content": tooltip });
+              decos.push(
+                Decoration.widget({
+                  widget: new AnchorWidget("match-right", attrs),
+                  side: 1,
+                }).range(pos),
+              );
             }
           }
         }
       }
+    }
+
+    this.view.dispatch({
+      effects: this.setMatches.of(Decoration.set(decos, true)),
     });
   }
 
-  addLeftAnchor(location, attributes = {}) {
-    const widget = document.createElement("span");
-    widget.className = "match-left";
-
-    widget.style.height = `${this.textHeight * 1.5}px`;
-    widget.style.width = "1px";
-    widget.style.zIndex = "10";
-
-    for (const [key, value] of Object.entries(attributes)) {
-      widget.setAttribute(key, value);
-    }
-
-    this.editor.addWidget(location.startPos, widget);
-
-    const coords = this.editor.charCoords(location.startPos, "local");
-    widget.style.left = `${coords.left}px`;
-    widget.style.top = `${coords.top + 2}px`;
-
-    this.widgets.push(widget);
-  }
-
-  addRightAnchor(location, attributes = {}) {
-    const widget = document.createElement("span");
-    widget.className = "match-right";
-
-    widget.style.height = `${this.textHeight * 1.5}px`;
-    widget.style.width = "1px";
-    widget.style.zIndex = "10";
-
-    for (const [key, value] of Object.entries(attributes)) {
-      widget.setAttribute(key, value);
-    }
-
-    this.editor.addWidget(location.endPos, widget);
-
-    const coords = this.editor.charCoords(location.startPos, "local");
-    widget.style.left = `${coords.left}px`;
-    widget.style.top = `${coords.top + 2}px`;
-
-    this.widgets.push(widget);
-  }
-
   clear() {
-    this.editor.operation(() => {
-      let marks = this.activeMarks;
-      for (var i = 0, l = marks.length; i < l; i++) {
-        marks[i].clear();
-      }
-      marks.length = 0;
-
-      for (const widget of this.widgets) {
-        widget.parentNode.removeChild(widget);
-      }
-      this.widgets.length = 0;
+    if (!this.view) return;
+    this.view.dispatch({
+      effects: this.setMatches.of(Decoration.none),
     });
   }
 }

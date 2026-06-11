@@ -12,51 +12,38 @@ export class DSLView extends EventDispatcher {
   }
 
   get value() {
-    return this.editor.getValue();
+    return this.view.state.doc.toString();
   }
 
   set value(val) {
-    this.editor.setValue(val);
-  }
-
-  set error(error) {
-    const editor = this.editor;
-    const widgets = this.widgets;
-
-    editor.operation(function () {
-      for (const widget of widgets) {
-        editor.removeLineWidget(widget);
-      }
-      widgets.length = 0;
-
-      if (!error) {
-        return;
-      }
-      if (typeof error === "string" || error instanceof String) {
-        widgets.push(
-          editor.addLineWidget(0, ErrorMessage.create(error), {
-            coverGutter: false,
-            noHScroll: true,
-            above: true,
-          }),
-        );
-      } else {
-        for (const e of error) {
-          const message = ErrorMessage.create(e.message);
-          widgets.push(
-            editor.addLineWidget(0, message, {
-              coverGutter: false,
-              noHScroll: true,
-              above: true,
-            }),
-          );
-        }
-      }
+    this.view.dispatch({
+      changes: { from: 0, to: this.view.state.doc.length, insert: val },
     });
   }
 
+  set error(error) {
+    for (const widget of this.widgets) {
+      widget.remove();
+    }
+    this.widgets.length = 0;
+
+    if (!error) return;
+
+    if (typeof error === "string" || error instanceof String) {
+      const msg = ErrorMessage.create(error);
+      this.view.dom.before(msg);
+      this.widgets.push(msg);
+    } else {
+      for (const e of error) {
+        const msg = ErrorMessage.create(e.message);
+        this.view.dom.before(msg);
+        this.widgets.push(msg);
+      }
+    }
+  }
+
   init(container) {
-    this.editor = Editor.create(
+    this.view = Editor.create(
       container,
       {
         lineNumbers: true,

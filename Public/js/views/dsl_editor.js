@@ -1,6 +1,7 @@
 "use strict";
 
 import { EventDispatcher } from "@createjs/easeljs";
+import { EditorView } from "@codemirror/view";
 
 import Editor from "./editor";
 import ErrorMessage from "./error_message";
@@ -42,39 +43,30 @@ export class DSLEditor extends EventDispatcher {
   }
 
   get value() {
-    return this.editor.getValue();
+    return this.view.state.doc.toString();
   }
 
   set value(val) {
-    this.editor.setValue(val);
-  }
-
-  set error(error) {
-    const editor = this.editor;
-    const widgets = this.widgets;
-
-    editor.operation(function () {
-      for (const widget of widgets) {
-        editor.removeLineWidget(widget);
-      }
-      widgets.length = 0;
-
-      if (!error) {
-        return;
-      }
-
-      widgets.push(
-        editor.addLineWidget(0, ErrorMessage.create(error), {
-          coverGutter: false,
-          noHScroll: true,
-          above: true,
-        })
-      );
+    this.view.dispatch({
+      changes: { from: 0, to: this.view.state.doc.length, insert: val },
     });
   }
 
+  set error(error) {
+    for (const widget of this.widgets) {
+      widget.remove();
+    }
+    this.widgets.length = 0;
+
+    if (!error) return;
+
+    const msg = ErrorMessage.create(error);
+    this.view.dom.before(msg);
+    this.widgets.push(msg);
+  }
+
   init(container) {
-    this.editor = Editor.create(
+    this.view = Editor.create(
       container,
       {
         lineNumbers: true,
@@ -82,21 +74,36 @@ export class DSLEditor extends EventDispatcher {
         matchBrackets: true,
         mode: "swift",
         screenReaderLabel: "Build DSL Editor",
+        extensions: [
+          EditorView.updateListener.of((update) => {
+            if (update.docChanged) {
+              this.deferUpdate();
+            }
+          }),
+        ],
       },
       "100%",
-      "100%"
+      "100%",
     );
-    this.editor.setValue(defaultValue);
-    this.editor.setCursor(this.editor.lineCount(), 0);
-    this.editor.on("change", (editor, event) =>
-      this.onEditorChange(editor, event)
-    );
+
+    this.view.dispatch({
+      changes: { from: 0, to: 0, insert: defaultValue },
+    });
+    this.view.dispatch({
+      selection: { anchor: this.view.state.doc.length },
+    });
 
     this.widgets = [];
   }
 
   setDefaultValue() {
-    this.editor.setValue(defaultValue);
+    this.view.dispatch({
+      changes: {
+        from: 0,
+        to: this.view.state.doc.length,
+        insert: defaultValue,
+      },
+    });
   }
 
   deferUpdate() {
@@ -105,9 +112,5 @@ export class DSLEditor extends EventDispatcher {
 
   update() {
     this.dispatchEvent("change");
-  }
-
-  onEditorChange(editor, event) {
-    this.deferUpdate();
   }
 }

@@ -5,6 +5,11 @@
     "dev": "webpack --progress --config webpack.dev.js"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.10.3",
+    "@codemirror/language": "^6.12.3",
+    "@codemirror/legacy-modes": "^6.5.3",
+    "@codemirror/state": "^6.6.0",
+    "@codemirror/view": "^6.43.1",
     "@createjs/easeljs": "2.0.0-beta.4",
     "@fortawesome/fontawesome-svg-core": "7.2.0",
     "@fortawesome/free-brands-svg-icons": "7.2.0",
@@ -15,7 +20,6 @@
     "@fortawesome/pro-solid-svg-icons": "6.1.1",
     "@popperjs/core": "2.11.8",
     "bootstrap": "5.3.8",
-    "codemirror": "5.65.21",
     "pako": "2.1.0",
     "reconnecting-websocket": "4.4.0",
     "tippy.js": "6.3.7"

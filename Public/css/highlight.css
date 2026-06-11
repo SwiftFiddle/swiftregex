@@ -86,7 +86,10 @@
 }
 
 .exp-syntax-error {
-  border-top: solid 2px #d22;
+  border-bottom: solid 2px #d22;
+}
+.exp-syntax-error-widget {
+  border-bottom: solid 2px #d22;
 }
 
 span.match-char {
@@ -95,6 +98,17 @@ span.match-char {
   border-right: solid 1px #ffffff;
   border-left: solid 1px #ffffff;
   margin-right: -2px;
+}
+span.match-newline {
+  background: rgba(112, 176, 224, 0.5);
+  color: #101112;
+  border-right: solid 1px #ffffff;
+  border-left: solid 1px #ffffff;
+  margin-right: -2px;
+}
+.match-newline ~ .cm-newline,
+.cm-newline:has(~ .match-newline) {
+  display: none;
 }
 span.match-left {
   border-left: solid 2px rgba(255, 0, 0, 0.2);

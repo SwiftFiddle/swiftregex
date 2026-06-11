@@ -10,26 +10,31 @@ export class DebuggerText {
   }
 
   get value() {
-    return this.editor.getValue();
+    return this.view.state.doc.toString();
   }
 
   set value(val) {
-    this.editor.setValue(val);
+    this.view.dispatch({
+      changes: { from: 0, to: this.view.state.doc.length, insert: val },
+    });
   }
 
   init(container) {
-    const editor = Editor.create(
+    this.highlighter = new DebuggerHighlighter();
+
+    this.view = Editor.create(
       container,
       {
         lineWrapping: true,
+        showNewlines: true,
         screenReaderLabel: "Debugger Test View",
         readOnly: true,
+        extensions: [...this.highlighter.extensions],
       },
       "100%",
-      "100%"
+      "100%",
     );
-    this.editor = editor;
 
-    this.highlighter = new DebuggerHighlighter(editor);
+    this.highlighter.attach(this.view);
   }
 }

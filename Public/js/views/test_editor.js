@@ -2,6 +2,7 @@
 
 import { EventDispatcher } from "@createjs/easeljs";
 import tippy from "tippy.js";
+import { EditorView } from "@codemirror/view";
 
 import Editor from "./editor";
 import TestHighlighter from "./test_highlighter";
@@ -27,35 +28,26 @@ export class TestEditor extends EventDispatcher {
   }
 
   get value() {
-    return this.editor.getValue();
+    return this.view.state.doc.toString();
   }
 
   set value(val) {
-    this.editor.setValue(val);
+    this.view.dispatch({
+      changes: { from: 0, to: this.view.state.doc.length, insert: val },
+    });
   }
 
   set error(error) {
-    const editor = this.editor;
-    const widgets = this.widgets;
+    for (const widget of this.widgets) {
+      widget.remove();
+    }
+    this.widgets.length = 0;
 
-    editor.operation(function () {
-      for (const widget of widgets) {
-        editor.removeLineWidget(widget);
-      }
-      widgets.length = 0;
+    if (!error) return;
 
-      if (!error) {
-        return;
-      }
-
-      widgets.push(
-        editor.addLineWidget(0, ErrorMessage.create(error), {
-          coverGutter: false,
-          noHScroll: true,
-          above: true,
-        }),
-      );
-    });
+    const msg = ErrorMessage.create(error);
+    this.view.dom.before(msg);
+    this.widgets.push(msg);
   }
 
   set matches(matches) {
@@ -68,22 +60,39 @@ export class TestEditor extends EventDispatcher {
   }
 
   init(container) {
-    const editor = Editor.create(
+    this.highlighter = new TestHighlighter();
+
+    this.view = Editor.create(
       container,
-      { lineWrapping: true, screenReaderLabel: "Pattern Test View" },
+      {
+        lineWrapping: true,
+        showNewlines: true,
+        screenReaderLabel: "Pattern Test View",
+        extensions: [
+          ...this.highlighter.extensions,
+          EditorView.updateListener.of((update) => {
+            if (update.docChanged) {
+              this.deferUpdate();
+            }
+          }),
+        ],
+      },
       "100%",
       "100%",
     );
-    this.editor = editor;
 
-    this.highlighter = new TestHighlighter(editor);
+    this.highlighter.attach(this.view);
     this.widgets = [];
-
-    editor.on("change", (editor, event) => this.onEditorChange(editor, event));
   }
 
   setDefaultValue() {
-    this.editor.setValue(defaultValue);
+    this.view.dispatch({
+      changes: {
+        from: 0,
+        to: this.view.state.doc.length,
+        insert: defaultValue,
+      },
+    });
   }
 
   deferUpdate() {
@@ -92,9 +101,5 @@ export class TestEditor extends EventDispatcher {
 
   update() {
     this.dispatchEvent("change");
-  }
-
-  onEditorChange(editor, event) {
-    this.deferUpdate();
   }
 }
