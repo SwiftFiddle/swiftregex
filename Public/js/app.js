@@ -211,6 +211,11 @@ export class App {
     });
   }
 
+  showMatchLoading() {
+    const matchCount = document.getElementById("match-count");
+    matchCount.textContent = "Matching...";
+  }
+
   updateMatchCount(count, id) {
     const matchCount = document.getElementById(id);
     if (count > 1) {
@@ -261,6 +266,7 @@ export class App {
   }
 
   run() {
+    this.showMatchLoading();
     const methods = ["parseExpression", "convertToDSL", "match"];
     const params = {
       pattern: this.expressionField.value,
@@ -301,6 +307,7 @@ export class App {
   }
 
   onPatternTestEditorChange() {
+    this.showMatchLoading();
     const method = "match";
     const params = {
       method,
@@ -421,12 +428,17 @@ export class App {
           debuggerButton.disabled = matches.length === 0;
         } else {
           this.patternTestEditor.matches = [];
-          this.updateMatchCount(0, "match-count");
+          if (response.error === "Timed out") {
+            document.getElementById("match-count").textContent = "Timed out";
+          } else {
+            this.updateMatchCount(0, "match-count");
+          }
 
           debuggerButton.disabled = true;
         }
 
-        this.patternTestEditor.error = response.error;
+        this.patternTestEditor.error =
+          response.error === "Timed out" ? "" : response.error;
 
         break;
       case "debug":
