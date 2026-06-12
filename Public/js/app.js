@@ -408,20 +408,23 @@ export class App {
           this.expressionField.tokens = [];
         }
         const debuggerButton = document.getElementById("debugger-button");
+        let hasError = false;
         if (response.error) {
           try {
             const error = JSON.parse(response.error);
-            if (error) {
+            if (error && (!Array.isArray(error) || error.length > 0)) {
               this.expressionField.error = error;
+              hasError = true;
             }
           } catch (e) {
             this.expressionField.error = response.error;
+            hasError = true;
           }
-          debuggerButton.disabled = true;
-        } else {
-          this.expressionField.error = null;
-          debuggerButton.disabled = !response.result;
         }
+        if (!hasError) {
+          this.expressionField.error = null;
+        }
+        debuggerButton.disabled = hasError || !response.result;
         break;
       case "convertToDSL":
         if (response.result) {
