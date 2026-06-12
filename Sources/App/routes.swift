@@ -8,256 +8,231 @@ func routes(_ app: Application) throws {
 
   app.webSocket("api", "ws") { (req, ws) in
     ws.onBinary { (ws, buffer) in
-      do {
-        guard let data = buffer.getData(at: 0, length: buffer.readableBytes) else { return }
+      Task {
+        do {
+          guard let data = buffer.getData(at: 0, length: buffer.readableBytes) else { return }
 
-        let decoder = JSONDecoder()
-        let request = try decoder.decode(ExecRequest.self, from: data)
+          let decoder = JSONDecoder()
+          let request = try decoder.decode(ExecRequest.self, from: data)
 
-        let encoder = JSONEncoder()
+          let encoder = JSONEncoder()
+          let response: ResultResponse
 
-        switch request.method {
-        case .parseExpression:
-          let pattern = request.pattern
-          let matchOptions = request.matchOptions
-          let response = try parseExpression(pattern: pattern, matchOptions: matchOptions)
+          switch request.method {
+          case .parseExpression:
+            response = try await parseExpression(pattern: request.pattern, matchOptions: request.matchOptions, id: request.id)
+          case .convertToDSL:
+            response = try await convertToDSL(pattern: request.pattern, matchOptions: request.matchOptions, id: request.id)
+          case .match:
+            response = try await match(pattern: request.pattern, text: request.text, matchOptions: request.matchOptions, id: request.id)
+          case .debug:
+            response = try await debug(pattern: request.pattern, text: request.text, matchOptions: request.matchOptions, step: request.step, id: request.id)
+          }
 
           if let message = String(data: try encoder.encode(response), encoding: .utf8) {
-            ws.send(message)
+            try await ws.send(message)
           }
-        case .convertToDSL:
-          let pattern = request.pattern
-          let matchOptions = request.matchOptions
-          let response = try convertToDSL(pattern: pattern, matchOptions: matchOptions)
-
-          if let message = String(data: try encoder.encode(response), encoding: .utf8) {
-            ws.send(message)
-          }
-        case .match:
-          let pattern = request.pattern
-          let text = request.text
-          let matchOptions = request.matchOptions
-          let response = try match(pattern: pattern, text: text, matchOptions: matchOptions)
-
-          if let message = String(data: try encoder.encode(response), encoding: .utf8) {
-            ws.send(message)
-          }
-        case .debug:
-          let pattern = request.pattern
-          let text = request.text
-          let matchOptions = request.matchOptions
-          let step = request.step
-          let response = try debug(pattern: pattern, text: text, matchOptions: matchOptions, step: step)
-
-          if let message = String(data: try encoder.encode(response), encoding: .utf8) {
-            ws.send(message)
-          }
+        } catch {
+          req.logger.error("\(error)")
         }
-      } catch {
-        req.logger.error("\(error)")
       }
     }
   }
 
-  app.on(.POST, "api", "rest", "parseExpression", body: .collect(maxSize: "1mb")) { (req) -> ResultResponse in
+  app.on(.POST, "api", "rest", "parseExpression", body: .collect(maxSize: "1mb")) { (req) async throws -> ResultResponse in
     guard let request = try? req.content.decode(ExecRequest.self) else {
       throw Abort(.badRequest)
     }
-
-    let pattern = request.pattern
-    let matchOptions = request.matchOptions
-    let response = try parseExpression(pattern: pattern, matchOptions: matchOptions)
-
-    return response
+    return try await parseExpression(pattern: request.pattern, matchOptions: request.matchOptions, id: request.id)
   }
 
-  app.on(.POST, "api", "rest", "convertToDSL", body: .collect(maxSize: "1mb")) { (req) -> ResultResponse in
+  app.on(.POST, "api", "rest", "convertToDSL", body: .collect(maxSize: "1mb")) { (req) async throws -> ResultResponse in
     guard let request = try? req.content.decode(ExecRequest.self) else {
       throw Abort(.badRequest)
     }
-
-    let pattern = request.pattern
-    let matchOptions = request.matchOptions
-    let response = try convertToDSL(pattern: pattern, matchOptions: matchOptions)
-
-    return response
+    return try await convertToDSL(pattern: request.pattern, matchOptions: request.matchOptions, id: request.id)
   }
 
-  app.on(.POST, "api", "rest", "match", body: .collect(maxSize: "1mb")) { (req) -> ResultResponse in
+  app.on(.POST, "api", "rest", "match", body: .collect(maxSize: "1mb")) { (req) async throws -> ResultResponse in
     guard let request = try? req.content.decode(ExecRequest.self) else {
       throw Abort(.badRequest)
     }
-
-    let pattern = request.pattern
-    let text = request.text
-    let matchOptions = request.matchOptions
-    let response = try match(pattern: pattern, text: text, matchOptions: matchOptions)
-
-    return response
+    return try await match(pattern: request.pattern, text: request.text, matchOptions: request.matchOptions, id: request.id)
   }
 
-  app.on(.POST, "api", "rest", "debug", body: .collect(maxSize: "1mb")) { (req) -> ResultResponse in
+  app.on(.POST, "api", "rest", "debug", body: .collect(maxSize: "1mb")) { (req) async throws -> ResultResponse in
     guard let request = try? req.content.decode(ExecRequest.self) else {
       throw Abort(.badRequest)
     }
-
-    let pattern = request.pattern
-    let text = request.text
-    let matchOptions = request.matchOptions
-    let step = request.step
-
-    let response = try debug(pattern: pattern, text: text, matchOptions: matchOptions, step: step)
-
-    return response
+    return try await debug(pattern: request.pattern, text: request.text, matchOptions: request.matchOptions, step: request.step, id: request.id)
   }
 
-  func parseExpression(pattern: String, matchOptions: [String]) throws -> ResultResponse {
+  func parseExpression(pattern: String, matchOptions: [String], id: String?) async throws -> ResultResponse {
     do {
-      let (stdout, stderr) = try exec(command: "ExpressionParser", timeout: 5, arguments: pattern, matchOptions.joined(separator: ","))
-      return ResultResponse(method: .parseExpression, result: stdout, error: stderr)
+      let (stdout, stderr) = try await exec(command: "ExpressionParser", timeout: 5, arguments: pattern, matchOptions.joined(separator: ","))
+      return ResultResponse(method: .parseExpression, result: stdout, error: stderr, id: id)
     } catch is ProcessTimeoutError {
-      return ResultResponse(method: .parseExpression, result: "", error: "Timed out")
+      return ResultResponse(method: .parseExpression, result: "", error: "Timed out", id: id)
     }
   }
 
-  func convertToDSL(pattern: String, matchOptions: [String]) throws -> ResultResponse {
+  func convertToDSL(pattern: String, matchOptions: [String], id: String?) async throws -> ResultResponse {
     do {
-      let (stdout, stderr) = try exec(command: "DSLConverter", timeout: 5, arguments: pattern, matchOptions.joined(separator: ","))
-      return ResultResponse(method: .convertToDSL, result: stdout, error: stderr)
+      let (stdout, stderr) = try await exec(command: "DSLConverter", timeout: 5, arguments: pattern, matchOptions.joined(separator: ","))
+      return ResultResponse(method: .convertToDSL, result: stdout, error: stderr, id: id)
     } catch is ProcessTimeoutError {
-      return ResultResponse(method: .convertToDSL, result: "", error: "Timed out")
+      return ResultResponse(method: .convertToDSL, result: "", error: "Timed out", id: id)
     }
   }
 
-  func match(pattern: String, text: String, matchOptions: [String]) throws -> ResultResponse {
+  func match(pattern: String, text: String, matchOptions: [String], id: String?) async throws -> ResultResponse {
     do {
-      let (stdout, stderr) = try exec(command: "Matcher", timeout: 5, arguments: pattern, text, matchOptions.joined(separator: ","))
-      return ResultResponse(method: .match, result: stdout, error: stderr)
+      let (stdout, stderr) = try await exec(command: "Matcher", timeout: 5, arguments: pattern, text, matchOptions.joined(separator: ","))
+      return ResultResponse(method: .match, result: stdout, error: stderr, id: id)
     } catch is ProcessTimeoutError {
-      return ResultResponse(method: .match, result: "", error: "Timed out")
+      return ResultResponse(method: .match, result: "", error: "Timed out", id: id)
     }
   }
 
-  func debug(pattern: String, text: String, matchOptions: [String], step: String?) throws -> ResultResponse {
-    let context = Debugger.Context()
+  func debug(pattern: String, text: String, matchOptions: [String], step: String?, id: String?) async throws -> ResultResponse {
+    try await withCheckedThrowingContinuation { continuation in
+      DispatchQueue.global().async {
+        do {
+          let context = Debugger.Context()
 
-    func run(pattern: String, text: String, matchingOptions: [String] = [], until step: Int? = nil) throws {
-      context.reset()
-      context.breakPoint = step
+          func run(pattern: String, text: String, matchingOptions: [String] = [], until step: Int? = nil) throws {
+            context.reset()
+            context.breakPoint = step
 
-      let debugger = Debugger()
-      try debugger.run(pattern: pattern, text: text, matchingOptions: matchingOptions, context: context)
-    }
+            let debugger = Debugger()
+            try debugger.run(pattern: pattern, text: text, matchingOptions: matchingOptions, context: context)
+          }
 
-    let breakPoint: Int?
-    if let step {
-      breakPoint = Int(step)
-    } else {
-      breakPoint = nil
-    }
-    try run(pattern: pattern, text: text, matchingOptions: matchOptions)
-    let stepCount = context.stepCount
+          let breakPoint: Int?
+          if let step {
+            breakPoint = Int(step)
+          } else {
+            breakPoint = nil
+          }
+          try run(pattern: pattern, text: text, matchingOptions: matchOptions)
+          let stepCount = context.stepCount
 
-    try run(pattern: pattern, text: text, matchingOptions: matchOptions, until: breakPoint)
+          try run(pattern: pattern, text: text, matchingOptions: matchOptions, until: breakPoint)
 
-    let metrics = Debugger.Metrics(
-      instructions: context.instructions,
-      programCounter: context.programCounter,
-      stepCount: stepCount,
-      step: breakPoint ?? 1,
-      totalCycleCount: context.totalCycleCount,
-      resets: context.resets,
-      backtracks: context.backtracks,
-      traces: [
-        Debugger.Trace(
-          location: Debugger.Location(
-            start: context.start,
-            end: context.current
+          let metrics = Debugger.Metrics(
+            instructions: context.instructions,
+            programCounter: context.programCounter,
+            stepCount: stepCount,
+            step: breakPoint ?? 1,
+            totalCycleCount: context.totalCycleCount,
+            resets: context.resets,
+            backtracks: context.backtracks,
+            traces: [
+              Debugger.Trace(
+                location: Debugger.Location(
+                  start: context.start,
+                  end: context.current
+                )
+              )
+            ],
+            failure: Debugger.Location(start: context.current, end: context.failurePosition),
           )
-        )
-      ],
-      failure: Debugger.Location(start: context.current, end: context.failurePosition),
-    )
-    let data = try JSONEncoder().encode(metrics)
+          let data = try JSONEncoder().encode(metrics)
 
-    let result = String(data: data, encoding: .utf8) ?? ""
-    let response = ResultResponse(method: .debug, result: result, error: "")
+          let result = String(data: data, encoding: .utf8) ?? ""
+          let response = ResultResponse(method: .debug, result: result, error: "", id: id)
 
-    return response
+          continuation.resume(returning: response)
+        } catch {
+          continuation.resume(throwing: error)
+        }
+      }
+    }
   }
 
   struct ProcessTimeoutError: Error {}
 
-  func exec(command: String, timeout: TimeInterval = 5, arguments: String...) throws -> (stdout: String, stderr: String) {
-    let process = Process()
-    let executableURL = URL(
-      fileURLWithPath: app.directory.workingDirectory
-    )
-    .appendingPathComponent(command)
+  func exec(command: String, timeout: TimeInterval = 5, arguments: String...) async throws -> (stdout: String, stderr: String) {
+    try await withCheckedThrowingContinuation { continuation in
+      let process = Process()
+      let executableURL = URL(
+        fileURLWithPath: app.directory.workingDirectory
+      )
+      .appendingPathComponent(command)
 
-    process.executableURL = executableURL
-    process.arguments = arguments
+      process.executableURL = executableURL
+      process.arguments = arguments
 
-    let standardOutput = Pipe()
-    let standardError = Pipe()
-    process.standardOutput = standardOutput
-    process.standardError = standardError
+      let standardOutput = Pipe()
+      let standardError = Pipe()
+      process.standardOutput = standardOutput
+      process.standardError = standardError
 
-    var stdoutData = Data()
-    var stderrData = Data()
-    let group = DispatchGroup()
+      var stdoutData = Data()
+      var stderrData = Data()
+      let group = DispatchGroup()
 
-    group.enter()
-    standardOutput.fileHandleForReading.readabilityHandler = { handle in
-      let chunk = handle.availableData
-      if chunk.isEmpty {
-        standardOutput.fileHandleForReading.readabilityHandler = nil
+      group.enter()
+      standardOutput.fileHandleForReading.readabilityHandler = { handle in
+        let chunk = handle.availableData
+        if chunk.isEmpty {
+          standardOutput.fileHandleForReading.readabilityHandler = nil
+          group.leave()
+        } else {
+          stdoutData.append(chunk)
+        }
+      }
+
+      group.enter()
+      standardError.fileHandleForReading.readabilityHandler = { handle in
+        let chunk = handle.availableData
+        if chunk.isEmpty {
+          standardError.fileHandleForReading.readabilityHandler = nil
+          group.leave()
+        } else {
+          stderrData.append(chunk)
+        }
+      }
+
+      var didTimeout = false
+      group.enter()
+      process.terminationHandler = { _ in
         group.leave()
-      } else {
-        stdoutData.append(chunk)
+      }
+
+      do {
+        try process.run()
+      } catch {
+        continuation.resume(throwing: error)
+        return
+      }
+
+      let timer = DispatchSource.makeTimerSource(queue: .global())
+      timer.schedule(deadline: .now() + timeout)
+      timer.setEventHandler {
+        if process.isRunning {
+          didTimeout = true
+          process.terminate()
+        }
+      }
+      timer.resume()
+
+      group.notify(queue: .global()) {
+        timer.cancel()
+
+        if didTimeout {
+          continuation.resume(throwing: ProcessTimeoutError())
+          return
+        }
+
+        guard let stdout = String(data: stdoutData, encoding: .utf8),
+              let stderr = String(data: stderrData, encoding: .utf8) else {
+          continuation.resume(throwing: Abort(.internalServerError))
+          return
+        }
+
+        continuation.resume(returning: (stdout, stderr))
       }
     }
-
-    group.enter()
-    standardError.fileHandleForReading.readabilityHandler = { handle in
-      let chunk = handle.availableData
-      if chunk.isEmpty {
-        standardError.fileHandleForReading.readabilityHandler = nil
-        group.leave()
-      } else {
-        stderrData.append(chunk)
-      }
-    }
-
-    try process.run()
-
-    var didTimeout = false
-    let timer = DispatchSource.makeTimerSource(queue: .global())
-    timer.schedule(deadline: .now() + timeout)
-    timer.setEventHandler {
-      if process.isRunning {
-        didTimeout = true
-        process.terminate()
-      }
-    }
-    timer.resume()
-
-    group.wait()
-    process.waitUntilExit()
-    timer.cancel()
-
-    if didTimeout {
-      throw ProcessTimeoutError()
-    }
-
-    guard let stdout = String(data: stdoutData, encoding: .utf8) else {
-      throw Abort(.internalServerError)
-    }
-
-    guard let stderr = String(data: stderrData, encoding: .utf8) else {
-      throw Abort(.internalServerError)
-    }
-
-    return (stdout, stderr)
   }
 }

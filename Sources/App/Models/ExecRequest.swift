@@ -6,6 +6,7 @@ struct ExecRequest: Codable {
   let text: String
   let matchOptions: [String]
   let step: String?
+  let id: String?
 }
 
 enum RequestMethod: String, Codable {
