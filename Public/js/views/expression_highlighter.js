@@ -32,6 +32,7 @@ export default class ExpressionHighlighter extends EventDispatcher {
     this.setTokens = StateEffect.define();
     this.setErrors = StateEffect.define();
     this.setHover = StateEffect.define();
+    this.setReverseHover = StateEffect.define();
 
     this.tokensField = StateField.define({
       create: () => Decoration.none,
@@ -65,10 +66,26 @@ export default class ExpressionHighlighter extends EventDispatcher {
       },
       provide: (f) => EditorView.decorations.from(f),
     });
+
+    this.reverseHoverField = StateField.define({
+      create: () => Decoration.none,
+      update: (value, tr) => {
+        for (const e of tr.effects) {
+          if (e.is(this.setReverseHover)) return e.value;
+        }
+        return tr.docChanged ? Decoration.none : value;
+      },
+      provide: (f) => EditorView.decorations.from(f),
+    });
   }
 
   get extensions() {
-    return [this.tokensField, this.errorsField, this.hoverField];
+    return [
+      this.tokensField,
+      this.errorsField,
+      this.hoverField,
+      this.reverseHoverField,
+    ];
   }
 
   attach(view) {
@@ -214,6 +231,23 @@ export default class ExpressionHighlighter extends EventDispatcher {
     }
     this.view.dispatch({
       effects: this.setHover.of(Decoration.none),
+    });
+  }
+
+  highlightRange(range) {
+    if (!this.view) return;
+    const decos = this.makeBorderDecos(range, "selected");
+    this.view.dispatch({
+      effects: this.setReverseHover.of(
+        decos.length ? Decoration.set(decos, true) : Decoration.none,
+      ),
+    });
+  }
+
+  clearReverseHover() {
+    if (!this.view) return;
+    this.view.dispatch({
+      effects: this.setReverseHover.of(Decoration.none),
     });
   }
 }

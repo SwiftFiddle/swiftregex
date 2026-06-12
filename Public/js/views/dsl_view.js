@@ -11,6 +11,8 @@ export class DSLView extends EventDispatcher {
     super();
     this.container = container;
     this._sourceMap = [];
+    this._dslHoverEntry = null;
+    this.hoverPatternRange = null;
 
     this.setHighlight = StateEffect.define();
     this.highlightField = StateField.define({
@@ -72,12 +74,80 @@ export class DSLView extends EventDispatcher {
         mode: "swift",
         readOnly: true,
         screenReaderLabel: "Build DSL View",
-        extensions: [this.highlightField],
+        extensions: [
+          this.highlightField,
+          EditorView.domEventHandlers({
+            mousemove: (event) => {
+              this.onMouseMove(event);
+            },
+            mouseleave: () => {
+              this.onMouseLeave();
+            },
+          }),
+        ],
       },
       "100%",
       "100%",
     );
     this.widgets = [];
+  }
+
+  onMouseMove(event) {
+    if (!this._sourceMap.length) return;
+
+    const pos = this.view.posAtCoords({ x: event.clientX, y: event.clientY });
+    if (pos == null) {
+      this.onMouseLeave();
+      return;
+    }
+
+    const entry = this.findBestDSLEntry(pos);
+    if (
+      entry &&
+      this._dslHoverEntry &&
+      entry.dslStart === this._dslHoverEntry.dslStart &&
+      entry.dslEnd === this._dslHoverEntry.dslEnd
+    ) {
+      return;
+    }
+
+    this._dslHoverEntry = entry;
+    if (entry) {
+      const docLen = this.view.state.doc.length;
+      const from = Math.min(entry.dslStart, docLen);
+      const to = Math.min(entry.dslEnd, docLen);
+      if (from < to) {
+        this.view.dispatch({
+          effects: this.setHighlight.of(
+            Decoration.set([
+              Decoration.mark({ class: "dsl-highlight-selected" }).range(
+                from,
+                to,
+              ),
+            ]),
+          ),
+        });
+      }
+
+      this.hoverPatternRange = {
+        start: entry.patternStart,
+        end: entry.patternEnd,
+      };
+      this.dispatchEvent("dslhover");
+    } else {
+      this.clearHighlight();
+      this.hoverPatternRange = null;
+      this.dispatchEvent("dslunhover");
+    }
+  }
+
+  onMouseLeave() {
+    if (this._dslHoverEntry) {
+      this._dslHoverEntry = null;
+      this.clearHighlight();
+      this.hoverPatternRange = null;
+      this.dispatchEvent("dslunhover");
+    }
   }
 
   highlight(token) {
@@ -158,6 +228,21 @@ export class DSLView extends EventDispatcher {
           !best ||
           entry.patternEnd - entry.patternStart <
             best.patternEnd - best.patternStart
+        ) {
+          best = entry;
+        }
+      }
+    }
+    return best;
+  }
+
+  findBestDSLEntry(dslPos) {
+    let best = null;
+    for (const entry of this._sourceMap) {
+      if (entry.dslStart <= dslPos && entry.dslEnd > dslPos) {
+        if (
+          !best ||
+          entry.dslEnd - entry.dslStart < best.dslEnd - best.dslStart
         ) {
           best = entry;
         }

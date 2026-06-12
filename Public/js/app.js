@@ -99,6 +99,15 @@ export class App {
     );
 
     this.dslView = new DSLView(document.getElementById("dsl-view-container"));
+    this.dslView.addEventListener("dslhover", () => {
+      const range = this.dslView.hoverPatternRange;
+      if (range) {
+        this.expressionField.highlightPattern(range);
+      }
+    });
+    this.dslView.addEventListener("dslunhover", () => {
+      this.expressionField.clearPatternHighlight();
+    });
 
     this.runner = new Runner();
     this.runner.onready = this.onRunnerReady.bind(this);
