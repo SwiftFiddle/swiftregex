@@ -208,17 +208,36 @@ export default class ExpressionHighlighter extends EventDispatcher {
     if (range.start >= docLen || range.end > docLen) return [];
     if (range.end - range.start < 1) return [];
 
+    let firstEnd = range.start + 1;
+    let lastStart = range.end - 1;
+
+    if (typeof Intl !== "undefined" && Intl.Segmenter) {
+      const text = this.view.state.doc.toString();
+      const segments = new Intl.Segmenter(undefined, {
+        granularity: "grapheme",
+      }).segment(text);
+
+      const first = segments.containing(range.start);
+      if (first) {
+        firstEnd = Math.min(first.index + first.segment.length, range.end);
+      }
+      const last = segments.containing(range.end - 1);
+      if (last) {
+        lastStart = Math.max(last.index, range.start);
+      }
+    }
+
     return [
       Decoration.mark({ class: `${pre}-${className}-left` }).range(
         range.start,
-        range.start + 1,
+        firstEnd,
       ),
       Decoration.mark({ class: `${pre}-${className}` }).range(
         range.start,
         range.end,
       ),
       Decoration.mark({ class: `${pre}-${className}-right` }).range(
-        range.end - 1,
+        lastStart,
         range.end,
       ),
     ];
