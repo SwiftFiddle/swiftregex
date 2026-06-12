@@ -8,9 +8,9 @@ func routes(_ app: Application) throws {
 
   app.webSocket("api", "ws") { (req, ws) in
     ws.onBinary { (ws, buffer) in
+      guard let data = buffer.getData(at: 0, length: buffer.readableBytes) else { return }
       Task {
         do {
-          guard let data = buffer.getData(at: 0, length: buffer.readableBytes) else { return }
 
           let decoder = JSONDecoder()
           let request = try decoder.decode(ExecRequest.self, from: data)
@@ -194,6 +194,7 @@ func routes(_ app: Application) throws {
         }
       }
 
+      let syncQueue = DispatchQueue(label: "exec-sync")
       var didTimeout = false
       group.enter()
       process.terminationHandler = { _ in
@@ -203,11 +204,14 @@ func routes(_ app: Application) throws {
       do {
         try process.run()
       } catch {
+        standardOutput.fileHandleForReading.readabilityHandler = nil
+        standardError.fileHandleForReading.readabilityHandler = nil
+        process.terminationHandler = nil
         continuation.resume(throwing: error)
         return
       }
 
-      let timer = DispatchSource.makeTimerSource(queue: .global())
+      let timer = DispatchSource.makeTimerSource(queue: syncQueue)
       timer.schedule(deadline: .now() + timeout)
       timer.setEventHandler {
         if process.isRunning {
@@ -217,7 +221,7 @@ func routes(_ app: Application) throws {
       }
       timer.resume()
 
-      group.notify(queue: .global()) {
+      group.notify(queue: syncQueue) {
         timer.cancel()
 
         if didTimeout {
