@@ -131,7 +131,7 @@ func routes(_ app: Application) throws {
 
   func match(pattern: String, text: String, matchOptions: [String]) throws -> ResultResponse {
     do {
-      let (stdout, stderr) = try exec(command: "Matcher", timeout: 10, arguments: pattern, text, matchOptions.joined(separator: ","))
+      let (stdout, stderr) = try exec(command: "Matcher", timeout: 5, arguments: pattern, text, matchOptions.joined(separator: ","))
       return ResultResponse(method: .match, result: stdout, error: stderr)
     } catch is ProcessTimeoutError {
       return ResultResponse(method: .match, result: "", error: "Timed out")
