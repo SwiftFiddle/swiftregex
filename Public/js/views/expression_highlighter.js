@@ -4,6 +4,7 @@ import { StateField, StateEffect } from "@codemirror/state";
 import { Decoration, EditorView, WidgetType } from "@codemirror/view";
 import { EventDispatcher } from "@createjs/easeljs";
 import { Reference } from "../docs/reference";
+import Utils from "../misc/utils";
 
 class ErrorMarkerWidget extends WidgetType {
   constructor(tooltip) {
@@ -27,7 +28,6 @@ export default class ExpressionHighlighter extends EventDispatcher {
   constructor() {
     super();
     this.view = null;
-    this._hasHover = false;
 
     this.setTokens = StateEffect.define();
     this.setErrors = StateEffect.define();
@@ -112,8 +112,9 @@ export default class ExpressionHighlighter extends EventDispatcher {
         let title = reference ? reference.title : token.tooltip.category;
         let detail = reference ? reference.detail : token.tooltip.key;
         for (const [k, v] of Object.entries(token.tooltip.substitution)) {
-          title = title.replaceAll(k, v);
-          detail = detail.replaceAll(k, v);
+          const escaped = Utils.htmlSafe(v);
+          title = title.replaceAll(k, escaped);
+          detail = detail.replaceAll(k, escaped);
         }
         attrs["data-tippy-content"] = makeTooltip(title, detail);
       }
@@ -139,7 +140,7 @@ export default class ExpressionHighlighter extends EventDispatcher {
     for (const error of errors) {
       const from = error.location.start;
       const to = error.location.end;
-      const tooltip = `<span class="fw-bolder text-danger">${error.behavior}:</span> ${error.message}`;
+      const tooltip = `<span class="fw-bolder text-danger">${Utils.htmlSafe(error.behavior)}:</span> ${Utils.htmlSafe(error.message)}`;
 
       if (from < to && from < docLen) {
         decos.push(
@@ -184,10 +185,9 @@ export default class ExpressionHighlighter extends EventDispatcher {
   drawHover(token) {
     const selection = token.selection;
     const related = token.related;
-    if ((!selection && !related) || this._hasHover) {
+    if (!selection && !related) {
       return;
     }
-    this._hasHover = true;
 
     const decos = [];
     if (selection) {
@@ -244,7 +244,6 @@ export default class ExpressionHighlighter extends EventDispatcher {
   }
 
   clearHover() {
-    this._hasHover = false;
     if (!this.view) {
       return;
     }
