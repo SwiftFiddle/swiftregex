@@ -28,22 +28,19 @@ struct Matcher {
     return matches.map {
       let captures: [Group] = $0.lazy.elements.dropFirst().map {
         if let range = $0.range {
-          let value = String(text[range])
           return Group(
             location: Location(
               start: range.lowerBound.utf16Offset(in: text),
               end: range.upperBound.utf16Offset(in: text)
             ),
-            value: value,
-            name: $0.name,
-            scalars: scalarInfos(for: value)
+            value: String(text[range]),
+            name: $0.name
           )
         } else {
           return Group(
             location: nil,
             value: nil,
-            name: $0.name,
-            scalars: nil
+            name: $0.name
           )
         }
       }
@@ -61,29 +58,34 @@ struct Matcher {
   }
 
   private static func scalarInfos(for string: String) -> [ScalarInfo]? {
-    let scalars = Array(string.unicodeScalars)
-    let hasInteresting = scalars.count != string.count || scalars.contains {
-      let cat = $0.properties.generalCategory
-      return cat == .format || cat == .control ||
-        cat == .nonspacingMark || cat == .spacingMark || cat == .enclosingMark
-    }
-    guard hasInteresting else { return nil }
-    return scalars.map { scalar in
+    var infos: [ScalarInfo] = []
+    var hasInteresting = false
+    var scalarCount = 0
+    for scalar in string.unicodeScalars {
+      scalarCount += 1
+      let cat = scalar.properties.generalCategory
+      if !hasInteresting {
+        if cat == .format || cat == .control ||
+          cat == .nonspacingMark || cat == .spacingMark || cat == .enclosingMark {
+          hasInteresting = true
+        }
+      }
       let name: String
       if let n = scalar.properties.name, !n.isEmpty {
         name = n
       } else {
         name = String(format: "U+%04X", scalar.value)
       }
-      let cat = scalar.properties.generalCategory
       let isVisible = cat != .format && cat != .control && cat != .surrogate
         && cat != .nonspacingMark
-      return ScalarInfo(
+      infos.append(ScalarInfo(
         code: String(format: "U+%04X", scalar.value),
         value: isVisible ? String(scalar) : "",
         name: name
-      )
+      ))
     }
+    guard hasInteresting || scalarCount != string.count else { return nil }
+    return infos
   }
 }
 
@@ -98,7 +100,6 @@ struct Group: Codable {
   let location: Location?
   let value: String?
   let name: String?
-  let scalars: [ScalarInfo]?
 }
 
 struct ScalarInfo: Codable {
