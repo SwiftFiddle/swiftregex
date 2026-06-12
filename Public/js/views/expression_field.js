@@ -138,11 +138,15 @@ export class ExpressionField extends EventDispatcher {
   }
 
   highlightPattern(range) {
+    this.highlighter.clearHover();
+    this._hoverTokenIndex = null;
     this.highlighter.highlightRange(range);
+    this.resetTooltips();
   }
 
   clearPatternHighlight() {
     this.highlighter.clearReverseHover();
+    this.resetTooltips();
   }
 
   onHover(token, tokenIndex) {
