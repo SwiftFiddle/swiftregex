@@ -94,7 +94,9 @@ export default class DebuggerHighlighter {
   }
 
   clear() {
-    if (!this.view) return;
+    if (!this.view) {
+      return;
+    }
     this.view.dispatch({
       effects: this.setTraces.of(Decoration.none),
     });

@@ -5,24 +5,64 @@
   margin-top: -1px;
 }
 .exp-related-left {
-  border-left: solid 1px rgba(16, 17, 18, 0.3);
+  position: relative;
+  padding-left: 1px;
   margin-left: -1px;
 }
+.exp-related-left::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -1px;
+  bottom: -1px;
+  width: 1px;
+  background: rgba(16, 17, 18, 0.3);
+}
 .exp-related-right {
-  border-right: solid 1px rgba(16, 17, 18, 0.3);
+  position: relative;
+  padding-right: 1px;
   margin-right: -1px;
+}
+.exp-related-right::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -1px;
+  bottom: -1px;
+  width: 1px;
+  background: rgba(16, 17, 18, 0.3);
 }
 .exp-selected {
   border-top: solid 2px rgba(16, 17, 18, 0.3);
   border-bottom: solid 2px rgba(16, 17, 18, 0.3);
 }
 .exp-selected-left {
-  border-left: solid 2px rgba(16, 17, 18, 0.3);
+  position: relative;
+  padding-left: 2px;
   margin-left: -2px;
 }
+.exp-selected-left::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: rgba(16, 17, 18, 0.3);
+}
 .exp-selected-right {
-  border-right: solid 2px rgba(16, 17, 18, 0.3);
+  position: relative;
+  padding-right: 2px;
   margin-right: -2px;
+}
+.exp-selected-right::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: rgba(16, 17, 18, 0.3);
 }
 .exp-error {
   border-bottom: solid 2px #d22;

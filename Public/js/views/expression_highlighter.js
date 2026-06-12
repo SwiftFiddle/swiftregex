@@ -147,14 +147,18 @@ export default class ExpressionHighlighter extends EventDispatcher {
   }
 
   clear() {
-    if (!this.view) return;
+    if (!this.view) {
+      return;
+    }
     this.view.dispatch({
       effects: this.setTokens.of(Decoration.none),
     });
   }
 
   clearError() {
-    if (!this.view) return;
+    if (!this.view) {
+      return;
+    }
     this.view.dispatch({
       effects: this.setErrors.of(Decoration.none),
     });
@@ -205,7 +209,9 @@ export default class ExpressionHighlighter extends EventDispatcher {
 
   clearHover() {
     this._hasHover = false;
-    if (!this.view) return;
+    if (!this.view) {
+      return;
+    }
     this.view.dispatch({
       effects: this.setHover.of(Decoration.none),
     });

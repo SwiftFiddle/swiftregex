@@ -115,11 +115,7 @@ export default class TestHighlighter extends EventDispatcher {
             }).range(from, to),
           );
 
-          for (
-            let ln = doc.lineAt(from).number;
-            ln < doc.lines;
-            ln++
-          ) {
+          for (let ln = doc.lineAt(from).number; ln < doc.lines; ln++) {
             const line = doc.line(ln);
             if (line.to >= to) break;
             decos.push(
@@ -176,7 +172,9 @@ export default class TestHighlighter extends EventDispatcher {
   }
 
   clear() {
-    if (!this.view) return;
+    if (!this.view) {
+      return;
+    }
     this.view.dispatch({
       effects: this.setMatches.of(Decoration.none),
     });
