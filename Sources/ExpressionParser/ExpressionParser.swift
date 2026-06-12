@@ -144,14 +144,33 @@ struct ExpressionParser {
       category = "lookaround"
       key = "nonatomicposlookbehind"
     case .scriptRun:
-      category = "Script run. "
-      key = ""
+      category = "lookaround"
+      key = "scriptrun"
     case .atomicScriptRun:
-      category = "Atomic script run. "
-      key = ""
-    case .changeMatchingOptions(_):
-      category = "Change matching options"
-      key = ""
+      category = "lookaround"
+      key = "atomicscriptrun"
+    case .changeMatchingOptions(let opts):
+      category = "other"
+      key = "mode"
+      var modeSet = Set<AST.MatchingOption>()
+      let modeRemoving = opts.removing.filter { modeSet.insert($0).inserted }
+      modeSet = Set<AST.MatchingOption>()
+      let modeAdding = opts.adding.filter { modeSet.insert($0).inserted }.filter { !modeRemoving.contains($0) }
+      let modeEnable = modeAdding.map { String(pattern[$0.location.range]) }
+      let modeDisable = modeRemoving.map { String(pattern[$0.location.range]) }
+      var modeDesc = ""
+      if !modeEnable.isEmpty {
+        let descs = modeEnable.map { ExpressionParser.flagDescription($0) }
+        modeDesc += " Enables \(descs.joined(separator: ", "))."
+      }
+      if !modeDisable.isEmpty {
+        let descs = modeDisable.map { ExpressionParser.flagDescription($0) }
+        modeDesc += " Disables \(descs.joined(separator: ", "))."
+      }
+      substitution = [
+        "{{~getDesc()}}": "Changes matching options for the enclosed group.",
+        "{{~getModes()}}": modeDesc,
+      ]
     }
 
     // Content
@@ -421,7 +440,7 @@ struct ExpressionParser {
               end: quant.amount.location.end.utf16Offset(in: pattern)
             )
           ),
-          tooltip: Tooltip(category: "quants", key: "lazy")
+          tooltip: Tooltip(category: "quants", key: "lazy", substitution: ["{{getLazy()}}": "lazy", "{{getLazyFew()}}": "few"])
         )
       )
     case .possessive:
@@ -508,6 +527,7 @@ struct ExpressionParser {
     switch atom.kind {
     case .char(let c):
       let charcode = c.unicodeScalars.map { String(format: "U+%X", $0.value) }.joined(separator: " ")
+      let charName = ExpressionParser.charDisplayName(c)
 
       let value = String(pattern[atom.location.range])
       if value.hasPrefix("\\") {
@@ -515,7 +535,7 @@ struct ExpressionParser {
         category = "misc"
         key = "escchar"
         substitution = [
-          "{{getChar()}}": #""\#(c)""#,
+          "{{getChar()}}": charName,
           "{{code}}": charcode,
           "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive",
         ]
@@ -524,17 +544,23 @@ struct ExpressionParser {
         category = "misc"
         key = "char"
         substitution = [
-          "{{getChar()}}": #""\#(c)""#,
+          "{{getChar()}}": charName,
           "{{code}}": charcode,
           "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive",
         ]
       }
     case .scalar(let scalar):
+      let scalarName: String
+      if let name = ExpressionParser.nonprintingCharNames[scalar.value.value] {
+        scalarName = name
+      } else {
+        scalarName = #""\#(String(scalar.value))""#
+      }
       `class` = "char"
       category = "misc"
       key = "char"
       substitution = [
-        "{{getChar()}}": #""\#(String(scalar.value))""#,
+        "{{getChar()}}": scalarName,
         "{{code}}": String(format: "U+%X", scalar.value.value),
         "{{getInsensitive()}}": "Case \(modes.i ? "in" : "")sensitive",
       ]
@@ -647,7 +673,7 @@ struct ExpressionParser {
         category = "charclasses"
         key = "unicodecat"
         substitution = ["{{getUniCat()}}": uniCat]
-      case .binary(let property, let value):
+      case .binary(let property, _):
         switch property {
         case .asciiHexDigit:
           break
@@ -786,33 +812,43 @@ struct ExpressionParser {
         }
         category = "charclasses"
         key = "binary"
-      case .script(_):
+        substitution = ["{{value}}": "\(property)"]
+      case .script(let script):
         category = "charclasses"
         key = "script"
-      case .scriptExtension(_):
+        substitution = ["{{value}}": "\(script)"]
+      case .scriptExtension(let scriptExt):
         category = "charclasses"
         key = "scriptextension"
-      case .named(_):
+        substitution = ["{{value}}": "\(scriptExt)"]
+      case .named(let name):
         category = "charclasses"
         key = "named"
-      case .numericType(_):
+        substitution = ["{{value}}": "\(name)"]
+      case .numericType(let numType):
         category = "charclasses"
         key = "numerictype"
-      case .numericValue(_):
+        substitution = ["{{value}}": "\(numType)"]
+      case .numericValue(let numValue):
         category = "charclasses"
         key = "numericvalue"
-      case .mapping(_, _):
+        substitution = ["{{value}}": "\(numValue)"]
+      case .mapping(let mappingType, let mappingValue):
         category = "charclasses"
         key = "mapping"
-      case .ccc(_):
+        substitution = ["{{value}}": "\(mappingType)=\(mappingValue)"]
+      case .ccc(let combiningClass):
         category = "charclasses"
         key = "ccc"
+        substitution = ["{{value}}": "\(combiningClass)"]
       case .age(let major, let minor):
         category = "charclasses"
         key = "age"
-      case .block(_):
+        substitution = ["{{value}}": "\(major).\(minor)"]
+      case .block(let block):
         category = "charclasses"
         key = "block"
+        substitution = ["{{value}}": "\(block)"]
       case .posix(let property):
         switch property {
         case .alnum:
@@ -831,12 +867,14 @@ struct ExpressionParser {
         category = "charclasses"
         key = "posixcharclass"
         substitution = ["{{value}}": "\(property)"]
-      case .pcreSpecial(_):
-        category = "pcreSpecial"
+      case .pcreSpecial(let pcre):
+        category = "charclasses"
         key = "pcrespecial"
-      case .javaSpecial(_):
-        category = "javaSpecial"
+        substitution = ["{{value}}": "\(pcre)"]
+      case .javaSpecial(let java):
+        category = "charclasses"
         key = "javaspecial"
+        substitution = ["{{value}}": "\(java)"]
       case .invalid(key: let k, value: let v):
         category = "charclasses"
         key = "invalid"
@@ -927,9 +965,10 @@ struct ExpressionParser {
         category = "charclasses"
         key = "notword"
       case .backspace:
-        `class` = "anchor"
-        category = "charclasses"
-        key = "wordboundary"
+        `class` = "esc"
+        category = "misc"
+        key = "escchar"
+        substitution = ["{{getChar()}}": "BACKSPACE", "{{code}}": "(0x08)"]
       case .graphemeCluster:
         `class` = "charclass"
         category = "charclasses"
@@ -964,33 +1003,37 @@ struct ExpressionParser {
         key = "keepout"
       case .trueAnychar:
         `class` = "charclass"
-        category = "charclass"
+        category = "charclasses"
         key = "trueanychar"
       case .textSegment:
         `class` = "charclass"
-        category = "charclass"
+        category = "charclasses"
         key = "textsegment"
       case .notTextSegment:
         `class` = "charclass"
-        category = "charclass"
+        category = "charclasses"
         key = "nottextsegment"
       }
     case .keyboardControl(_):
       `class` = "charclass"
-      category = "charclass"
+      category = "charclasses"
       key = "keyboardcontrol"
+      substitution = ["{{value}}": String(pattern[atom.location.range])]
     case .keyboardMeta(_):
       `class` = "charclass"
-      category = "charclass"
+      category = "charclasses"
       key = "keyboardmeta"
+      substitution = ["{{value}}": String(pattern[atom.location.range])]
     case .keyboardMetaControl(_):
       `class` = "charclass"
-      category = "charclass"
+      category = "charclasses"
       key = "keyboardmetacontrol"
-    case .namedCharacter(_):
+      substitution = ["{{value}}": String(pattern[atom.location.range])]
+    case .namedCharacter(let charName):
       `class` = "charclass"
-      category = "charclass"
+      category = "charclasses"
       key = "namedcharacter"
+      substitution = ["{{value}}": "\(charName)"]
     case .dot:
       `class` = "charclass"
       category = "charclasses"
@@ -1039,25 +1082,25 @@ struct ExpressionParser {
 
       switch directive.kind.value {
       case .accept:
-        category = "charclass"
+        category = "charclasses"
         key = "accept"
       case .fail:
-        category = "charclass"
+        category = "charclasses"
         key = "fail"
       case .mark:
-        category = "charclass"
+        category = "charclasses"
         key = "mark"
       case .commit:
-        category = "charclass"
+        category = "charclasses"
         key = "commit"
       case .prune:
-        category = "charclass"
-        key = "skip"
+        category = "charclasses"
+        key = "prune"
       case .skip:
-        category = "charclass"
+        category = "charclasses"
         key = "skip"
       case .then:
-        category = "charclass"
+        category = "charclasses"
         key = "then"
       }
     case .changeMatchingOptions(let matchingOptionSequence):
@@ -1067,14 +1110,16 @@ struct ExpressionParser {
       set = Set<AST.MatchingOption>()
       let adding = matchingOptionSequence.adding.filter { set.insert($0).inserted }.filter { !removing.contains($0) }
 
-      let enable = adding.map { pattern[$0.location.range] }
-      let disable = removing.map { pattern[$0.location.range] }
+      let enable = adding.map { String(pattern[$0.location.range]) }
+      let disable = removing.map { String(pattern[$0.location.range]) }
       var modes = ""
       if !enable.isEmpty {
-        modes += #" Enable "\#(enable.joined())"."#
+        let descs = enable.map { ExpressionParser.flagDescription($0) }
+        modes += " Enables \(descs.joined(separator: ", "))."
       }
       if !disable.isEmpty {
-        modes += #" Disable "\#(disable.joined())"."#
+        let descs = disable.map { ExpressionParser.flagDescription($0) }
+        modes += " Disables \(descs.joined(separator: ", "))."
       }
 
       `class` = "special"
@@ -1387,6 +1432,64 @@ struct ExpressionParser {
         tooltip: Tooltip(category: "empty", key: "empty")
       )
     )
+  }
+
+  private static let nonprintingCharNames: [UInt32: String] = [
+    0x00: "NULL",
+    0x01: "SOH",
+    0x02: "STX",
+    0x03: "ETX",
+    0x04: "EOT",
+    0x05: "ENQ",
+    0x06: "ACK",
+    0x07: "BELL",
+    0x08: "BACKSPACE",
+    0x09: "TAB",
+    0x0A: "LINE FEED",
+    0x0B: "VERTICAL TAB",
+    0x0C: "FORM FEED",
+    0x0D: "CARRIAGE RETURN",
+    0x0E: "SHIFT OUT",
+    0x0F: "SHIFT IN",
+    0x10: "DLE",
+    0x11: "DC1",
+    0x12: "DC2",
+    0x13: "DC3",
+    0x14: "DC4",
+    0x15: "NAK",
+    0x16: "SYN",
+    0x17: "ETB",
+    0x18: "CAN",
+    0x19: "EM",
+    0x1A: "SUB",
+    0x1B: "ESCAPE",
+    0x1C: "FS",
+    0x1D: "GS",
+    0x1E: "RS",
+    0x1F: "US",
+    0x7F: "DELETE",
+  ]
+
+  private static func charDisplayName(_ c: Character) -> String {
+    if let scalar = c.unicodeScalars.first, c.unicodeScalars.count == 1,
+       let name = nonprintingCharNames[scalar.value] {
+      return name
+    }
+    return #""\#(c)""#
+  }
+
+  private static func flagDescription(_ flag: String) -> String {
+    switch flag {
+    case "i": return "case-insensitive matching"
+    case "m": return "multiline mode"
+    case "s": return "single-line mode (dot matches newlines)"
+    case "x": return "extended mode (ignore whitespace)"
+    case "n": return "named captures only"
+    case "J": return "allow duplicate named groups"
+    case "U": return "ungreedy quantifiers by default"
+    case "w": return "Unicode word boundaries"
+    default: return "flag \"\(flag)\""
+    }
   }
 }
 

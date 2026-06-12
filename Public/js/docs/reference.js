@@ -117,58 +117,67 @@ const references = {
     },
 
     binary: {
-      title: "Unicode property escapes",
+      title: "Unicode property",
       detail:
-        "Allows for matching characters based on their Unicode properties.",
+        "Matches any character with the '{{value}}' Unicode binary property.",
     },
     script: {
-      title: "Script",
-      detail: "No overview available.",
+      title: "Unicode script",
+      detail: "Matches any character in the '{{value}}' Unicode script.",
     },
     scriptextension: {
-      title: "Script extension",
-      detail: "No overview available.",
+      title: "Unicode script extension",
+      detail:
+        "Matches any character in the '{{value}}' Unicode script extension.",
     },
     named: {
-      title: "Named",
-      detail: "No overview available.",
+      title: "Named character property",
+      detail:
+        "Matches any character with the Unicode name matching '{{value}}'.",
     },
     numerictype: {
       title: "Numeric type",
-      detail: "No overview available.",
+      detail:
+        "Matches any character with the Unicode numeric type '{{value}}'.",
     },
     numericvalue: {
       title: "Numeric value",
-      detail: "No overview available.",
+      detail:
+        "Matches any character with the Unicode numeric value '{{value}}'.",
     },
     mapping: {
-      title: "Mapping",
-      detail: "No overview available.",
+      title: "Character mapping",
+      detail:
+        "Matches any character with the specified Unicode character mapping ({{value}}).",
     },
     ccc: {
-      title: "Custom character class",
-      detail: "No overview available.",
+      title: "Canonical combining class",
+      detail:
+        "Matches any character with the canonical combining class '{{value}}'.",
     },
     age: {
-      title: "Age",
-      detail: "No overview available.",
+      title: "Unicode age",
+      detail:
+        "Matches any character assigned in Unicode version {{value}} or earlier.",
     },
     block: {
-      title: "Block",
-      detail: "No overview available.",
+      title: "Unicode block",
+      detail: "Matches any character in the '{{value}}' Unicode block.",
     },
     pcrespecial: {
-      title: "PCRE special",
-      detail: "No overview available.",
+      title: "PCRE special property",
+      detail:
+        "Matches any character with the PCRE special property '{{value}}'.",
     },
     javaspecial: {
-      title: "Java special",
-      detail: "No overview available.",
+      title: "Java special property",
+      detail:
+        "Matches any character with the Java special property '{{value}}'.",
     },
 
     graphemecluster: {
       title: "Grapheme cluster",
-      detail: "No overview available.",
+      detail: "Matches any single extended Unicode grapheme cluster.",
     },
     trueanychar: {
       title: "Any character",
@@ -176,35 +185,37 @@ const references = {
     },
     textsegment: {
       title: "Text segment",
-      detail: `Equivalent to (?>\O(?:\Y\O)*)`,
+      detail: "Equivalent to (?>\\O(?:\\Y\\O)*)",
     },
     nottextsegment: {
       title: "Not text segment",
       detail: "Text segment non-boundary",
     },
     keyboardcontrol: {
-      title: "Control char",
-      detail: "No overview available.",
+      title: "Control character",
+      detail: "Matches the control character <code>{{value}}</code>.",
     },
     keyboardmeta: {
-      title: "Meta",
-      detail: "No overview available.",
+      title: "Meta character",
+      detail: "Matches the meta character <code>{{value}}</code>.",
     },
     keyboardmetacontrol: {
-      title: "Meta control char",
-      detail: "No overview available.",
+      title: "Meta-control character",
+      detail: "Matches the meta-control character <code>{{value}}</code>.",
     },
     namedcharacter: {
       title: "Named character",
-      detail: "No overview available.",
+      detail: "Matches the Unicode character named '{{value}}'.",
     },
     subpattern: {
       title: "Subpattern",
-      detail: "No overview available.",
+      detail:
+        "Matches the same text as the specified subpattern by re-executing its pattern.",
     },
     callout: {
       title: "Callout",
-      detail: "No overview available.",
+      detail:
+        "Calls out to an external function during matching for debugging or advanced logic.",
     },
 
     accept: {
@@ -217,7 +228,8 @@ const references = {
     },
     mark: {
       title: "Backtracking control",
-      detail: "No overview available.",
+      detail:
+        "Sets a mark name for use with other backtracking control verbs.",
     },
     commit: {
       title: "Backtracking control",
@@ -225,7 +237,7 @@ const references = {
     },
     prune: {
       title: "Backtracking control",
-      detail: `acktracking cannot cross (*PRUNE). In simple cases, the use of (*PRUNE) is just an alternative to an atomic group or possessive quantifier, but there are some uses of (*PRUNE) that cannot be expressed in any other way.`,
+      detail: `Backtracking cannot cross (*PRUNE). In simple cases, the use of (*PRUNE) is just an alternative to an atomic group or possessive quantifier, but there are some uses of (*PRUNE) that cannot be expressed in any other way.`,
     },
     skip: {
       title: "Backtracking control",
@@ -234,6 +246,11 @@ const references = {
     then: {
       title: "Backtracking control",
       detail: `This verb causes a skip to the next alternation if the rest of the pattern does not match. That is, it cancels pending backtracking, but only within the current alternation.`,
+    },
+
+    invalid: {
+      title: "Invalid property",
+      detail: "Unrecognized or invalid Unicode property expression.",
     },
   },
 
@@ -278,10 +295,6 @@ const references = {
       detail: "Matches the end position of the previous match.",
     },
 
-    invalid: {
-      title: "Invalid character class",
-      detail: "No overview available.",
-    },
   },
 
   escchars: {
@@ -383,7 +396,7 @@ const references = {
 
     absentfunction: {
       title: "Absent function",
-      detail: "No overview available.",
+      detail: "Matches text that does not contain a specified pattern.",
     },
   },
 
@@ -419,25 +432,29 @@ const references = {
         "Keep text matched so far out of the returned match, essentially discarding the match up to this point.",
     },
     nonatomicposlookahead: {
-      title: "Non-atomic Positive lookahead",
-      detail: "No overview available.",
+      title: "Non-atomic positive lookahead",
+      detail:
+        "Like a positive lookahead, but allows backtracking into the lookahead expression.",
     },
     nonatomicposlookbehind: {
-      title: "Non-atomic Positive lookbehind",
-      detail: "No overview available.",
+      title: "Non-atomic positive lookbehind",
+      detail:
+        "Like a positive lookbehind, but allows backtracking into the lookbehind expression.",
     },
 
     scriptrun: {
       title: "Script run",
-      detail: "No overview available.",
+      detail:
+        "Matches a sequence of characters that all belong to the same Unicode script.",
     },
     atomicscriptrun: {
       title: "Atomic script run",
-      detail: "No overview available.",
+      detail:
+        "Atomic (no-backtrack) matching where matched text must all belong to the same Unicode script.",
     },
     changematchingoptions: {
       title: "Change matching options",
-      detail: "No overview available.",
+      detail: "Changes matching options for the enclosed group.",
     },
   },
 
@@ -512,7 +529,7 @@ const references = {
 
     interpolation: {
       title: "Interpolation",
-      detail: "No overview available.",
+      detail: "Embeds the result of an expression into the regex pattern.",
     },
   },
 
@@ -665,11 +682,12 @@ const references = {
 
     any: {
       title: "Any",
-      detail: "No overview available.",
+      detail:
+        "Matches any character that has at least one Unicode property value.",
     },
     assigned: {
       title: "Assigned",
-      detail: "No overview available.",
+      detail: "Matches any assigned Unicode code point.",
     },
     ascii: {
       title: "Unicode property",
@@ -714,7 +732,7 @@ const references = {
   empty: {
     empty: {
       title: "Empty",
-      detail: "No overview available.",
+      detail: "An empty alternative that matches zero-length text.",
     },
   },
 };
