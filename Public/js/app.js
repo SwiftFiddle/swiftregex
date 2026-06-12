@@ -1,6 +1,7 @@
 "use strict";
 
 import { Tooltip } from "bootstrap";
+import tippy from "tippy.js";
 import { ExpressionField } from "./views/expression_field";
 import { MatchOptions } from "./views/match_options";
 import { TestEditor } from "./views/test_editor";
@@ -8,6 +9,7 @@ import { DSLView } from "./views/dsl_view";
 import { DSLEditor } from "./views/dsl_editor";
 import { DebuggerText } from "./views/debugger_text";
 import { Runner } from "./runner";
+import Utils from "./misc/utils";
 
 export class App {
   constructor() {
@@ -108,6 +110,21 @@ export class App {
     this.dslView.addEventListener("dslunhover", () => {
       this.expressionField.clearPatternHighlight();
     });
+
+    this.matchCountTooltip = tippy(
+      document.getElementById("match-count"),
+      {
+        allowHTML: true,
+        animation: false,
+        placement: "bottom-end",
+        interactive: true,
+        appendTo: () => document.body,
+        content: "",
+        onShow: (instance) => {
+          if (!instance.props.content) return false;
+        },
+      },
+    );
 
     this._reqSeq = 0;
     this._latestId = {};
@@ -444,10 +461,14 @@ export class App {
           const matches = JSON.parse(response.result);
           this.patternTestEditor.matches = matches;
           this.updateMatchCount(matches.length, "match-count");
+          this.matchCountTooltip.setContent(
+            matches.length ? App.buildMatchListTooltip(matches) : "",
+          );
 
           debuggerButton.disabled = matches.length === 0;
         } else {
           this.patternTestEditor.matches = [];
+          this.matchCountTooltip.setContent("");
           if (response.error === "Timed out") {
             document.getElementById("match-count").textContent = "Timed out";
           } else {
@@ -519,5 +540,64 @@ export class App {
         }
         break;
     }
+  }
+
+  static buildMatchListTooltip(matches) {
+    const maxMatches = 20;
+    const shown = matches.slice(0, maxMatches);
+
+    let html = `<div class="text-start font-monospace" style="max-width:520px;max-height:400px;overflow-y:auto;">`;
+
+    for (const [i, m] of shown.entries()) {
+      if (i > 0) html += `<hr style="margin:6px 0;">`;
+
+      const val = Utils.htmlSafe(m.value);
+      html += `<div class="fw-bolder" style="margin-bottom:2px;">Match #${i + 1}</div>`;
+      html += `<table style="border-collapse:collapse;width:100%;">`;
+      html += App.matchRow(".0", val);
+
+      for (const [j, c] of m.captures.entries()) {
+        const label = c.name
+          ? `.${Utils.htmlSafe(c.name)} <span style="color:#6c757d;">#${j + 1}</span>`
+          : `#${j + 1}`;
+        if (c.value != null) {
+          html += App.matchRow(label, Utils.htmlSafe(c.value));
+        } else {
+          html += App.matchRow(label, `<span style="color:#6c757d;">nil</span>`, true);
+        }
+      }
+      html += `</table>`;
+
+      const scalars = m.scalars || [];
+      if (scalars.length) {
+        html += `<div style="margin-top:4px;margin-bottom:2px;font-size:0.85em;color:#6c757d;">Scalars</div>`;
+        html += `<table style="border-collapse:collapse;width:100%;font-size:0.85em;">`;
+        for (const s of scalars) {
+          const sv = s.value ? Utils.htmlSafe(s.value) : "";
+          html += `<tr>`;
+          html += `<td style="padding:1px 6px 1px 0;color:#6c757d;white-space:nowrap;">${s.code}</td>`;
+          html += `<td style="padding:1px 4px;text-align:center;min-width:1.6em;">${sv}</td>`;
+          html += `<td style="padding:1px 0;white-space:nowrap;">${Utils.htmlSafe(s.name)}</td>`;
+          html += `</tr>`;
+        }
+        html += `</table>`;
+      }
+    }
+
+    if (matches.length > maxMatches) {
+      html += `<hr style="margin:6px 0;">`;
+      html += `<div style="color:#6c757d;text-align:center;">... and ${matches.length - maxMatches} more</div>`;
+    }
+
+    html += `</div>`;
+    return html;
+  }
+
+  static matchRow(label, value, isRaw = false) {
+    const display = isRaw ? value : `&quot;${value}&quot;`;
+    return `<tr>
+      <td style="padding:1px 8px 1px 0;color:#6c757d;vertical-align:top;white-space:nowrap;">${label}</td>
+      <td style="padding:1px 0;word-break:break-all;">${display}</td>
+    </tr>`;
   }
 }
