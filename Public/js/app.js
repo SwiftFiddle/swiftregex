@@ -109,18 +109,15 @@ export class App {
       this.expressionField.clearPatternHighlight();
     });
 
-    this._pendingCounts = {};
     this._reqSeq = 0;
-    this._httpGens = {};
+    this._latestId = {};
 
     this.runner = new Runner();
     this.runner.onready = this.onRunnerReady.bind(this);
     this.runner.onresponse = (response) => {
-      const method = response.method;
-      if (this._pendingCounts[method] > 0) {
-        this._pendingCounts[method]--;
+      if (response.id && response.id !== this._latestId[response.method]) {
+        return;
       }
-      if (this._pendingCounts[method] > 0) return;
       this.onRunnerResponse(response);
     };
 
@@ -278,7 +275,11 @@ export class App {
 
   run() {
     this.showMatchLoading();
+    const id = String(++this._reqSeq);
     const methods = ["parseExpression", "convertToDSL", "match"];
+    for (const method of methods) {
+      this._latestId[method] = id;
+    }
     const params = {
       pattern: this.expressionField.value,
       text: this.patternTestEditor.value,
@@ -287,12 +288,9 @@ export class App {
 
     if (this.runner.isReady) {
       for (const method of methods) {
-        this._pendingCounts[method] =
-          (this._pendingCounts[method] || 0) + 1;
-      }
-      for (const method of methods) {
         this.runner.run({
           method: method,
+          id,
           ...params,
         });
       }
@@ -302,15 +300,15 @@ export class App {
         "Content-Type": "application/json",
       };
       for (const method of methods) {
-        const seq = (this._httpGens[method] = ++this._reqSeq);
         const body = JSON.stringify({
           method: method,
+          id,
           ...params,
         });
         fetch(`/api/rest/${method}`, { method: "POST", headers, body })
           .then((response) => response.json())
           .then((response) => {
-            if (this._httpGens[response.method] === seq) {
+            if (response.id === this._latestId[response.method]) {
               this.onRunnerResponse(response);
             }
           });
@@ -325,19 +323,19 @@ export class App {
   onPatternTestEditorChange() {
     this.showMatchLoading();
     const method = "match";
+    const id = String(++this._reqSeq);
+    this._latestId[method] = id;
     const params = {
       method,
+      id,
       pattern: this.expressionField.value,
       text: this.patternTestEditor.value,
       matchOptions: this.matchOptions.value,
     };
 
     if (this.runner.isReady) {
-      this._pendingCounts[method] =
-        (this._pendingCounts[method] || 0) + 1;
       this.runner.run(params);
     } else {
-      const seq = (this._httpGens[method] = ++this._reqSeq);
       const headers = {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -346,7 +344,7 @@ export class App {
       fetch(`/api/rest/${method}`, { method: "POST", headers, body })
         .then((response) => response.json())
         .then((response) => {
-          if (this._httpGens[response.method] === seq) {
+          if (response.id === this._latestId[response.method]) {
             this.onRunnerResponse(response);
           }
         });
@@ -357,8 +355,11 @@ export class App {
 
   onDebuggerStepChange() {
     const method = "debug";
+    const id = String(++this._reqSeq);
+    this._latestId[method] = id;
     const params = {
       method,
+      id,
       pattern: document.getElementById("debugger-regex").value,
       text: this.debuggerText.value,
       matchOptions: this.matchOptions.value,
@@ -366,11 +367,8 @@ export class App {
     };
 
     if (this.runner.isReady) {
-      this._pendingCounts[method] =
-        (this._pendingCounts[method] || 0) + 1;
       this.runner.run(params);
     } else {
-      const seq = (this._httpGens[method] = ++this._reqSeq);
       const headers = {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -379,7 +377,7 @@ export class App {
       fetch(`/api/rest/${method}`, { method: "POST", headers, body })
         .then((response) => response.json())
         .then((response) => {
-          if (this._httpGens[response.method] === seq) {
+          if (response.id === this._latestId[response.method]) {
             this.onRunnerResponse(response);
           }
         });
@@ -387,7 +385,6 @@ export class App {
   }
 
   onRunnerReady() {
-    this._pendingCounts = {};
     const value = this.expressionField.value;
     if (value) {
       this.onExpressionFieldChange();
