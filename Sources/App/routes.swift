@@ -29,9 +29,8 @@ func routes(_ app: Application) throws {
             response = try await debug(pattern: request.pattern, text: request.text, matchOptions: request.matchOptions, step: request.step, id: request.id)
           }
 
-          if let message = String(data: try encoder.encode(response), encoding: .utf8) {
-            try await ws.send(message)
-          }
+          let message = String(data: try encoder.encode(response), encoding: .utf8)!
+          try await ws.send(message)
         } catch {
           req.logger.error("\(error)")
         }

@@ -115,7 +115,7 @@ export class App {
     this.runner = new Runner();
     this.runner.onready = this.onRunnerReady.bind(this);
     this.runner.onresponse = (response) => {
-      if (response.id && response.id !== this._latestId[response.method]) {
+      if (response.id != null && response.id !== this._latestId[response.method]) {
         return;
       }
       this.onRunnerResponse(response);
