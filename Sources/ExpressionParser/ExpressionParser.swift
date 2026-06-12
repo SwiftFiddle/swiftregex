@@ -1095,7 +1095,7 @@ struct ExpressionParser {
         key = "commit"
       case .prune:
         category = "charclasses"
-        key = "skip"
+        key = "prune"
       case .skip:
         category = "charclasses"
         key = "skip"
