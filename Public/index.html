@@ -140,6 +140,89 @@
                         </div>
                       </a>
                     </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="dropdown-header">Matching Semantics</li>
+                    <li class="match-options-radio active-tick" data-group="matchingSemantics" data-value="matchingSemantics:graphemeCluster" data-default="true">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          Grapheme cluster
+                          <i class="fa-regular fa-check"></i>
+                        </div>
+                        <div class="text-wrap text-muted">
+                          Match at the grapheme cluster level
+                        </div>
+                      </a>
+                    </li>
+                    <li class="match-options-radio" data-group="matchingSemantics" data-value="matchingSemantics:unicodeScalar">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          Unicode scalar
+                          <i class="fa-regular fa-check"></i>
+                        </div>
+                        <div class="text-wrap text-muted">
+                          Match at the Unicode scalar level
+                        </div>
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="dropdown-header">Repetition Behavior</li>
+                    <li class="match-options-radio active-tick" data-group="repetitionBehavior" data-value="repetitionBehavior:eager" data-default="true">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          Eager
+                          <i class="fa-regular fa-check"></i>
+                        </div>
+                        <div class="text-wrap text-muted">
+                          Quantifiers match as much as possible
+                        </div>
+                      </a>
+                    </li>
+                    <li class="match-options-radio" data-group="repetitionBehavior" data-value="repetitionBehavior:reluctant">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          Reluctant
+                          <i class="fa-regular fa-check"></i>
+                        </div>
+                        <div class="text-wrap text-muted">
+                          Quantifiers match as little as possible
+                        </div>
+                      </a>
+                    </li>
+                    <li class="match-options-radio" data-group="repetitionBehavior" data-value="repetitionBehavior:possessive">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          Possessive
+                          <i class="fa-regular fa-check"></i>
+                        </div>
+                        <div class="text-wrap text-muted">
+                          Quantifiers match as much as possible and never backtrack
+                        </div>
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="dropdown-header">Word Boundary</li>
+                    <li class="match-options-radio active-tick" data-group="wordBoundaryKind" data-value="wordBoundaryKind:default" data-default="true">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          Unicode
+                          <i class="fa-regular fa-check"></i>
+                        </div>
+                        <div class="text-wrap text-muted">
+                          Use Unicode word boundaries
+                        </div>
+                      </a>
+                    </li>
+                    <li class="match-options-radio" data-group="wordBoundaryKind" data-value="wordBoundaryKind:simple">
+                      <a class="dropdown-item" href="#">
+                        <div class="checkable">
+                          Simple
+                          <i class="fa-regular fa-check"></i>
+                        </div>
+                        <div class="text-wrap text-muted">
+                          Use simple ASCII word boundaries
+                        </div>
+                      </a>
+                    </li>
                   </ul>
                 </div>
                 <div id="expression-field-error" class="bg-white d-none">

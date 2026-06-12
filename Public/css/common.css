@@ -1,4 +1,5 @@
-.match-options-item svg {
+.match-options-item svg,
+.match-options-radio svg {
   display: none;
 }
 .active-tick svg {

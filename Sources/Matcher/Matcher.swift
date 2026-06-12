@@ -4,7 +4,7 @@ import Foundation
 
 struct Matcher {
   static func match(pattern: String, text: String, matchingOptions: [String] = []) throws -> [Match] {
-    let regex = try Regex(pattern)
+    var regex = try Regex(pattern)
       .anchorsMatchLineEndings(matchingOptions.contains("m"))
       .ignoresCase(matchingOptions.contains("i"))
       .dotMatchesNewlines(matchingOptions.contains("s"))
@@ -12,6 +12,17 @@ struct Matcher {
       .asciiOnlyDigits(matchingOptions.contains("asciiOnlyDigits"))
       .asciiOnlyWhitespace(matchingOptions.contains("asciiOnlyWhitespace"))
       .asciiOnlyCharacterClasses(matchingOptions.contains("asciiOnlyCharacterClasses"))
+    if matchingOptions.contains("matchingSemantics:unicodeScalar") {
+      regex = regex.matchingSemantics(.unicodeScalar)
+    }
+    if matchingOptions.contains("repetitionBehavior:reluctant") {
+      regex = regex.repetitionBehavior(.reluctant)
+    } else if matchingOptions.contains("repetitionBehavior:possessive") {
+      regex = regex.repetitionBehavior(.possessive)
+    }
+    if matchingOptions.contains("wordBoundaryKind:simple") {
+      regex = regex.wordBoundaryKind(.simple)
+    }
 
     let matches = matchingOptions.contains("g") ? text.matches(of: regex) : text.firstMatch(of: regex).flatMap { [$0] } ?? []
     return matches.map {

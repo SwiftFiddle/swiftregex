@@ -44,6 +44,21 @@ class DSLConverter {
       builderDSL.append("\n")
       builderDSL.append(".asciiOnlyCharacterClasses()")
     }
+    if matchingOptions.contains("matchingSemantics:unicodeScalar") {
+      builderDSL.append("\n")
+      builderDSL.append(".matchingSemantics(.unicodeScalar)")
+    }
+    if matchingOptions.contains("repetitionBehavior:reluctant") {
+      builderDSL.append("\n")
+      builderDSL.append(".repetitionBehavior(.reluctant)")
+    } else if matchingOptions.contains("repetitionBehavior:possessive") {
+      builderDSL.append("\n")
+      builderDSL.append(".repetitionBehavior(.possessive)")
+    }
+    if matchingOptions.contains("wordBoundaryKind:simple") {
+      builderDSL.append("\n")
+      builderDSL.append(".wordBoundaryKind(.simple)")
+    }
     builderDSL.append("\n")
 
     return builderDSL
