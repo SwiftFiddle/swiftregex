@@ -26,7 +26,16 @@ struct Debugger {
     if matchingOptions.contains("asciiOnlyCharacterClasses") {
       sequence.append(.init(.asciiOnlyPOSIXProps, location: .fake))
     }
-    sequence.append(.init(.graphemeClusterSemantics, location: .fake))
+    if matchingOptions.contains("matchingSemantics:unicodeScalar") {
+      sequence.append(.init(.unicodeScalarSemantics, location: .fake))
+    } else {
+      sequence.append(.init(.graphemeClusterSemantics, location: .fake))
+    }
+    if matchingOptions.contains("repetitionBehavior:reluctant") {
+      sequence.append(.init(.reluctantByDefault, location: .fake))
+    } else if matchingOptions.contains("repetitionBehavior:possessive") {
+      sequence.append(.init(.possessiveByDefault, location: .fake))
+    }
 
     var options = MatchingOptions()
     options.apply(AST.MatchingOptionSequence(adding: sequence))

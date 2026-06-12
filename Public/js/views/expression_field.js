@@ -2,6 +2,7 @@
 
 import { EventDispatcher } from "@createjs/easeljs";
 import tippy from "tippy.js";
+import { EditorView } from "@codemirror/view";
 
 import Editor from "./editor";
 import ExpressionHighlighter from "./expression_highlighter";
@@ -15,11 +16,13 @@ export class ExpressionField extends EventDispatcher {
   }
 
   get value() {
-    return this.editor.getValue();
+    return this.view.state.doc.toString();
   }
 
   set value(val) {
-    this.editor.setValue(val);
+    this.view.dispatch({
+      changes: { from: 0, to: this.view.state.doc.length, insert: val },
+    });
   }
 
   set tokens(tokens) {
@@ -29,7 +32,7 @@ export class ExpressionField extends EventDispatcher {
   }
 
   set error(error) {
-    if (error.length) {
+    if (error && error.length) {
       let message = "";
       if (typeof error === "string" || error instanceof String) {
         const errorMessage = Utils.htmlSafe(error);
@@ -61,23 +64,29 @@ export class ExpressionField extends EventDispatcher {
   }
 
   init(container) {
-    this.editor = Editor.create(
+    this.highlighter = new ExpressionHighlighter();
+
+    this.view = Editor.create(
       container,
       {
         autofocus: true,
         maxLength: 2500,
         singleLine: true,
         screenReaderLabel: "Regular Expression Field",
+        extensions: [
+          ...this.highlighter.extensions,
+          EditorView.updateListener.of((update) => {
+            if (update.docChanged) {
+              this.deferUpdate();
+            }
+          }),
+        ],
       },
       "100%",
       "100%",
     );
 
-    this.editor.on("change", (editor, event) =>
-      this.onEditorChange(editor, event),
-    );
-
-    this.highlighter = new ExpressionHighlighter(this.editor);
+    this.highlighter.attach(this.view);
     this.expressionTokens = [];
     this.activeTooltips = [];
 
@@ -90,8 +99,16 @@ export class ExpressionField extends EventDispatcher {
   }
 
   setDefaultValue() {
-    this.editor.setValue(defaultValue);
-    this.editor.setCursor(this.editor.lineCount(), 0);
+    this.view.dispatch({
+      changes: {
+        from: 0,
+        to: this.view.state.doc.length,
+        insert: defaultValue,
+      },
+    });
+    this.view.dispatch({
+      selection: { anchor: this.view.state.doc.length },
+    });
   }
 
   resetTooltips() {
@@ -106,7 +123,7 @@ export class ExpressionField extends EventDispatcher {
           return false;
         }
         const token = this.expressionTokens[index];
-        this.onHover(token, instance);
+        this.onHover(token, index);
         return false;
       },
     });
@@ -120,29 +137,56 @@ export class ExpressionField extends EventDispatcher {
     this.dispatchEvent("change");
   }
 
-  onEditorChange(editor, event) {
-    this.deferUpdate();
+  highlightPattern(range) {
+    this.highlighter.clearHover();
+    this._hoverTokenIndex = null;
+    this.highlighter.highlightRange(range);
+    this.resetTooltips();
   }
 
-  onHover(token, tippyInstance) {
+  clearPatternHighlight() {
+    this.highlighter.clearReverseHover();
+    this.resetTooltips();
+  }
+
+  onHover(token, tokenIndex) {
     this.hoverToken = token;
+    this._hoverTokenIndex = tokenIndex;
 
     this.highlighter.drawHover(token);
     this.dispatchEvent("hover");
 
     for (const tooltip of this.activeTooltips) {
-      if (tooltip !== tippyInstance) {
-        tooltip.destroy();
-      }
+      tooltip.destroy();
     }
+
     this.activeTooltips = tippy(tooltipSelector, {
       ...tooltipProps,
-      onUntrigger: (instance) => {
+      onUntrigger: (instance, event) => {
+        if (event) {
+          const related = event.relatedTarget?.closest?.(
+            "[data-token-index]",
+          );
+          if (
+            related &&
+            related.dataset.tokenIndex === this._hoverTokenIndex
+          ) {
+            return;
+          }
+        }
         this.highlighter.clearHover();
+        this._hoverTokenIndex = null;
         this.resetTooltips();
         this.dispatchEvent("unhover");
       },
     });
+
+    for (const t of this.activeTooltips) {
+      if (t.reference.dataset.tokenIndex === tokenIndex) {
+        t.show();
+        break;
+      }
+    }
   }
 }
 

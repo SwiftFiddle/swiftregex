@@ -112,18 +112,30 @@ func routes(_ app: Application) throws {
   }
 
   func parseExpression(pattern: String, matchOptions: [String]) throws -> ResultResponse {
-    let (stdout, stderr) = try exec(command: "ExpressionParser", arguments: pattern, matchOptions.joined(separator: ","))
-    return ResultResponse(method: .parseExpression, result: stdout, error: stderr)
+    do {
+      let (stdout, stderr) = try exec(command: "ExpressionParser", timeout: 5, arguments: pattern, matchOptions.joined(separator: ","))
+      return ResultResponse(method: .parseExpression, result: stdout, error: stderr)
+    } catch is ProcessTimeoutError {
+      return ResultResponse(method: .parseExpression, result: "", error: "Timed out")
+    }
   }
 
   func convertToDSL(pattern: String, matchOptions: [String]) throws -> ResultResponse {
-    let (stdout, stderr) = try exec(command: "DSLConverter", arguments: pattern, matchOptions.joined(separator: ","))
-    return ResultResponse(method: .convertToDSL, result: stdout, error: stderr)
+    do {
+      let (stdout, stderr) = try exec(command: "DSLConverter", timeout: 5, arguments: pattern, matchOptions.joined(separator: ","))
+      return ResultResponse(method: .convertToDSL, result: stdout, error: stderr)
+    } catch is ProcessTimeoutError {
+      return ResultResponse(method: .convertToDSL, result: "", error: "Timed out")
+    }
   }
 
   func match(pattern: String, text: String, matchOptions: [String]) throws -> ResultResponse {
-    let (stdout, stderr) = try exec(command: "Matcher", arguments: pattern, text, matchOptions.joined(separator: ","))
-    return ResultResponse(method: .match, result: stdout, error: stderr)
+    do {
+      let (stdout, stderr) = try exec(command: "Matcher", timeout: 5, arguments: pattern, text, matchOptions.joined(separator: ","))
+      return ResultResponse(method: .match, result: stdout, error: stderr)
+    } catch is ProcessTimeoutError {
+      return ResultResponse(method: .match, result: "", error: "Timed out")
+    }
   }
 
   func debug(pattern: String, text: String, matchOptions: [String], step: String?) throws -> ResultResponse {
@@ -174,7 +186,9 @@ func routes(_ app: Application) throws {
     return response
   }
 
-  func exec(command: String, arguments: String...) throws -> (stdout: String, stderr: String) {
+  struct ProcessTimeoutError: Error {}
+
+  func exec(command: String, timeout: TimeInterval = 5, arguments: String...) throws -> (stdout: String, stderr: String) {
     let process = Process()
     let executableURL = URL(
       fileURLWithPath: app.directory.workingDirectory
@@ -217,8 +231,24 @@ func routes(_ app: Application) throws {
 
     try process.run()
 
+    var didTimeout = false
+    let timer = DispatchSource.makeTimerSource(queue: .global())
+    timer.schedule(deadline: .now() + timeout)
+    timer.setEventHandler {
+      if process.isRunning {
+        didTimeout = true
+        process.terminate()
+      }
+    }
+    timer.resume()
+
     group.wait()
     process.waitUntilExit()
+    timer.cancel()
+
+    if didTimeout {
+      throw ProcessTimeoutError()
+    }
 
     guard let stdout = String(data: stdoutData, encoding: .utf8) else {
       throw Abort(.internalServerError)

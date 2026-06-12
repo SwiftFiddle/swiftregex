@@ -1,92 +1,104 @@
 "use strict";
 
-import Editor from "./editor";
+import { StateField, StateEffect } from "@codemirror/state";
+import { Decoration, EditorView, WidgetType } from "@codemirror/view";
+
+class TraceWidget extends WidgetType {
+  constructor(className, useCharWidth) {
+    super();
+    this.className = className;
+    this.useCharWidth = useCharWidth;
+  }
+  toDOM(view) {
+    const span = document.createElement("span");
+    span.className = this.className;
+    span.style.display = "inline-block";
+    span.style.height = `${view.defaultLineHeight * 1.5}px`;
+    span.style.width = this.useCharWidth
+      ? `${view.defaultCharacterWidth}px`
+      : "1px";
+    span.style.verticalAlign = "text-top";
+    return span;
+  }
+  eq(other) {
+    return (
+      this.className === other.className &&
+      this.useCharWidth === other.useCharWidth
+    );
+  }
+}
 
 export default class DebuggerHighlighter {
-  constructor(editor) {
-    this.editor = editor;
-    this.activeMarks = [];
-    this.widgets = [];
+  constructor() {
+    this.view = null;
+
+    this.setTraces = StateEffect.define();
+
+    this.tracesField = StateField.define({
+      create: () => Decoration.none,
+      update: (value, tr) => {
+        for (const e of tr.effects) {
+          if (e.is(this.setTraces)) return e.value;
+        }
+        return tr.docChanged ? Decoration.none : value;
+      },
+      provide: (f) => EditorView.decorations.from(f),
+    });
+  }
+
+  get extensions() {
+    return [this.tracesField];
+  }
+
+  attach(view) {
+    this.view = view;
   }
 
   draw(traces, backtrack) {
-    this.clear();
+    const docLen = this.view.state.doc.length;
+    const decos = [];
 
-    const editor = this.editor;
-    editor.operation(() => {
-      const doc = editor.getDoc();
-      const marks = this.activeMarks;
+    for (const trace of traces) {
+      const from = trace.location.start;
+      const to = trace.location.end;
 
-      const defaultTextHeight = editor.defaultTextHeight();
-
-      for (const trace of traces) {
-        const className = "debuggermatch";
-
-        if (trace.location.start !== trace.location.end) {
-          const location = Editor.calcRangePos(
-            this.editor,
-            trace.location.start,
-            trace.location.end - trace.location.start
-          );
-
-          marks.push(
-            doc.markText(location.startPos, location.endPos, {
-              className: className,
-            })
-          );
-        } else {
-          const pos = doc.posFromIndex(trace.location.start);
-
-          const widget = document.createElement("span");
-          widget.className = className;
-
-          widget.style.height = `${defaultTextHeight * 1.5}px`;
-          widget.style.width = "1px";
-          widget.style.zIndex = "10";
-
-          this.editor.addWidget(pos, widget);
-
-          const coords = editor.charCoords(pos, "local");
-          widget.style.left = `${coords.left}px`;
-          widget.style.top = `${coords.top + 2}px`;
-
-          this.widgets.push(widget);
-        }
+      if (from !== to && from < docLen) {
+        decos.push(
+          Decoration.mark({ class: "debuggermatch" }).range(
+            from,
+            Math.min(to, docLen),
+          ),
+        );
+      } else if (from <= docLen) {
+        decos.push(
+          Decoration.widget({
+            widget: new TraceWidget("debuggermatch", false),
+            side: 1,
+          }).range(Math.min(from, docLen)),
+        );
       }
+    }
 
-      if (backtrack) {
-        const pos = doc.posFromIndex(backtrack.start);
+    if (backtrack && backtrack.start <= docLen) {
+      decos.push(
+        Decoration.widget({
+          widget: new TraceWidget("debuggerbacktrack", true),
+          side: 1,
+        }).range(Math.min(backtrack.start, docLen)),
+      );
+    }
 
-        const widget = document.createElement("span");
-        widget.className = "debuggerbacktrack";
-
-        widget.style.height = `${defaultTextHeight * 1.5}px`;
-        widget.style.width = `${editor.defaultCharWidth()}px`;
-        widget.style.zIndex = "10";
-
-        this.editor.addWidget(pos, widget);
-
-        const coords = editor.charCoords(pos, "local");
-        widget.style.left = `${coords.left}px`;
-        widget.style.top = `${coords.top + 2}px`;
-
-        this.widgets.push(widget);
-      }
+    this.view.dispatch({
+      effects: this.setTraces.of(Decoration.set(decos, true)),
     });
   }
 
   clear() {
-    this.editor.operation(() => {
-      let marks = this.activeMarks;
-      for (var i = 0, l = marks.length; i < l; i++) {
-        marks[i].clear();
-      }
-      marks.length = 0;
-
-      for (const widget of this.widgets) {
-        widget.parentNode.removeChild(widget);
-      }
-      this.widgets.length = 0;
+    if (!this.view) {
+      return;
+    }
+    this.view.dispatch({
+      effects: this.setTraces.of(Decoration.none),
     });
   }
 }

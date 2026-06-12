@@ -27,6 +27,15 @@ export class App {
     this.expressionField.addEventListener("change", () =>
       this.onExpressionFieldChange(),
     );
+    this.expressionField.addEventListener("hover", () => {
+      const token = this.expressionField.hoverToken;
+      if (token) {
+        this.dslView.highlight(token);
+      }
+    });
+    this.expressionField.addEventListener("unhover", () => {
+      this.dslView.clearHighlight();
+    });
 
     this.matchOptions = new MatchOptions();
     this.matchOptions.addEventListener("change", () =>
@@ -90,10 +99,30 @@ export class App {
     );
 
     this.dslView = new DSLView(document.getElementById("dsl-view-container"));
+    this.dslView.addEventListener("dslhover", () => {
+      const range = this.dslView.hoverPatternRange;
+      if (range) {
+        this.expressionField.highlightPattern(range);
+      }
+    });
+    this.dslView.addEventListener("dslunhover", () => {
+      this.expressionField.clearPatternHighlight();
+    });
+
+    this._pendingCounts = {};
+    this._reqSeq = 0;
+    this._httpGens = {};
 
     this.runner = new Runner();
     this.runner.onready = this.onRunnerReady.bind(this);
-    this.runner.onresponse = this.onRunnerResponse.bind(this);
+    this.runner.onresponse = (response) => {
+      const method = response.method;
+      if (this._pendingCounts[method] > 0) {
+        this._pendingCounts[method]--;
+      }
+      if (this._pendingCounts[method] > 0) return;
+      this.onRunnerResponse(response);
+    };
 
     this.stateProxy = {
       builder: "",
@@ -193,6 +222,11 @@ export class App {
     });
   }
 
+  showMatchLoading() {
+    const matchCount = document.getElementById("match-count");
+    matchCount.textContent = "Matching...";
+  }
+
   updateMatchCount(count, id) {
     const matchCount = document.getElementById(id);
     if (count > 1) {
@@ -232,6 +266,7 @@ export class App {
       this.expressionField.error = null;
       this.dslView.value = "";
       this.dslView.error = null;
+      this.dslView.sourceMap = [];
       this.updateMatchCount(0, "match-count");
       return;
     }
@@ -242,6 +277,7 @@ export class App {
   }
 
   run() {
+    this.showMatchLoading();
     const methods = ["parseExpression", "convertToDSL", "match"];
     const params = {
       pattern: this.expressionField.value,
@@ -250,6 +286,10 @@ export class App {
     };
 
     if (this.runner.isReady) {
+      for (const method of methods) {
+        this._pendingCounts[method] =
+          (this._pendingCounts[method] || 0) + 1;
+      }
       for (const method of methods) {
         this.runner.run({
           method: method,
@@ -262,16 +302,17 @@ export class App {
         "Content-Type": "application/json",
       };
       for (const method of methods) {
+        const seq = (this._httpGens[method] = ++this._reqSeq);
         const body = JSON.stringify({
           method: method,
           ...params,
         });
         fetch(`/api/rest/${method}`, { method: "POST", headers, body })
+          .then((response) => response.json())
           .then((response) => {
-            return response.json();
-          })
-          .then((response) => {
-            this.onRunnerResponse(response);
+            if (this._httpGens[response.method] === seq) {
+              this.onRunnerResponse(response);
+            }
           });
       }
     }
@@ -282,6 +323,7 @@ export class App {
   }
 
   onPatternTestEditorChange() {
+    this.showMatchLoading();
     const method = "match";
     const params = {
       method,
@@ -291,19 +333,22 @@ export class App {
     };
 
     if (this.runner.isReady) {
+      this._pendingCounts[method] =
+        (this._pendingCounts[method] || 0) + 1;
       this.runner.run(params);
     } else {
+      const seq = (this._httpGens[method] = ++this._reqSeq);
       const headers = {
         Accept: "application/json",
         "Content-Type": "application/json",
       };
       const body = JSON.stringify(params);
       fetch(`/api/rest/${method}`, { method: "POST", headers, body })
+        .then((response) => response.json())
         .then((response) => {
-          return response.json();
-        })
-        .then((response) => {
-          this.onRunnerResponse(response);
+          if (this._httpGens[response.method] === seq) {
+            this.onRunnerResponse(response);
+          }
         });
     }
 
@@ -321,24 +366,28 @@ export class App {
     };
 
     if (this.runner.isReady) {
+      this._pendingCounts[method] =
+        (this._pendingCounts[method] || 0) + 1;
       this.runner.run(params);
     } else {
+      const seq = (this._httpGens[method] = ++this._reqSeq);
       const headers = {
         Accept: "application/json",
         "Content-Type": "application/json",
       };
       const body = JSON.stringify(params);
       fetch(`/api/rest/${method}`, { method: "POST", headers, body })
+        .then((response) => response.json())
         .then((response) => {
-          return response.json();
-        })
-        .then((response) => {
-          this.onRunnerResponse(response);
+          if (this._httpGens[response.method] === seq) {
+            this.onRunnerResponse(response);
+          }
         });
     }
   }
 
   onRunnerReady() {
+    this._pendingCounts = {};
     const value = this.expressionField.value;
     if (value) {
       this.onExpressionFieldChange();
@@ -369,7 +418,14 @@ export class App {
         break;
       case "convertToDSL":
         if (response.result) {
-          this.dslView.value = JSON.parse(response.result);
+          const dslResult = JSON.parse(response.result);
+          if (typeof dslResult === "string") {
+            this.dslView.value = dslResult;
+            this.dslView.sourceMap = [];
+          } else {
+            this.dslView.value = dslResult.dsl;
+            this.dslView.sourceMap = dslResult.sourceMap;
+          }
         }
         if (response.error) {
           try {
@@ -395,12 +451,17 @@ export class App {
           debuggerButton.disabled = matches.length === 0;
         } else {
           this.patternTestEditor.matches = [];
-          this.updateMatchCount(0, "match-count");
+          if (response.error === "Timed out") {
+            document.getElementById("match-count").textContent = "Timed out";
+          } else {
+            this.updateMatchCount(0, "match-count");
+          }
 
           debuggerButton.disabled = true;
         }
 
-        this.patternTestEditor.error = response.error;
+        this.patternTestEditor.error =
+          response.error === "Timed out" ? "" : response.error;
 
         break;
       case "debug":

@@ -1,174 +1,271 @@
 "use strict";
 
+import { StateField, StateEffect } from "@codemirror/state";
+import { Decoration, EditorView, WidgetType } from "@codemirror/view";
 import { EventDispatcher } from "@createjs/easeljs";
 import { Reference } from "../docs/reference";
-import Editor from "./editor";
+import Utils from "../misc/utils";
+
+class ErrorMarkerWidget extends WidgetType {
+  constructor(tooltip) {
+    super();
+    this.tooltip = tooltip;
+  }
+  toDOM(view) {
+    const span = document.createElement("span");
+    span.className = "exp-syntax-error exp-syntax-error-widget";
+    span.style.display = "inline-block";
+    span.style.width = `${view.defaultCharacterWidth}px`;
+    span.setAttribute("data-tippy-content", this.tooltip);
+    return span;
+  }
+  eq(other) {
+    return this.tooltip === other.tooltip;
+  }
+}
 
 export default class ExpressionHighlighter extends EventDispatcher {
-  constructor(editor) {
+  constructor() {
     super();
-    this.editor = editor;
-    this.activeMarks = [];
-    this.hoverMarks = [];
-    this.widgets = [];
+    this.view = null;
+
+    this.setTokens = StateEffect.define();
+    this.setErrors = StateEffect.define();
+    this.setHover = StateEffect.define();
+    this.setReverseHover = StateEffect.define();
+
+    this.tokensField = StateField.define({
+      create: () => Decoration.none,
+      update: (value, tr) => {
+        for (const e of tr.effects) {
+          if (e.is(this.setTokens)) return e.value;
+        }
+        return tr.docChanged ? Decoration.none : value;
+      },
+      provide: (f) => EditorView.decorations.from(f),
+    });
+
+    this.errorsField = StateField.define({
+      create: () => Decoration.none,
+      update: (value, tr) => {
+        for (const e of tr.effects) {
+          if (e.is(this.setErrors)) return e.value;
+        }
+        return tr.docChanged ? Decoration.none : value;
+      },
+      provide: (f) => EditorView.decorations.from(f),
+    });
+
+    this.hoverField = StateField.define({
+      create: () => Decoration.none,
+      update: (value, tr) => {
+        for (const e of tr.effects) {
+          if (e.is(this.setHover)) return e.value;
+        }
+        return tr.docChanged ? Decoration.none : value;
+      },
+      provide: (f) => EditorView.decorations.from(f),
+    });
+
+    this.reverseHoverField = StateField.define({
+      create: () => Decoration.none,
+      update: (value, tr) => {
+        for (const e of tr.effects) {
+          if (e.is(this.setReverseHover)) return e.value;
+        }
+        return tr.docChanged ? Decoration.none : value;
+      },
+      provide: (f) => EditorView.decorations.from(f),
+    });
+  }
+
+  get extensions() {
+    return [
+      this.tokensField,
+      this.errorsField,
+      this.hoverField,
+      this.reverseHoverField,
+    ];
+  }
+
+  attach(view) {
+    this.view = view;
   }
 
   draw(tokens) {
-    this.clear();
-
     const pre = ExpressionHighlighter.CSS_PREFIX;
-    const editor = this.editor;
-    editor.operation(() => {
-      const doc = editor.getDoc();
-      const marks = this.activeMarks;
+    const docLen = this.view.state.doc.length;
+    const decos = [];
 
-      for (const [i, token] of Object.entries(tokens)) {
-        const location = Editor.calcRangePos(
-          this.editor,
-          token.location.start,
-          token.location.end - token.location.start,
-        );
+    for (const [i, token] of Object.entries(tokens)) {
+      const from = token.location.start;
+      const to = token.location.end;
+      if (from >= to || from >= docLen) continue;
+      const clampedTo = Math.min(to, docLen);
 
-        const tooltipAttr = (() => {
-          if (token.tooltip) {
-            const reference = Reference.get(
-              token.tooltip.category,
-              token.tooltip.key,
-            );
-            let title = reference ? reference.title : token.tooltip.category;
-            let detail = reference ? reference.detail : token.tooltip.key;
-            for (const [k, v] of Object.entries(token.tooltip.substitution)) {
-              title = title.replaceAll(k, v);
-              detail = detail.replaceAll(k, v);
-            }
-            return {
-              "data-tippy-content": makeTooltip(title, detail),
-            };
-          } else {
-            return {};
-          }
-        })();
-        marks.push(
-          doc.markText(location.startPos, location.endPos, {
-            className: `${token.classes.map((c) => `${pre}-${c}`).join(" ")}`,
-            attributes: {
-              ...tooltipAttr,
-              "data-token-index": i,
-            },
-          }),
+      const attrs = { "data-token-index": String(i) };
+      if (token.tooltip) {
+        const reference = Reference.get(
+          token.tooltip.category,
+          token.tooltip.key,
         );
+        let title = reference ? reference.title : token.tooltip.category;
+        let detail = reference ? reference.detail : token.tooltip.key;
+        for (const [k, v] of Object.entries(token.tooltip.substitution)) {
+          const escaped = Utils.htmlSafe(v);
+          title = title.replaceAll(k, escaped);
+          detail = detail.replaceAll(k, escaped);
+        }
+        attrs["data-tippy-content"] = makeTooltip(title, detail);
       }
+
+      decos.push(
+        Decoration.mark({
+          class: token.classes.map((c) => `${pre}-${c}`).join(" "),
+          attributes: attrs,
+        }).range(from, clampedTo),
+      );
+    }
+
+    this.view.dispatch({
+      effects: this.setTokens.of(Decoration.set(decos, true)),
     });
   }
 
   drawError(errors) {
     this.clearError();
+    const docLen = this.view.state.doc.length;
+    const decos = [];
 
-    const pre = ExpressionHighlighter.CSS_PREFIX;
-    const editor = this.editor;
-    editor.operation(() => {
-      for (const error of errors) {
-        const location = Editor.calcRangePos(
-          this.editor,
-          error.location.start,
-          error.location.end - error.location.start,
+    for (const error of errors) {
+      const from = error.location.start;
+      const to = error.location.end;
+      const tooltip = `<span class="fw-bolder text-danger">${Utils.htmlSafe(error.behavior)}:</span> ${Utils.htmlSafe(error.message)}`;
+
+      if (from < to && from < docLen) {
+        decos.push(
+          Decoration.mark({
+            class: "exp-syntax-error",
+            attributes: { "data-tippy-content": tooltip },
+          }).range(from, Math.min(to, docLen)),
         );
-        const widget = document.createElement("span");
-        widget.className = `${pre}-syntax-error`;
-
-        widget.style.height = `5px`;
-        widget.style.zIndex = "10";
-        widget.setAttribute(
-          "data-tippy-content",
-          `<span class="fw-bolder text-danger">${error.behavior}:</span> ${error.message}`,
+      } else if (from <= docLen) {
+        decos.push(
+          Decoration.widget({
+            widget: new ErrorMarkerWidget(tooltip),
+            side: 1,
+          }).range(Math.min(from, docLen)),
         );
-
-        editor.addWidget(location.startPos, widget);
-        const startCoords = editor.charCoords(location.startPos, "local");
-        const endCoords = editor.charCoords(location.endPos, "local");
-        widget.style.left = `${startCoords.left + 1}px`;
-        widget.style.top = `${startCoords.bottom - 1}px`;
-        if (error.location.start === error.location.end) {
-          widget.style.width = `${editor.defaultCharWidth()}px`;
-        } else {
-          widget.style.width = `${endCoords.left - startCoords.left - 2}px`;
-        }
-
-        this.widgets.push(widget);
       }
+    }
+
+    this.view.dispatch({
+      effects: this.setErrors.of(Decoration.set(decos, true)),
     });
   }
 
   clear() {
-    this.editor.operation(() => {
-      for (const mark of this.activeMarks) {
-        mark.clear();
-      }
-      this.activeMarks.length = 0;
+    if (!this.view) {
+      return;
+    }
+    this.view.dispatch({
+      effects: this.setTokens.of(Decoration.none),
     });
   }
 
   clearError() {
-    this.editor.operation(() => {
-      for (const widget of this.widgets) {
-        widget.parentNode.removeChild(widget);
-      }
-      this.widgets.length = 0;
+    if (!this.view) {
+      return;
+    }
+    this.view.dispatch({
+      effects: this.setErrors.of(Decoration.none),
     });
   }
 
   drawHover(token) {
     const selection = token.selection;
     const related = token.related;
-    if ((!selection && !related) || this.hoverMarks.length) {
+    if (!selection && !related) {
       return;
     }
 
-    this.clearHover();
-
+    const decos = [];
     if (selection) {
-      this.drawBorder(selection, "selected");
+      decos.push(...this.makeBorderDecos(selection, "selected"));
     }
     if (related) {
-      this.drawBorder(related.location, "related");
+      decos.push(...this.makeBorderDecos(related.location, "related"));
     }
+
+    this.view.dispatch({
+      effects: this.setHover.of(Decoration.set(decos, true)),
+    });
   }
 
-  drawBorder(range, className) {
-    const editor = this.editor;
-    const doc = editor.getDoc();
-
+  makeBorderDecos(range, className) {
     const pre = ExpressionHighlighter.CSS_PREFIX;
-    const left = Editor.calcRangePos(this.editor, range.start, 1);
-    const location = Editor.calcRangePos(
-      this.editor,
-      range.start,
-      range.end - range.start,
-    );
-    const right = Editor.calcRangePos(this.editor, range.end - 1, 1);
-    this.hoverMarks.push(
-      doc.markText(left.startPos, left.endPos, {
-        className: `${pre}-${className}-left`,
-      }),
-    );
-    this.hoverMarks.push(
-      doc.markText(location.startPos, location.endPos, {
-        className: `${pre}-${className}`,
-      }),
-    );
-    this.hoverMarks.push(
-      doc.markText(right.startPos, right.endPos, {
-        className: `${pre}-${className}-right`,
-      }),
-    );
+    const docLen = this.view.state.doc.length;
+    if (range.start >= docLen || range.end > docLen) return [];
+    if (range.end - range.start < 1) return [];
+
+    let firstEnd = range.start + 1;
+    let lastStart = range.end - 1;
+
+    if (typeof Intl !== "undefined" && Intl.Segmenter) {
+      const text = this.view.state.doc.toString();
+      const segments = new Intl.Segmenter(undefined, {
+        granularity: "grapheme",
+      }).segment(text);
+
+      const first = segments.containing(range.start);
+      if (first) {
+        firstEnd = Math.min(first.index + first.segment.length, range.end);
+      }
+      const last = segments.containing(range.end - 1);
+      if (last) {
+        lastStart = Math.max(last.index, range.start);
+      }
+    }
+
+    return [
+      Decoration.mark({ class: `${pre}-${className}-left` }).range(
+        range.start,
+        firstEnd,
+      ),
+      Decoration.mark({ class: `${pre}-${className}` }).range(
+        range.start,
+        range.end,
+      ),
+      Decoration.mark({ class: `${pre}-${className}-right` }).range(
+        lastStart,
+        range.end,
+      ),
+    ];
   }
 
   clearHover() {
-    this.editor.operation(() => {
-      for (const mark of this.hoverMarks) {
-        mark.clear();
-      }
-      this.hoverMarks.length = 0;
+    if (!this.view) {
+      return;
+    }
+    this.view.dispatch({
+      effects: this.setHover.of(Decoration.none),
+    });
+  }
+
+  highlightRange(range) {
+    if (!this.view) return;
+    const decos = this.makeBorderDecos(range, "selected");
+    this.view.dispatch({
+      effects: this.setReverseHover.of(
+        decos.length ? Decoration.set(decos, true) : Decoration.none,
+      ),
+    });
+  }
+
+  clearReverseHover() {
+    if (!this.view) return;
+    this.view.dispatch({
+      effects: this.setReverseHover.of(Decoration.none),
     });
   }
 }
