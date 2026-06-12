@@ -333,6 +333,10 @@ class DSLConverter {
       .replacingOccurrences(of: "\"", with: "\\\"")
   }
 
+  private func utf16Distance(in str: String, to index: String.Index) -> Int {
+    str.utf16.distance(from: str.utf16.startIndex, to: index)
+  }
+
   // MARK: - DSL Search Helpers
 
   private func findKeyword(_ keyword: String, in dsl: String, from cursor: String.Index) -> Range<String.Index>? {
@@ -365,8 +369,8 @@ class DSLConverter {
     entries.append(DSLSourceMapEntry(
       patternStart: patternStart,
       patternEnd: patternEnd,
-      dslStart: dsl.distance(from: dsl.startIndex, to: lineStart),
-      dslEnd: dsl.distance(from: dsl.startIndex, to: blockEnd)
+      dslStart: utf16Distance(in: dsl, to: lineStart),
+      dslEnd: utf16Distance(in: dsl, to: blockEnd)
     ))
 
     cursor = keywordRange.upperBound
@@ -389,8 +393,8 @@ class DSLConverter {
     entries.append(DSLSourceMapEntry(
       patternStart: patternStart,
       patternEnd: patternEnd,
-      dslStart: dsl.distance(from: dsl.startIndex, to: lineStart),
-      dslEnd: dsl.distance(from: dsl.startIndex, to: lineEnd)
+      dslStart: utf16Distance(in: dsl, to: lineStart),
+      dslEnd: utf16Distance(in: dsl, to: lineEnd)
     ))
 
     cursor = keywordRange.upperBound
