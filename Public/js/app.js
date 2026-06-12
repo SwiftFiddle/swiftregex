@@ -27,6 +27,15 @@ export class App {
     this.expressionField.addEventListener("change", () =>
       this.onExpressionFieldChange(),
     );
+    this.expressionField.addEventListener("hover", () => {
+      const token = this.expressionField.hoverToken;
+      if (token) {
+        this.dslView.highlight(token);
+      }
+    });
+    this.expressionField.addEventListener("unhover", () => {
+      this.dslView.clearHighlight();
+    });
 
     this.matchOptions = new MatchOptions();
     this.matchOptions.addEventListener("change", () =>
@@ -232,6 +241,7 @@ export class App {
       this.expressionField.error = null;
       this.dslView.value = "";
       this.dslView.error = null;
+      this.dslView.sourceMap = [];
       this.updateMatchCount(0, "match-count");
       return;
     }
@@ -369,7 +379,14 @@ export class App {
         break;
       case "convertToDSL":
         if (response.result) {
-          this.dslView.value = JSON.parse(response.result);
+          const dslResult = JSON.parse(response.result);
+          if (typeof dslResult === "string") {
+            this.dslView.value = dslResult;
+            this.dslView.sourceMap = [];
+          } else {
+            this.dslView.value = dslResult.dsl;
+            this.dslView.sourceMap = dslResult.sourceMap;
+          }
         }
         if (response.error) {
           try {

@@ -10,9 +10,9 @@ struct Main {
         .map { String($0) }
 
       let converter = DSLConverter()
-      let builderDSL = try converter.convert(pattern, matchingOptions: matchingOptions)
+      let result = converter.convertWithSourceMap(pattern, matchingOptions: matchingOptions)
 
-      let data = try JSONEncoder().encode(builderDSL)
+      let data = try JSONEncoder().encode(result)
       print(String(data: data, encoding: .utf8) ?? "")
 
       if let diagnostics = converter.diagnostics {

@@ -181,3 +181,10 @@ span.debuggermatch {
 span.debuggerbacktrack {
   background: rgba(255, 0, 0, 0.2);
 }
+
+.dsl-highlight-selected {
+  background: rgba(112, 176, 224, 0.3);
+}
+.dsl-highlight-related {
+  background: rgba(112, 176, 224, 0.15);
+}
