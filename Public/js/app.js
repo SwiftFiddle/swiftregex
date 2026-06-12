@@ -269,6 +269,8 @@ export class App {
       this.dslView.error = null;
       this.dslView.sourceMap = [];
       this.updateMatchCount(0, "match-count");
+      this.patternTestEditor.matches = [];
+      this.patternTestEditor.error = null;
       document.getElementById("debugger-button").disabled = true;
       return;
     }
@@ -456,6 +458,9 @@ export class App {
             document.getElementById("match-count").textContent = "Timed out";
           } else {
             this.updateMatchCount(0, "match-count");
+          }
+          if (response.error && response.error !== "Timed out") {
+            document.getElementById("debugger-button").disabled = true;
           }
         }
 
