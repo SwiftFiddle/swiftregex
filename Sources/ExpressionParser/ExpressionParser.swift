@@ -440,7 +440,7 @@ struct ExpressionParser {
               end: quant.amount.location.end.utf16Offset(in: pattern)
             )
           ),
-          tooltip: Tooltip(category: "quants", key: "lazy")
+          tooltip: Tooltip(category: "quants", key: "lazy", substitution: ["{{getLazy()}}": "lazy", "{{getLazyFew()}}": "few"])
         )
       )
     case .possessive:

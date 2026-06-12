@@ -185,7 +185,7 @@ const references = {
     },
     textsegment: {
       title: "Text segment",
-      detail: `Equivalent to (?>\O(?:\Y\O)*)`,
+      detail: "Equivalent to (?>\\O(?:\\Y\\O)*)",
     },
     nottextsegment: {
       title: "Not text segment",
@@ -237,7 +237,7 @@ const references = {
     },
     prune: {
       title: "Backtracking control",
-      detail: `acktracking cannot cross (*PRUNE). In simple cases, the use of (*PRUNE) is just an alternative to an atomic group or possessive quantifier, but there are some uses of (*PRUNE) that cannot be expressed in any other way.`,
+      detail: `Backtracking cannot cross (*PRUNE). In simple cases, the use of (*PRUNE) is just an alternative to an atomic group or possessive quantifier, but there are some uses of (*PRUNE) that cannot be expressed in any other way.`,
     },
     skip: {
       title: "Backtracking control",
@@ -246,6 +246,11 @@ const references = {
     then: {
       title: "Backtracking control",
       detail: `This verb causes a skip to the next alternation if the rest of the pattern does not match. That is, it cancels pending backtracking, but only within the current alternation.`,
+    },
+
+    invalid: {
+      title: "Invalid property",
+      detail: "Unrecognized or invalid Unicode property expression.",
     },
   },
 
@@ -290,10 +295,6 @@ const references = {
       detail: "Matches the end position of the previous match.",
     },
 
-    invalid: {
-      title: "Invalid character class",
-      detail: "No overview available.",
-    },
   },
 
   escchars: {
