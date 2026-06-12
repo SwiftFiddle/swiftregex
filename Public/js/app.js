@@ -265,6 +265,7 @@ export class App {
       this.dslView.error = null;
       this.dslView.sourceMap = [];
       this.updateMatchCount(0, "match-count");
+      document.getElementById("debugger-button").disabled = true;
       return;
     }
 
@@ -400,6 +401,7 @@ export class App {
         } else {
           this.expressionField.tokens = [];
         }
+        const debuggerButton = document.getElementById("debugger-button");
         if (response.error) {
           try {
             const error = JSON.parse(response.error);
@@ -409,8 +411,10 @@ export class App {
           } catch (e) {
             this.expressionField.error = response.error;
           }
+          debuggerButton.disabled = true;
         } else {
           this.expressionField.error = null;
+          debuggerButton.disabled = !response.result;
         }
         break;
       case "convertToDSL":
@@ -438,14 +442,10 @@ export class App {
         }
         break;
       case "match":
-        const debuggerButton = document.getElementById("debugger-button");
-
         if (response.result) {
           const matches = JSON.parse(response.result);
           this.patternTestEditor.matches = matches;
           this.updateMatchCount(matches.length, "match-count");
-
-          debuggerButton.disabled = matches.length === 0;
         } else {
           this.patternTestEditor.matches = [];
           if (response.error === "Timed out") {
@@ -453,8 +453,6 @@ export class App {
           } else {
             this.updateMatchCount(0, "match-count");
           }
-
-          debuggerButton.disabled = true;
         }
 
         this.patternTestEditor.error =
