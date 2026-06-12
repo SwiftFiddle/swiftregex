@@ -259,6 +259,10 @@ export class App {
 
   onExpressionFieldChange() {
     if (!this.expressionField.value) {
+      const id = String(++this._reqSeq);
+      for (const method of ["parseExpression", "convertToDSL", "match"]) {
+        this._latestId[method] = id;
+      }
       this.expressionField.tokens = [];
       this.expressionField.error = null;
       this.dslView.value = "";
