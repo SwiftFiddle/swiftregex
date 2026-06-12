@@ -163,12 +163,16 @@ export class ExpressionField extends EventDispatcher {
     this.activeTooltips = tippy(tooltipSelector, {
       ...tooltipProps,
       onUntrigger: (instance, event) => {
-        const related = event.relatedTarget?.closest?.("[data-token-index]");
-        if (
-          related &&
-          related.dataset.tokenIndex === this._hoverTokenIndex
-        ) {
-          return;
+        if (event) {
+          const related = event.relatedTarget?.closest?.(
+            "[data-token-index]",
+          );
+          if (
+            related &&
+            related.dataset.tokenIndex === this._hoverTokenIndex
+          ) {
+            return;
+          }
         }
         this.highlighter.clearHover();
         this._hoverTokenIndex = null;

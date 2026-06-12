@@ -148,7 +148,8 @@ Editor.create = (target, opts = {}, width = "100%", height = "100%") => {
         if (!tr.docChanged) return tr;
         let hasNewline = false;
         tr.changes.iterChanges((fromA, toA, fromB, toB, inserted) => {
-          if (inserted.toString().includes("\n")) hasNewline = true;
+          const text = inserted.toString();
+          if (text.includes("\n") || text.includes("\r")) hasNewline = true;
         });
         if (!hasNewline) return tr;
         const changes = [];
@@ -169,15 +170,24 @@ Editor.create = (target, opts = {}, width = "100%", height = "100%") => {
     extensions.push(
       EditorState.transactionFilter.of((tr) => {
         if (!tr.docChanged || tr.newDoc.length <= maxLength) return tr;
-        return [
-          {
-            changes: {
-              from: 0,
-              to: tr.state.doc.length,
-              insert: tr.newDoc.sliceString(0, maxLength),
-            },
-          },
-        ];
+        let remaining = tr.newDoc.length - maxLength;
+        const changes = [];
+        tr.changes.iterChanges((fromA, toA, fromB, toB, inserted) => {
+          const text = inserted.toString();
+          const growth = text.length - (toA - fromA);
+          if (remaining > 0 && growth > 0) {
+            const trim = Math.min(remaining, growth);
+            remaining -= trim;
+            changes.push({
+              from: fromA,
+              to: toA,
+              insert: text.slice(0, text.length - trim),
+            });
+          } else {
+            changes.push({ from: fromA, to: toA, insert: text });
+          }
+        });
+        return [{ changes }];
       }),
     );
   }

@@ -404,11 +404,22 @@ class DSLConverter {
   private func findMatchingBrace(in str: String, from openBrace: String.Index) -> String.Index? {
     var depth = 0
     var i = openBrace
+    var inString = false
     while i < str.endIndex {
-      if str[i] == "{" { depth += 1 }
-      if str[i] == "}" {
-        depth -= 1
-        if depth == 0 { return str.index(after: i) }
+      let ch = str[i]
+      if ch == "\\" && inString {
+        // skip escaped character
+        i = str.index(after: i)
+        if i < str.endIndex { i = str.index(after: i) }
+        continue
+      }
+      if ch == "\"" { inString = !inString }
+      if !inString {
+        if ch == "{" { depth += 1 }
+        if ch == "}" {
+          depth -= 1
+          if depth == 0 { return str.index(after: i) }
+        }
       }
       i = str.index(after: i)
     }
