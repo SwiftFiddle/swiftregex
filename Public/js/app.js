@@ -476,7 +476,8 @@ export class App {
             matches.length ? App.buildMatchListTooltip(matches) : "",
           );
 
-          debuggerButton.disabled = matches.length === 0;
+          document.getElementById("debugger-button").disabled =
+            matches.length === 0;
         } else {
           this.patternTestEditor.matches = [];
           this.matchCountTooltip.setContent("");

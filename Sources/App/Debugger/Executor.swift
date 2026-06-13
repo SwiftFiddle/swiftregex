@@ -158,7 +158,8 @@ extension Processor {
           context.resets = metrics.resets
           context.backtracks = metrics.backtracks
         #endif
-        if context.stepCount == context.breakPoint {
+        if context.stepCount == context.breakPoint ||
+          context.stepCount >= context.maxStepCount {
           throw CancellationError()
         }
       }
