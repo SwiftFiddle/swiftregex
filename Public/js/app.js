@@ -276,12 +276,19 @@ export class App {
 
   onExpressionFieldChange() {
     if (!this.expressionField.value) {
+      const id = String(++this._reqSeq);
+      for (const method of ["parseExpression", "convertToDSL", "match"]) {
+        this._latestId[method] = id;
+      }
       this.expressionField.tokens = [];
       this.expressionField.error = null;
       this.dslView.value = "";
       this.dslView.error = null;
       this.dslView.sourceMap = [];
       this.updateMatchCount(0, "match-count");
+      this.patternTestEditor.matches = [];
+      this.patternTestEditor.error = null;
+      document.getElementById("debugger-button").disabled = true;
       return;
     }
 
@@ -417,18 +424,24 @@ export class App {
         } else {
           this.expressionField.tokens = [];
         }
+        const debuggerButton = document.getElementById("debugger-button");
+        let hasError = false;
         if (response.error) {
           try {
             const error = JSON.parse(response.error);
-            if (error) {
+            if (error && (!Array.isArray(error) || error.length > 0)) {
               this.expressionField.error = error;
+              hasError = true;
             }
           } catch (e) {
             this.expressionField.error = response.error;
+            hasError = true;
           }
-        } else {
+        }
+        if (!hasError) {
           this.expressionField.error = null;
         }
+        debuggerButton.disabled = hasError || !response.result;
         break;
       case "convertToDSL":
         if (response.result) {
@@ -455,8 +468,6 @@ export class App {
         }
         break;
       case "match":
-        const debuggerButton = document.getElementById("debugger-button");
-
         if (response.result) {
           const matches = JSON.parse(response.result);
           this.patternTestEditor.matches = matches;
@@ -473,7 +484,9 @@ export class App {
             document.getElementById("match-count").textContent = "Timed out";
           } else {
             this.updateMatchCount(0, "match-count");
-            debuggerButton.disabled = true;
+          }
+          if (response.error && response.error !== "Timed out") {
+            document.getElementById("debugger-button").disabled = true;
           }
         }
 
