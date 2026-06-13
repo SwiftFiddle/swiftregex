@@ -627,6 +627,8 @@ export class App {
     let display;
     if (value == null) {
       display = `<span style="color:#6c757d;">nil</span>`;
+    } else if (value === "") {
+      display = `<span style="color:#6c757d;">empty string</span>`;
     } else {
       display = App.formatDisplayValue(value);
     }
