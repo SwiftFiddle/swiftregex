@@ -179,4 +179,5 @@ export default class TestHighlighter extends EventDispatcher {
       effects: this.setMatches.of(Decoration.none),
     });
   }
+
 }

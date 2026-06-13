@@ -44,29 +44,68 @@ struct Matcher {
           )
         }
       }
+      let matchValue = String(text[$0.range])
       return Match(
         location: Location(
           start: $0.range.lowerBound.utf16Offset(in: text),
           end: $0.range.upperBound.utf16Offset(in: text)
         ),
-        value: String(text[$0.range]),
-        captures: captures
+        value: matchValue,
+        captures: captures,
+        scalars: scalarInfos(for: matchValue)
       )
     }
+  }
+
+  private static func scalarInfos(for string: String) -> [ScalarInfo]? {
+    var infos: [ScalarInfo] = []
+    var hasInteresting = false
+    var scalarCount = 0
+    for scalar in string.unicodeScalars {
+      scalarCount += 1
+      let cat = scalar.properties.generalCategory
+      if !hasInteresting {
+        if cat == .format || cat == .control ||
+          cat == .nonspacingMark || cat == .spacingMark || cat == .enclosingMark {
+          hasInteresting = true
+        }
+      }
+      let name: String
+      if let n = scalar.properties.name, !n.isEmpty {
+        name = n
+      } else {
+        name = String(format: "U+%04X", scalar.value)
+      }
+      let isVisible = cat != .format && cat != .control && cat != .surrogate
+        && cat != .nonspacingMark
+      infos.append(ScalarInfo(
+        code: String(format: "U+%04X", scalar.value),
+        value: isVisible ? String(scalar) : "",
+        name: name
+      ))
+    }
+    guard hasInteresting || scalarCount != string.count else { return nil }
+    return infos
   }
 }
 
 struct Match: Codable {
   let location: Location
   let value: String
-
   let captures: [Group]
+  let scalars: [ScalarInfo]?
 }
 
 struct Group: Codable {
   let location: Location?
   let value: String?
   let name: String?
+}
+
+struct ScalarInfo: Codable {
+  let code: String
+  let value: String
+  let name: String
 }
 
 struct Location: Codable {

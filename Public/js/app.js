@@ -1,6 +1,7 @@
 "use strict";
 
 import { Tooltip } from "bootstrap";
+import tippy from "tippy.js";
 import { ExpressionField } from "./views/expression_field";
 import { MatchOptions } from "./views/match_options";
 import { TestEditor } from "./views/test_editor";
@@ -8,6 +9,7 @@ import { DSLView } from "./views/dsl_view";
 import { DSLEditor } from "./views/dsl_editor";
 import { DebuggerText } from "./views/debugger_text";
 import { Runner } from "./runner";
+import Utils from "./misc/utils";
 
 export class App {
   constructor() {
@@ -108,6 +110,21 @@ export class App {
     this.dslView.addEventListener("dslunhover", () => {
       this.expressionField.clearPatternHighlight();
     });
+
+    this.matchCountTooltip = tippy(
+      document.getElementById("match-count"),
+      {
+        allowHTML: true,
+        animation: false,
+        placement: "bottom-end",
+        interactive: true,
+        appendTo: () => document.body,
+        content: "",
+        onShow: (instance) => {
+          if (!instance.props.content) return false;
+        },
+      },
+    );
 
     this._reqSeq = 0;
     this._latestId = {};
@@ -455,8 +472,14 @@ export class App {
           const matches = JSON.parse(response.result);
           this.patternTestEditor.matches = matches;
           this.updateMatchCount(matches.length, "match-count");
+          this.matchCountTooltip.setContent(
+            matches.length ? App.buildMatchListTooltip(matches) : "",
+          );
+
+          debuggerButton.disabled = matches.length === 0;
         } else {
           this.patternTestEditor.matches = [];
+          this.matchCountTooltip.setContent("");
           if (response.error === "Timed out") {
             document.getElementById("match-count").textContent = "Timed out";
           } else {
@@ -529,5 +552,93 @@ export class App {
         }
         break;
     }
+  }
+
+  static buildMatchListTooltip(matches) {
+    let html = `<div class="text-start font-monospace" style="min-width:240px;max-width:520px;min-height:120px;max-height:400px;overflow-y:auto;">`;
+    html += `<table style="border-collapse:collapse;">`;
+
+    for (const [i, m] of matches.entries()) {
+      if (i > 0) {
+        html += `<tr><td colspan="3" style="padding:0;height:6px;"></td></tr>`;
+      }
+      const captureCount = m.captures.length;
+      html += App.matchRow(`#${i + 1}`, ".0", m.value, captureCount > 0 ? captureCount + 1 : 0);
+
+      for (const [j, c] of m.captures.entries()) {
+        const label = c.name
+          ? `.${Utils.htmlSafe(c.name)}`
+          : `.${j + 1}`;
+        html += App.matchRow(null, label, c.value, 0);
+      }
+    }
+
+    html += `</table></div>`;
+    return html;
+  }
+
+  static invisibleCharLabel(cp) {
+    const map = {
+      0x200D: "ZWJ", 0x200C: "ZWNJ", 0x200B: "ZWS",
+      0xFEFF: "BOM", 0xFE0F: "VS16", 0xFE0E: "VS15",
+      0x00AD: "SHY", 0x061C: "ALM",
+      0x200E: "LRM", 0x200F: "RLM",
+      0x2028: "LS", 0x2029: "PS",
+      0x202A: "LRE", 0x202B: "RLE", 0x202C: "PDF",
+      0x202D: "LRO", 0x202E: "RLO",
+      0x2066: "LRI", 0x2067: "RLI", 0x2068: "FSI", 0x2069: "PDI",
+    };
+    return map[cp] || null;
+  }
+
+  static formatDisplayValue(value) {
+    const ws = "color:rgba(127,127,127,0.5)";
+    const tag = "font-size:0.7em;background:rgba(127,127,127,0.25);border-radius:2px;padding:0 3px;vertical-align:middle;color:rgba(200,200,200,0.8)";
+    const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+    let s = "";
+    for (const { segment } of segmenter.segment(value)) {
+      if (segment === " ") {
+        s += `<span style="${ws}">&#x2423;</span>`;
+      } else if (segment === "\n") {
+        s += `<span style="${ws}">&#xAC;</span>`;
+      } else if (segment === "\t") {
+        s += `<span style="${ws}">&#x21E5;</span>`;
+      } else if (segment === "\r") {
+        s += `<span style="${ws}">&#x21B5;</span>`;
+      } else if ([...segment].length === 1) {
+        const cp = segment.codePointAt(0);
+        const label = App.invisibleCharLabel(cp);
+        if (label) {
+          s += `<span style="${tag}">${label}</span>`;
+        } else if (cp < 0x20 || (cp >= 0x7F && cp <= 0x9F)) {
+          const hex = cp.toString(16).toUpperCase().padStart(2, "0");
+          s += `<span style="${tag}">0x${hex}</span>`;
+        } else {
+          s += Utils.htmlSafe(segment);
+        }
+      } else {
+        s += Utils.htmlSafe(segment);
+      }
+    }
+    return s;
+  }
+
+  static matchRow(num, label, value, rowspan) {
+    let display;
+    if (value == null) {
+      display = `<span style="color:#6c757d;">nil</span>`;
+    } else {
+      display = App.formatDisplayValue(value);
+    }
+    let numCell = "";
+    if (num) {
+      const rs = rowspan > 0 ? ` rowspan="${rowspan}"` : "";
+      numCell = `<td style="padding:1px 8px 1px 0;color:#6c757d;vertical-align:top;white-space:nowrap;"${rs}>${num}</td>`;
+    }
+    return `<tr>
+      ${numCell}
+      <td style="padding:1px 16px 1px 0;color:#6c757d;vertical-align:top;white-space:nowrap;">${label}</td>
+      <td style="padding:1px 0;word-break:break-all;">${display}</td>
+    </tr>`;
   }
 }
