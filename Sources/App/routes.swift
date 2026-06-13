@@ -217,7 +217,7 @@ func routes(_ app: Application) throws {
           didTimeout = true
           process.terminate()
           let pid = process.processIdentifier
-          DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
+          syncQueue.asyncAfter(deadline: .now() + 1) {
             if process.isRunning {
               kill(pid, SIGKILL)
             }
