@@ -116,12 +116,6 @@ func routes(_ app: Application) throws {
           try run(pattern: pattern, text: text, matchingOptions: matchOptions)
           let stepCount = context.stepCount
 
-          if stepCount >= context.maxStepCount {
-            let response = ResultResponse(method: .debug, result: "", error: "Timed out", id: id)
-            continuation.resume(returning: response)
-            return
-          }
-
           try run(pattern: pattern, text: text, matchingOptions: matchOptions, until: breakPoint)
 
           let metrics = Debugger.Metrics(

@@ -475,9 +475,6 @@ export class App {
           this.matchCountTooltip.setContent(
             matches.length ? App.buildMatchListTooltip(matches) : "",
           );
-
-          document.getElementById("debugger-button").disabled =
-            matches.length === 0;
         } else {
           this.patternTestEditor.matches = [];
           this.matchCountTooltip.setContent("");
@@ -485,9 +482,6 @@ export class App {
             document.getElementById("match-count").textContent = "Timed out";
           } else {
             this.updateMatchCount(0, "match-count");
-          }
-          if (response.error && response.error !== "Timed out") {
-            document.getElementById("debugger-button").disabled = true;
           }
         }
 
