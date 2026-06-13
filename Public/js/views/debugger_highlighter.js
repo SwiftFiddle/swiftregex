@@ -13,7 +13,7 @@ class TraceWidget extends WidgetType {
     const span = document.createElement("span");
     span.className = this.className;
     span.style.display = "inline-block";
-    span.style.height = `${view.defaultLineHeight * 1.5}px`;
+    span.style.height = `${view.defaultLineHeight}px`;
     span.style.width = this.useCharWidth
       ? `${view.defaultCharacterWidth}px`
       : "1px";
