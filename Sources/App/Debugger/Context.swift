@@ -7,6 +7,7 @@ extension Debugger {
 
     var stepCount = 0
     var breakPoint: Int?
+    var maxStepCount = 1_000_000
 
     var start: Int = 0
     var current: Int = 0
