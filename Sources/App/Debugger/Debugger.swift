@@ -5,15 +5,14 @@ import Foundation
 
 struct Debugger {
   func run(pattern: String, text: String, matchingOptions: [String] = [], context: Debugger.Context) throws {
-    let ast = try _RegexParser.parse(pattern, .traditional)
+    var inlineFlags = ""
+    if matchingOptions.contains("m") { inlineFlags += "m" }
+    if matchingOptions.contains("i") { inlineFlags += "i" }
+    if matchingOptions.contains("s") { inlineFlags += "s" }
+    let effectivePattern = inlineFlags.isEmpty ? pattern : "(?\(inlineFlags))" + pattern
+    let ast = try _RegexParser.parse(effectivePattern, .traditional)
 
     var sequence = [AST.MatchingOption]()
-    if matchingOptions.contains("i") {
-      sequence.append(.init(.caseInsensitive, location: .fake))
-    }
-    if matchingOptions.contains("s") {
-      sequence.append(.init(.singleLine, location: .fake))
-    }
     if matchingOptions.contains("asciiOnlyWordCharacters") {
       sequence.append(.init(.asciiOnlyWord, location: .fake))
     }
@@ -84,6 +83,8 @@ struct Debugger {
 
     var traces: [Trace]
     var failure: Location
+
+    var matchOptions: [String]?
   }
 
   struct Trace: Codable {

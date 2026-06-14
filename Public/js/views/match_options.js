@@ -49,6 +49,8 @@ export class MatchOptions extends EventDispatcher {
     document.querySelectorAll(".match-options-item").forEach((listItem) => {
       if (options.includes(listItem.dataset.value)) {
         listItem.classList.add("active-tick");
+      } else {
+        listItem.classList.remove("active-tick");
       }
     });
 

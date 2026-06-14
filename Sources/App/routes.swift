@@ -135,6 +135,7 @@ func routes(_ app: Application) throws {
               )
             ],
             failure: Debugger.Location(start: context.current, end: context.failurePosition),
+            matchOptions: matchOptions.isEmpty ? nil : matchOptions
           )
           let data = try JSONEncoder().encode(metrics)
 
