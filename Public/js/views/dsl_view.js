@@ -65,6 +65,10 @@ export class DSLView extends EventDispatcher {
   }
 
   init(container) {
+    container.style.display = "flex";
+    container.style.flexDirection = "column";
+    container.style.overflow = "hidden";
+
     this.view = Editor.create(
       container,
       {
@@ -87,8 +91,9 @@ export class DSLView extends EventDispatcher {
         ],
       },
       "100%",
-      "100%",
+      null,
     );
+    this.view.dom.style.minHeight = "0";
     this.widgets = [];
   }
 
