@@ -540,6 +540,98 @@ export class App {
           const previousBacktracks = Number(backtracks.textContent);
           backtracks.textContent = metrics.backtracks;
 
+          const flagsList = document.getElementById("debugger-flags-list");
+          const opts = metrics.matchOptions || [];
+          flagsList.innerHTML = "";
+          const sections = [
+            {
+              items: [
+                { key: "m", label: "multiline" },
+                { key: "i", label: "case insensitive" },
+                { key: "s", label: "single line" },
+                { key: "asciiOnlyWordCharacters", label: "ASCII only word" },
+                { key: "asciiOnlyDigits", label: "ASCII only digit" },
+                { key: "asciiOnlyWhitespace", label: "ASCII only space" },
+                { key: "asciiOnlyCharacterClasses", label: "ASCII only POSIX" },
+              ],
+            },
+            {
+              header: "Matching Semantics",
+              items: [
+                {
+                  key: "matchingSemantics:graphemeCluster",
+                  label: "Grapheme cluster",
+                  isDefault: true,
+                },
+                {
+                  key: "matchingSemantics:unicodeScalar",
+                  label: "Unicode scalar",
+                },
+              ],
+            },
+            {
+              header: "Repetition Behavior",
+              items: [
+                {
+                  key: "repetitionBehavior:eager",
+                  label: "Eager",
+                  isDefault: true,
+                },
+                { key: "repetitionBehavior:reluctant", label: "Reluctant" },
+                { key: "repetitionBehavior:possessive", label: "Possessive" },
+              ],
+            },
+            {
+              header: "Word Boundary",
+              items: [
+                {
+                  key: "wordBoundaryKind:default",
+                  label: "Unicode",
+                  isDefault: true,
+                },
+                { key: "wordBoundaryKind:simple", label: "Simple" },
+              ],
+            },
+          ];
+          for (const section of sections) {
+            if (section.header) {
+              const hr = document.createElement("li");
+              hr.innerHTML = '<hr class="my-1">';
+              flagsList.appendChild(hr);
+              const header = document.createElement("li");
+              header.className = "px-3 text-muted";
+              header.style.fontSize = "85%";
+              header.style.fontWeight = "600";
+              header.textContent = section.header;
+              flagsList.appendChild(header);
+            }
+            for (const item of section.items) {
+              const isRadio = !!section.header;
+              let active;
+              if (isRadio) {
+                active = opts.includes(item.key) ||
+                  (item.isDefault && !section.items.some(
+                    (i) => !i.isDefault && opts.includes(i.key),
+                  ));
+              } else {
+                active = opts.includes(item.key);
+              }
+              const li = document.createElement("li");
+              li.className = "px-3 py-1 d-flex justify-content-between align-items-center";
+              const label = document.createElement("span");
+              label.textContent = item.label;
+              li.appendChild(label);
+              if (active) {
+                const check = document.createElement("i");
+                check.classList.add("bi", "bi-check");
+                check.style.color = "#0d6efd";
+                check.style.marginLeft = "8px";
+                li.appendChild(check);
+              }
+              flagsList.appendChild(li);
+            }
+          }
+
           this.debuggerText.highlighter.draw(
             metrics.traces,
             previousBacktracks < metrics.backtracks ? metrics.failure : null,
