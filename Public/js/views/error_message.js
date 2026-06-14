@@ -11,14 +11,14 @@ ErrorMessage.create = (message) => {
   container.appendChild(wrapper);
   const iconWrapper = document.createElement("div");
   wrapper.appendChild(iconWrapper);
-  const icon = document.createElement("span");
+  const icon = document.createElement("i");
   icon.classList.add(
-    "fa-solid",
-    "fa-octagon-xmark",
-    "fa-xs",
+    "bi",
+    "bi-x-octagon-fill",
     "text-danger",
     "px-2",
   );
+  icon.style.fontSize = "0.75em";
   iconWrapper.appendChild(icon);
   const messageWrapper = document.createElement("div");
   messageWrapper.classList.add("text-nowrap");

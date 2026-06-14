@@ -1,8 +1,12 @@
-.match-options-item svg,
-.match-options-radio svg {
+.bi {
+  font-size: 1.0625em;
+}
+
+.match-options-item .bi-check,
+.match-options-radio .bi-check {
   display: none;
 }
-.active-tick svg {
+.active-tick .bi-check {
   display: inline-block;
   color: #0d6efd;
   float: right;
