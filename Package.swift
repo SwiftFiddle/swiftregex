@@ -8,7 +8,7 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/swiftlang/swift-experimental-string-processing.git", branch: "main"),
-    .package(url: "https://github.com/vapor/vapor.git", from: "4.121.4"),
+    .package(url: "https://github.com/vapor/vapor.git", from: "4.122.0"),
     .package(url: "https://github.com/vapor/leaf.git", from: "4.5.2"),
   ],
   targets: [
